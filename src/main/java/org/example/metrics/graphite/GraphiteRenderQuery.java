@@ -56,16 +56,6 @@ public class GraphiteRenderQuery {
         return dataPoints;
     }
 
-    public int getLowestTime() {
-        int low = Integer.MAX_VALUE;
-        for (RenderDatapoint r : dataPoints) {
-            if (r.getTimestamp() < low) {
-                low = r.getTimestamp();
-            }
-        }
-        return low;
-    }
-
     public String getTarget() {
         return target;
     }

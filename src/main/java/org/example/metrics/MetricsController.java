@@ -44,7 +44,6 @@ public class MetricsController {
 
     private void setUI() {
         btnGo.setOnAction(e -> {
-            System.out.println("clicked " + e.getEventType());
             getMetrics();
         });
         ObservableList<String> dateChoices = FXCollections.observableArrayList("s", "min", "h", "d", "w", "mon", "y");
@@ -119,7 +118,6 @@ public class MetricsController {
         lineChart.getYAxis().setLabel("Value");
         lineChart.getYAxis().setSide(Side.RIGHT);
         lineChart.getXAxis().setLabel("Time");
-        System.out.println("Lowest: " + q.getLowestTime());
         lineChart.getData().add(new XYChart.Series<>("Data 1", RenderDatapoint.toChartData(q.getDataPoints())));
 
         showGraph(lineChart, q);
@@ -156,10 +154,8 @@ public class MetricsController {
         xAxis.setAutoRangeRounding(autoFit);
         if (!autoFit) {
             xAxis.setAutoRanging(false);
-            System.out.println("Range: from " + dateRange.getKey() + " to " + dateRange.getValue() + ". Diff: " + (dateRange.getKey() - dateRange.getValue()));
             xAxis.setUpperBound(dateRange.getValue());
             xAxis.setLowerBound(dateRange.getKey());
-            System.out.println("No autofit. " + xAxis.isAutoRanging() + ", " + xAxis.isAutoRangeRounding());
         }
         return xAxis;
     }
