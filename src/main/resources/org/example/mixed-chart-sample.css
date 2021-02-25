@@ -1,0 +1,17 @@
+.chart1 .chart-bar { -fx-bar-fill: #22bad9; }
+.chart1 .axis:left { -fx-tick-label-fill: #22bad9; }
+.chart1 .axis:left .axis-label { -fx-text-fill: #22bad9; }
+
+.chart2 .axis:right { -fx-tick-label-fill: #c62b00; }
+.chart2 .axis:right .axis-label { -fx-text-fill: #c62b00; }
+.chart2 .chart-series-line { -fx-stroke: #c62b00; }
+.chart2 .chart-line-symbol { -fx-background-color: #c62b00, white; }
+
+.chart3 .axis:right { -fx-tick-label-fill: green; }
+.chart3 .axis:right .axis-label { -fx-text-fill: green; }
+.chart3 .chart-symbol {
+    -fx-background-color: green;
+    -fx-background-radius: 0;
+    -fx-padding: 7px 5px 7px 5px;
+    -fx-shape: "M5,0 L10,9 L5,18 L0,9 Z";
+}
