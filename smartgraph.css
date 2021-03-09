@@ -52,3 +52,10 @@ STYLESHEET FOR JAVAFXGRAPH VISUALIZATION
     -fx-stroke-line-cap: round;
     -fx-opacity: 0.8;
 }
+
+.vertex-selected {
+    -fx-stroke-width: 3;
+    -fx-stroke: #43ac82;
+    -fx-stroke-type: inside; /* you should keep this if using arrows */
+    -fx-fill: #93d4ea;
+}

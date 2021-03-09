@@ -63,7 +63,7 @@ public class GUIController {
                 System.out.println("Single click vertex: " + smartGraphVertex.getUnderlyingVertex().element());
                 Vertex<GraphOperator> v = smartGraphVertex.getUnderlyingVertex();
                 GraphOperator op = v.element();
-                doOnVertexClicked(op);
+                doOnVertexClicked(v);
                 //
             });
 
@@ -94,7 +94,17 @@ public class GUIController {
         }
     }
 
-    private void doOnVertexClicked(GraphOperator op) {
+    private void setVertexSelected(boolean selected, GraphOperator vertex) {
+        if (vertex != null) {
+            SmartStylableNode node = graphView.getStylableVertex(vertex);
+            if (node != null) {
+                node.setStyleClass(selected ? "vertex-selected" : "vertex");
+            }
+        }
+    }
+
+    private void doOnVertexClicked(Vertex<GraphOperator> vertex) {
+        GraphOperator op = vertex.element();
         synchronized (selectedOps) {
             boolean deselected = false;
             for (int i = 0; i < 2; i++) {
@@ -123,12 +133,16 @@ public class GUIController {
                     selectedOps[1] = op;
                     op.setSelectedIndex(1);
                 } else {
-                    selectedOps[1] = selectedOps[0];
-                    selectedOps[0] = op;
-                    op.setSelectedIndex(0);
+                    setVertexSelected(false, selectedOps[0]);
+                    selectedOps[0].setSelectedIndex(-1);
+                    selectedOps[0] = selectedOps[1];
+                    selectedOps[0].setSelectedIndex(0);
+                    selectedOps[1] = op;
+                    op.setSelectedIndex(1);
                 }
                 System.out.println("selected " + op.toString());
             }
+            setVertexSelected(!deselected, op);
             updateButtons();
             graphView.update();
         }
@@ -141,19 +155,19 @@ public class GUIController {
     private void initListeners() {
         btnAddOp.setOnAction(event -> {
             if (graph != null) {
-                graph.insertVertex(new Operator("New operator"));
+                graph.insertVertex(new Operator("OP"));
                 update();
             }
         });
         btnAddSource.setOnAction(event -> {
             if (graph != null) {
-                graph.insertVertex(new SourceOperator("New source"));
+                graph.insertVertex(new SourceOperator("Source"));
                 update();
             }
         });
         btnAddSink.setOnAction(event -> {
             if (graph != null) {
-                graph.insertVertex(new SinkOperator("New sink"));
+                graph.insertVertex(new SinkOperator("Sink"));
                 update();
             }
         });
@@ -166,6 +180,8 @@ public class GUIController {
                     graph.insertEdge(from, to, new Stream());
                     from.setSelectedIndex(-1);
                     to.setSelectedIndex(-1);
+                    setVertexSelected(false, from);
+                    setVertexSelected(false, to);
                     selectedOps[0] = null;
                     selectedOps[1] = null;
                     graphView.update();

@@ -114,8 +114,8 @@
                            </children>
                         </HBox>
                         <Label text="Streams:" />
-                        <Button fx:id="btnConnect" disable="true" mnemonicParsing="false" prefHeight="25.0" prefWidth="175.0" text="Connect" />
-                        <Button fx:id="btnDisconnect" disable="true" mnemonicParsing="false" prefHeight="25.0" prefWidth="175.0" text="Disconnect" />
+                        <Button fx:id="btnConnect" disable="true" mnemonicParsing="false" prefHeight="25.0" prefWidth="175.0" text="Connect selected" />
+                        <Button fx:id="btnDisconnect" disable="true" mnemonicParsing="false" prefHeight="25.0" prefWidth="175.0" text="Remove stream" />
                      </children>
                   </VBox>
           </children>

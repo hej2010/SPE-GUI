@@ -43,7 +43,7 @@ public abstract class GraphOperator {
     @Override
     @Nonnull
     public String toString() {
-        return (isSelected() ? "[" + selectionIndex + "] " : "") + name + " (" + id + ")";
+        return (isSelected() ? "[" + (selectionIndex == 0 ? "FROM" : "TO") + "] " : "") + name + " (" + id + ")";
     }
 
     @Override
