@@ -1,4 +1,4 @@
-package org.example;
+package org.example.testing;
 
 import org.example.metrics.graphite.GraphiteRenderQuery;
 import org.example.network.NetworkRequest;
@@ -13,7 +13,7 @@ public class GraphiteTest {
         map.put("format", "json");
         map.put("target", "liebre.name.I1.EXEC.count");
         map.put("from", "-148h");
-        map.put("until", "-143h");
+        map.put("until", "");
         GraphiteRenderQuery q = GraphiteRenderQuery.run(map);
         System.out.println(q);
     }

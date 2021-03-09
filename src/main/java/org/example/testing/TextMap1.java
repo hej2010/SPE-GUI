@@ -1,4 +1,4 @@
-package org.example;
+package org.example.testing;
 
 import common.metrics.Metrics;
 import common.tuple.BaseRichTuple;

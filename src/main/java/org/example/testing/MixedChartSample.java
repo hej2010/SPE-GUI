@@ -1,4 +1,4 @@
-package org.example;
+package org.example.testing;
 
 import cern.extjfx.chart.NumericAxis;
 import cern.extjfx.chart.XYChartPane;

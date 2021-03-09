@@ -1,4 +1,4 @@
-package org.example;
+package org.example.testing;
 
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
@@ -15,20 +15,20 @@ import query.Query;
 import java.io.File;
 import java.io.FileNotFoundException;
 
-public class Main {
-    private static final String FILE_PATH= "src/main/java/org/example/CombosApp.java";
+public class JavaParserTest {
+    private static final String FILE_PATH= "src/main/java/org/example/SimpleQuery.java";
 
     public static void main(String[] args) throws FileNotFoundException {
         CompilationUnit cu = StaticJavaParser.parse(new File(FILE_PATH));
         VoidVisitor<Void> methodNameVisitor = new MethodNamePrinter();
         //methodNameVisitor.visit(cu, null);
 
-        ClassOrInterfaceDeclaration m = cu.getClassByName("CombosApp").get();
+        ClassOrInterfaceDeclaration m = cu.getClassByName("SimpleQuery").get();
         for (MethodDeclaration method : m.getMethods()) {
             // Make the visitor go through everything inside the method.
             method.accept(new MethodCallVisitor(), null);
-        }
 
+        }
 
     }
 
@@ -44,9 +44,10 @@ public class Main {
         @Override
         public void visit(MethodCallExpr n, Void arg) {
             // Found a method call
-            System.out.println(n.getScope() + " - " + n.getName());
+            System.out.println(n.getScope().get() + "." + n.getName());
             // Don't forget to call super, it may find more method calls inside the arguments of this method call, for example.
             super.visit(n, arg);
+            System.out.println("-----------------------");
         }
     }
 }

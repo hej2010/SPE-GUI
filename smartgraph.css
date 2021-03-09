@@ -44,3 +44,11 @@ STYLESHEET FOR JAVAFXGRAPH VISUALIZATION
     -fx-stroke-type: inside; /* you should keep this if using arrows */
     -fx-fill: yellowgreen;
 }
+
+.edge-selected {
+    -fx-stroke-width: 4;
+    -fx-stroke: #ff443d;
+    -fx-fill: transparent; /*important for curved edges */
+    -fx-stroke-line-cap: round;
+    -fx-opacity: 0.8;
+}

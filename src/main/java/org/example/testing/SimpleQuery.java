@@ -1,4 +1,4 @@
-package org.example;
+package org.example.testing;
 
 import com.codahale.metrics.graphite.GraphiteReporter;
 import com.codahale.metrics.graphite.PickledGraphite;
@@ -32,17 +32,17 @@ public class SimpleQuery {
         graphiteReporter.start(1, TimeUnit.SECONDS);
 
         Query q = new Query();
-        Source<MyTuple> source = q.addBaseSource("I1", new SourceFunction<MyTuple>() {
+        Source<MyTuple> source = q.addBaseSource("I1", new SourceFunction<>() {
             private final Random r = new Random();
 
             @Override
             public MyTuple get() {
-                Util.sleep(r.nextInt(50));
+                Util.sleep(r.nextInt(150));
                 return new MyTuple(System.currentTimeMillis(), r.nextInt(5), r.nextInt(100));
             }
         });
 
-        Operator<MyTuple, MyTuple> multiply = q.addOperator(new BaseOperator1In<MyTuple, MyTuple>("M") {
+        Operator<MyTuple, MyTuple> multiply = q.addOperator(new BaseOperator1In<>("M") {
             @Override
             public List<MyTuple> processTupleIn1(MyTuple tuple) {
                 List<MyTuple> result = new LinkedList<MyTuple>();
@@ -58,9 +58,7 @@ public class SimpleQuery {
         q.connect(source, multiply).connect(multiply, sink);
 
         q.activate();
-        System.out.println("Activated");
-        Util.sleep(3000);
-        System.out.println("Deactivated");
+        Util.sleep(10000);
         q.deActivate();
     }
 
