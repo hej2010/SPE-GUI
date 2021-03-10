@@ -1,4 +1,4 @@
-package org.example.data;
+package org.example.graph.data;
 
 public class MapOperator extends Operator{
 

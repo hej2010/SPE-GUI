@@ -9,7 +9,8 @@ import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import org.example.data.*;
+import org.example.graph.data.GraphOperator;
+import org.example.graph.data.GraphStream;
 
 public class SmartGraphTest extends Application {
 

@@ -14,7 +14,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
-import org.example.data.*;
+import org.example.graph.dag.DirectedGraph;
+import org.example.graph.data.*;
 
 public class GUIController {
     private VBox main;
@@ -44,44 +45,44 @@ public class GUIController {
         AnchorPane.setBottomAnchor(graphView, 0.0);
         aPGraph.getChildren().add(graphView);
 
-        initListeners();
-        Platform.runLater(() -> {
-            //IMPORTANT - Called after scene is displayed so we can have width and height values
-            graphView.init();
-            graphView.setEdgeDoubleClickAction(smartGraphEdge -> {
-                System.out.println("Double click edge: " + smartGraphEdge.getUnderlyingEdge().element());
-                //
-            });
-            graphView.setVertexDoubleClickAction(smartGraphVertex -> {
-                Vertex<GraphOperator> v = smartGraphVertex.getUnderlyingVertex();
-                //GraphOperator op = v.element();
-                //op.toggleSelected();
-                System.out.println("Double click vertex: " + v.element());
-                //
-            });
-            graphView.setVertexSingleClickAction(smartGraphVertex -> {
-                System.out.println("Single click vertex: " + smartGraphVertex.getUnderlyingVertex().element());
-                Vertex<GraphOperator> v = smartGraphVertex.getUnderlyingVertex();
-                GraphOperator op = v.element();
-                doOnVertexClicked(v);
-                //
-            });
+        initButtonListeners();
+        Platform.runLater(this::initGraph);
+    }
 
-            graphView.setEdgeSingleClickAction(smartGraphEdge -> {
-                System.out.println("Single click edge: " + smartGraphEdge.getUnderlyingEdge().element());
-                Edge<GraphStream, GraphOperator> edge = smartGraphEdge.getUnderlyingEdge();
-                if (selectedEdge == edge) {
-                    selectedEdge = null;
-                    setEdgeSelected(false, edge);
-                } else {
-                    setEdgeSelected(false, selectedEdge);
-                    selectedEdge = edge;
-                    setEdgeSelected(true, edge);
-                }
-                btnDisconnect.setDisable(selectedEdge == null);
-                graphView.update();
-                //
-            });
+    private void initGraph() {
+        //IMPORTANT - Called after scene is displayed so we can have width and height values
+        graphView.init();
+        graphView.setEdgeDoubleClickAction(smartGraphEdge -> {
+            System.out.println("Double click edge: " + smartGraphEdge.getUnderlyingEdge().element());
+            Edge<GraphStream, GraphOperator> edge = smartGraphEdge.getUnderlyingEdge();
+            if (selectedEdge == edge) {
+                selectedEdge = null;
+                setEdgeSelected(false, edge);
+            } else {
+                setEdgeSelected(false, selectedEdge);
+                selectedEdge = edge;
+                setEdgeSelected(true, edge);
+            }
+            btnDisconnect.setDisable(selectedEdge == null);
+            graphView.update();
+            graph.vertices();
+            graph.edges();
+            //
+        });
+        graphView.setVertexDoubleClickAction(smartGraphVertex -> {
+            Vertex<GraphOperator> v = smartGraphVertex.getUnderlyingVertex();
+            doOnVertexClicked(v);
+            System.out.println("Double click vertex: " + v.element());
+            //
+        });
+        graphView.setVertexSingleClickAction(smartGraphVertex -> {
+            System.out.println("Single click vertex: " + smartGraphVertex.getUnderlyingVertex().element());
+            //
+        });
+
+        graphView.setEdgeSingleClickAction(smartGraphEdge -> {
+            System.out.println("Single click edge: " + smartGraphEdge.getUnderlyingEdge().element());
+            //
         });
     }
 
@@ -127,9 +128,15 @@ public class GUIController {
             }
             if (!deselected) {
                 if (selectedOps[0] == null) {
+                    if (op instanceof SinkOperator) {
+                        return;
+                    }
                     selectedOps[0] = op;
                     op.setSelectedIndex(0);
                 } else if (selectedOps[1] == null) {
+                    if (op instanceof SourceOperator) {
+                        return;
+                    }
                     selectedOps[1] = op;
                     op.setSelectedIndex(1);
                 } else {
@@ -152,7 +159,7 @@ public class GUIController {
         btnConnect.setDisable(selectedOps[0] == null || selectedOps[1] == null);
     }
 
-    private void initListeners() {
+    private void initButtonListeners() {
         btnAddOp.setOnAction(event -> {
             if (graph != null) {
                 graph.insertVertex(new Operator("OP"));
@@ -177,6 +184,9 @@ public class GUIController {
                     GraphOperator from = selectedOps[0];
                     GraphOperator to = selectedOps[1];
                     assert from != null && to != null;
+                    if (from instanceof SinkOperator || to instanceof SourceOperator) {
+                        return;
+                    }
                     graph.insertEdge(from, to, new Stream());
                     from.setSelectedIndex(-1);
                     to.setSelectedIndex(-1);
@@ -186,6 +196,8 @@ public class GUIController {
                     selectedOps[1] = null;
                     graphView.update();
                     btnConnect.setDisable(true);
+                    DirectedGraph d = DirectedGraph.fromGraphView(graph);
+                    System.out.println(d.toString());
                 }
             }
         });

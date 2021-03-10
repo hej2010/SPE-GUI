@@ -1,6 +1,4 @@
-package org.example.data;
-
-import org.jetbrains.annotations.NotNull;
+package org.example.graph.data;
 
 import javax.annotation.Nonnull;
 import java.util.LinkedList;

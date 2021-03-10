@@ -1,4 +1,4 @@
-package org.example.data;
+package org.example.graph.data;
 
 import javax.annotation.Nonnull;
 import java.util.*;

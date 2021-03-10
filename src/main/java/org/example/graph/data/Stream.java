@@ -1,8 +1,6 @@
-package org.example.data;
+package org.example.graph.data;
 
 public class Stream extends GraphStream {
-    public Stream() {
-    }
 
     @Override
     public String toString() {

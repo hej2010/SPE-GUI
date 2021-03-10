@@ -1,23 +1,16 @@
-package org.example.data;
+package org.example.graph.data;
 
 import javax.annotation.Nonnull;
-import java.util.Objects;
 
-public abstract class GraphOperator {
-    private static int ID_COUNT = 0;
-    private final int id;
+public abstract class GraphOperator extends GraphObject {
     protected String name;
     private int selectionIndex;
     private OnSelectionChangedListener listener;
 
     public GraphOperator(String name) {
+        super();
         this.name = name;
         this.selectionIndex = -1;
-        this.id = getId();
-    }
-
-    private synchronized int getId() {
-        return ++ID_COUNT;
     }
 
     public boolean isSelected() {
@@ -52,10 +45,5 @@ public abstract class GraphOperator {
         if (o == null || getClass() != o.getClass()) return false;
         GraphOperator that = (GraphOperator) o;
         return id == that.id;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
     }
 }
