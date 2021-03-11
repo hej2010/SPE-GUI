@@ -24,15 +24,17 @@
       "code": {
         "before": "q.addMapOperator(\"@ID\", (MapFunction<@INPUT, @OUTPUT>) tuple -> {",
         "middle": "// code here\nreturn null;// @OUTPUT value\n",
-        "after": "});"
-      },
-      "input": [
-        "@INPUT"
-      ],
-      "output": [
-        "@OUTPUT"
-      ],
-      "identifier": "@ID"
+        "after": "});",
+        "placeholders": {
+          "input": [
+            "@INPUT"
+          ],
+          "output": [
+            "@OUTPUT"
+          ],
+          "identifier": "@ID"
+        }
+      }
     }
   }
 }

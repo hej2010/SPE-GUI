@@ -22,7 +22,7 @@ public class ParsedOperator {
         return definition;
     }
 
-    private static class Definition {
+    static class Definition {
         private String codeBefore, codeMiddle, codeAfter;
         private final List<String> inputPlaceholders, outputPlaceholders;
         private final String identifierPlaceholder;
