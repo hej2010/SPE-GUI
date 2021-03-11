@@ -21,7 +21,7 @@
       "Query q = new Query();"
     ],
     "Map": {
-      "before": "q.addMapOperator(\"@ID\", (MapFunction<@INPUT, @OUTPUT>) tuple -> {",
+      "before": "Operator<@INPUT, @OUTPUT> @ID = q.addMapOperator(\"@ID\", (MapFunction<@INPUT, @OUTPUT>) tuple -> {",
       "middle": "// code here\nreturn null;// @OUTPUT value\n",
       "after": "});",
       "placeholders": {
