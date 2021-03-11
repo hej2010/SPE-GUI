@@ -1,11 +1,15 @@
 package org.example.graph.data;
 
+import org.example.spe.ParsedOperator;
+
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public abstract class GraphOperator extends GraphObject {
     protected String name;
     private int selectionIndex;
     private OnSelectionChangedListener listener;
+    private ParsedOperator operatorType;
 
     public GraphOperator(String name) {
         super();
@@ -40,7 +44,7 @@ public abstract class GraphOperator extends GraphObject {
     @Override
     @Nonnull
     public String toString() {
-        return (isSelected() ? "[" + (selectionIndex == 0 ? "FROM" : "TO") + "] " : "") + name + " (" + id + ")";
+        return (isSelected() ? "[" + (selectionIndex == 0 ? "FROM" : "TO") + "] " : "") + name + " ("  + (operatorType == null ? "" : (operatorType.getName() + ", ")) + id + ")";
     }
 
     @Override
@@ -51,20 +55,13 @@ public abstract class GraphOperator extends GraphObject {
         return id == that.id;
     }
 
-    public enum Type {
-        Map("Map"),
-        FlatMap("FlatMap"),
-        Filter("Filter"),
-        KeyBy("KeyBy"),
-        Reduce("Reduce");
-
-        private final String name;
-        Type(String name) {
-            this.name = name;
-        }
-
-        public String getName() {
-            return name;
-        }
+    @Nullable
+    public ParsedOperator getOperatorType() {
+        return operatorType;
     }
+
+    public void setOperatorType(@Nullable ParsedOperator operatorType) {
+        this.operatorType = operatorType;
+    }
+
 }

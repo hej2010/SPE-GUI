@@ -9,6 +9,7 @@ import com.brunomnsilva.smartgraph.graphview.SmartGraphPanel;
 import com.brunomnsilva.smartgraph.graphview.SmartPlacementStrategy;
 import com.brunomnsilva.smartgraph.graphview.SmartStylableNode;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
@@ -16,10 +17,12 @@ import javafx.scene.layout.VBox;
 import org.example.GUI;
 import org.example.graph.dag.DirectedGraph;
 import org.example.graph.data.*;
+import org.example.spe.ParsedOperator;
 import org.example.spe.ParsedSPE;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
+import java.util.List;
 
 public class GUIController {
     private SmartGraphPanel<GraphOperator, GraphStream> graphView;
@@ -27,6 +30,7 @@ public class GUIController {
     private final GraphOperator[] selectedOps = new GraphOperator[2];
     private Edge<GraphStream, GraphOperator> selectedEdge;
     private ParsedSPE parsedSPE;
+    private GraphOperator singleClickedOperator;
 
     @FXML
     public AnchorPane aPMaster, aPGraph, aPDetails;
@@ -48,6 +52,7 @@ public class GUIController {
         selectedEdge = null;
         selectedOps[0] = null;
         selectedOps[1] = null;
+        singleClickedOperator = null;
         this.parsedSPE = parsedSPE;
         lblCurrentSPE.setText("Current SPE: " + parsedSPE.getName());
 
@@ -59,12 +64,14 @@ public class GUIController {
         AnchorPane.setBottomAnchor(graphView, 0.0);
         aPGraph.getChildren().add(graphView);
 
+        setChoiceBoxItems();
         setDetails(null);
         initButtonListeners(gui);
         Platform.runLater(this::initGraph);
     }
 
     private void setDetails(@Nullable GraphOperator selectedOperator) {
+        this.singleClickedOperator = selectedOperator;
         if (selectedOperator == null) {
             vBDetails.setVisible(false);
             vBDetails.setDisable(true);
@@ -72,7 +79,37 @@ public class GUIController {
             vBDetails.setVisible(true);
             vBDetails.setDisable(false);
             tFName.setText(selectedOperator.getName());
+            setSelectedType(selectedOperator.getOperatorType());
         }
+    }
+
+    private void setSelectedType(ParsedOperator operatorType) {
+        if (operatorType == null) {
+            cBType.getSelectionModel().select(-1);
+        } else {
+            cBType.getSelectionModel().select(operatorType.getName());
+        }
+    }
+
+    private void setChoiceBoxItems() {
+        List<String> list = parsedSPE.getOperatorNames();
+        list.add(0, "");
+        cBType.setItems(FXCollections.observableArrayList(list));
+        cBType.setOnAction(event -> {
+            if (singleClickedOperator != null) {
+                singleClickedOperator.setOperatorType(findOperatorTypeFrom(cBType.getSelectionModel().getSelectedItem()));
+                graphView.update();
+            }
+        });
+    }
+
+    private ParsedOperator findOperatorTypeFrom(String name) {
+        for (ParsedOperator pOp : parsedSPE.getOperators()) {
+            if (pOp.getName().equals(name)) {
+                return pOp;
+            }
+        }
+        return null;
     }
 
     private void initGraph() {
