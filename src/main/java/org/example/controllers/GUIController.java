@@ -1,4 +1,4 @@
-package org.example;
+package org.example.controllers;
 
 import com.brunomnsilva.smartgraph.graph.Edge;
 import com.brunomnsilva.smartgraph.graph.Graph;
@@ -10,32 +10,46 @@ import com.brunomnsilva.smartgraph.graphview.SmartPlacementStrategy;
 import com.brunomnsilva.smartgraph.graphview.SmartStylableNode;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
+import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
+import org.example.GUI;
 import org.example.graph.dag.DirectedGraph;
 import org.example.graph.data.*;
+import org.example.utils.SPE;
+
+import javax.annotation.Nullable;
+import java.io.IOException;
 
 public class GUIController {
-    private VBox main;
-    private Scene scene;
     private SmartGraphPanel<GraphOperator, GraphStream> graphView;
     private Graph<GraphOperator, GraphStream> graph;
     private final GraphOperator[] selectedOps = new GraphOperator[2];
     private Edge<GraphStream, GraphOperator> selectedEdge;
+    private SPE selectedSPE;
 
     @FXML
     public AnchorPane aPMaster, aPGraph, aPDetails;
     @FXML
     public Button btnAddSource, btnAddOp, btnAddSink, btnConnect, btnDisconnect;
+    @FXML
+    public TextField tFName;
+    @FXML
+    public ChoiceBox<String> cBType;
+    @FXML
+    public VBox vBDetails;
+    @FXML
+    public MenuItem mIChangeSpe;
+    @FXML
+    public Label lblCurrentSPE;
 
-    public void init(VBox main, Scene scene) {
-        this.main = main;
-        this.scene = scene;
-
+    public void init(GUI gui, SPE selectedSPE) {
         graph = new GraphEdgeList<>();
         selectedEdge = null;
+        selectedOps[0] = null;
+        selectedOps[1] = null;
+        this.selectedSPE = selectedSPE;
+        lblCurrentSPE.setText("Current SPE: " + selectedSPE.name);
 
         SmartPlacementStrategy strategy = new SmartCircularSortedPlacementStrategy();
         graphView = new SmartGraphPanel<>(graph, strategy);
@@ -45,8 +59,20 @@ public class GUIController {
         AnchorPane.setBottomAnchor(graphView, 0.0);
         aPGraph.getChildren().add(graphView);
 
-        initButtonListeners();
+        setDetails(null);
+        initButtonListeners(gui);
         Platform.runLater(this::initGraph);
+    }
+
+    private void setDetails(@Nullable GraphOperator selectedOperator) {
+        if (selectedOperator == null) {
+            vBDetails.setVisible(false);
+            vBDetails.setDisable(true);
+        } else {
+            vBDetails.setVisible(true);
+            vBDetails.setDisable(false);
+            tFName.setText(selectedOperator.getName());
+        }
     }
 
     private void initGraph() {
@@ -77,6 +103,7 @@ public class GUIController {
         });
         graphView.setVertexSingleClickAction(smartGraphVertex -> {
             System.out.println("Single click vertex: " + smartGraphVertex.getUnderlyingVertex().element());
+            setDetails(smartGraphVertex.getUnderlyingVertex().element());
             //
         });
 
@@ -159,7 +186,7 @@ public class GUIController {
         btnConnect.setDisable(selectedOps[0] == null || selectedOps[1] == null);
     }
 
-    private void initButtonListeners() {
+    private void initButtonListeners(GUI gui) {
         btnAddOp.setOnAction(event -> {
             if (graph != null) {
                 graph.insertVertex(new Operator("OP"));
@@ -187,6 +214,7 @@ public class GUIController {
                     if (from instanceof SinkOperator || to instanceof SourceOperator) {
                         return;
                     }
+                    // TODO cancel if creates a cycle
                     graph.insertEdge(from, to, new Stream());
                     from.setSelectedIndex(-1);
                     to.setSelectedIndex(-1);
@@ -210,6 +238,13 @@ public class GUIController {
                     graphView.update();
                     btnDisconnect.setDisable(true);
                 }
+            }
+        });
+        mIChangeSpe.setOnAction(event -> {
+            try {
+                gui.changeScene(GUI.FXML_MAIN, null);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         });
     }

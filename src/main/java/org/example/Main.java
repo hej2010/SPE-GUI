@@ -2,7 +2,7 @@ package org.example;
 
 import org.example.metrics.MetricsApp;
 
-public class GUIStarter {
+public class Main {
 
     public static void main(String[] args) {
         //MixedChartSample.main(args);

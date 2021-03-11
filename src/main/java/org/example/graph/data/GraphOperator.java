@@ -33,6 +33,10 @@ public abstract class GraphOperator extends GraphObject {
         this.listener = listener;
     }
 
+    public String getName() {
+        return name;
+    }
+
     @Override
     @Nonnull
     public String toString() {
@@ -45,5 +49,22 @@ public abstract class GraphOperator extends GraphObject {
         if (o == null || getClass() != o.getClass()) return false;
         GraphOperator that = (GraphOperator) o;
         return id == that.id;
+    }
+
+    public enum Type {
+        Map("Map"),
+        FlatMap("FlatMap"),
+        Filter("Filter"),
+        KeyBy("KeyBy"),
+        Reduce("Reduce");
+
+        private final String name;
+        Type(String name) {
+            this.name = name;
+        }
+
+        public String getName() {
+            return name;
+        }
     }
 }

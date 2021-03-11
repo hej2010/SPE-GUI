@@ -34,12 +34,14 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
@@ -47,12 +49,14 @@
 <?import javafx.scene.paint.Color?>
 <?import javafx.scene.text.Font?>
 
-<VBox prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.GUIController">
+<VBox prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.controllers.GUIController">
   <children>
     <MenuBar VBox.vgrow="NEVER">
       <menus>
         <Menu mnemonicParsing="false" text="File">
           <items>
+                  <MenuItem fx:id="mIChangeSpe" mnemonicParsing="false" text="Change SPE" />
+                  <SeparatorMenuItem mnemonicParsing="false" />
             <MenuItem mnemonicParsing="false" text="New" />
             <MenuItem mnemonicParsing="false" text="Open…" />
             <Menu mnemonicParsing="false" text="Open Recent" />
@@ -105,6 +109,11 @@
                         <Insets left="5.0" right="5.0" />
                      </padding>
                      <children>
+                        <Label fx:id="lblCurrentSPE" text="Current SPE: ">
+                           <font>
+                              <Font name="System Bold" size="12.0" />
+                           </font>
+                        </Label>
                         <Label text="Add operator:" />
                         <HBox prefWidth="200.0" spacing="2.0">
                            <children>
@@ -123,11 +132,17 @@
       <AnchorPane id="Content" fx:id="aPGraph" minHeight="-1.0" minWidth="-1.0" />
         <AnchorPane fx:id="aPDetails" prefHeight="551.0" prefWidth="360.0">
           <children>
-            <Label alignment="CENTER" font="$x1" layoutX="14.0" layoutY="14.0" style="&#10;" text="Details" textAlignment="CENTER" textFill="$x2" wrapText="false" AnchorPane.leftAnchor="14.0" AnchorPane.topAnchor="14.0" />
-                  <VBox layoutY="41.0" prefHeight="506.0" prefWidth="258.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="45.0">
+            <Label alignment="CENTER" font="$x1" layoutX="14.0" layoutY="14.0" style="&#10;" text="Operator details" textAlignment="CENTER" textFill="$x2" wrapText="false" AnchorPane.leftAnchor="14.0" AnchorPane.topAnchor="14.0" />
+                  <VBox fx:id="vBDetails" layoutY="41.0" prefHeight="506.0" prefWidth="258.0" spacing="8.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="45.0">
                      <padding>
                         <Insets left="5.0" right="5.0" />
                      </padding>
+                     <children>
+                        <Label text="Name:" />
+                        <TextField fx:id="tFName" promptText="Name" />
+                        <Label text="Type:" />
+                        <ChoiceBox fx:id="cBType" prefHeight="25.0" />
+                     </children>
                   </VBox>
           </children>
         </AnchorPane>
