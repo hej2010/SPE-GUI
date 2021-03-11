@@ -16,7 +16,7 @@ import javafx.scene.layout.VBox;
 import org.example.GUI;
 import org.example.graph.dag.DirectedGraph;
 import org.example.graph.data.*;
-import org.example.utils.SPE;
+import org.example.spe.ParsedSPE;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
@@ -26,7 +26,7 @@ public class GUIController {
     private Graph<GraphOperator, GraphStream> graph;
     private final GraphOperator[] selectedOps = new GraphOperator[2];
     private Edge<GraphStream, GraphOperator> selectedEdge;
-    private SPE selectedSPE;
+    private ParsedSPE parsedSPE;
 
     @FXML
     public AnchorPane aPMaster, aPGraph, aPDetails;
@@ -43,13 +43,13 @@ public class GUIController {
     @FXML
     public Label lblCurrentSPE;
 
-    public void init(GUI gui, SPE selectedSPE) {
+    public void init(GUI gui, ParsedSPE parsedSPE) {
         graph = new GraphEdgeList<>();
         selectedEdge = null;
         selectedOps[0] = null;
         selectedOps[1] = null;
-        this.selectedSPE = selectedSPE;
-        lblCurrentSPE.setText("Current SPE: " + selectedSPE.name);
+        this.parsedSPE = parsedSPE;
+        lblCurrentSPE.setText("Current SPE: " + parsedSPE.getName());
 
         SmartPlacementStrategy strategy = new SmartCircularSortedPlacementStrategy();
         graphView = new SmartGraphPanel<>(graph, strategy);

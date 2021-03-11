@@ -5,15 +5,15 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
-import javafx.scene.layout.VBox;
 import org.example.GUI;
+import org.example.spe.SPEParser;
 import org.example.utils.SPE;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.List;
 
 public class MainController {
@@ -30,8 +30,8 @@ public class MainController {
             SPE selected = cBChoose.getSelectionModel().getSelectedItem();
             if (selected != null) {
                 try {
-                    gui.changeScene(GUI.FXML_GUI, selected);
-                } catch (IOException e) {
+                    gui.changeScene(GUI.FXML_GUI, SPEParser.parseSPE(selected));
+                } catch (IOException | URISyntaxException e) {
                     e.printStackTrace();
                 }
             }

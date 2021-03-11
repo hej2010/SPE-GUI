@@ -5,11 +5,10 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.example.controllers.GUIController;
 import org.example.controllers.MainController;
-import org.example.utils.SPE;
+import org.example.spe.ParsedSPE;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
@@ -45,13 +44,14 @@ public class GUI extends Application {
         controller.init(this);
     }
 
-    public void changeScene(String fxml, @Nullable SPE selectedItem) throws IOException {
+    public void changeScene(String fxml, @Nullable ParsedSPE selectedItem) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(GUI.class.getResource(fxml));
         Parent pane = fxmlLoader.load();
 
         primaryStage.getScene().setRoot(pane);
-        if (fxml == FXML_GUI) {
+        if (fxml.equals(FXML_GUI)) {
             GUIController controller = fxmlLoader.getController();
+            assert selectedItem != null;
             controller.init(this, selectedItem);
         } else {
             MainController controller = fxmlLoader.getController();
