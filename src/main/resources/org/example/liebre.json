@@ -21,19 +21,17 @@
       "Query q = new Query();"
     ],
     "Map": {
-      "code": {
-        "before": "q.addMapOperator(\"@ID\", (MapFunction<@INPUT, @OUTPUT>) tuple -> {",
-        "middle": "// code here\nreturn null;// @OUTPUT value\n",
-        "after": "});",
-        "placeholders": {
-          "input": [
-            "@INPUT"
-          ],
-          "output": [
-            "@OUTPUT"
-          ],
-          "identifier": "@ID"
-        }
+      "before": "q.addMapOperator(\"@ID\", (MapFunction<@INPUT, @OUTPUT>) tuple -> {",
+      "middle": "// code here\nreturn null;// @OUTPUT value\n",
+      "after": "});",
+      "placeholders": {
+        "input": [
+          "@INPUT"
+        ],
+        "output": [
+          "@OUTPUT"
+        ],
+        "identifier": "@ID"
       }
     }
   }
