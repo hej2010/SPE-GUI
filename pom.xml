@@ -43,7 +43,7 @@
         <dependency>
             <groupId>com.github.hej2010</groupId>
             <artifactId>JavaFXSmartGraph</artifactId>
-            <version>v0.0.4</version> <!-- BUILD LOG: https://jitpack.io/com/github/hej2010/JavaFXSmartGraph/TAG/build.log -->
+            <version>v0.0.6</version> <!-- BUILD LOG: https://jitpack.io/com/github/hej2010/JavaFXSmartGraph/TAG/build.log -->
         </dependency>
     </dependencies>
     <build>

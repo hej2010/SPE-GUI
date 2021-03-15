@@ -205,6 +205,7 @@ public class GUIController {
         //IMPORTANT - Called after scene is displayed so we can have width and height values
         graphView.init();
         graphView.setAutomaticLayout(true);
+        graphView.setRepulsionForce(100);
         graphView.setEdgeDoubleClickAction(smartGraphEdge -> {
             System.out.println("Double click edge: " + smartGraphEdge.getUnderlyingEdge().element());
             Edge<GraphStream, GraphOperator> edge = smartGraphEdge.getUnderlyingEdge();
