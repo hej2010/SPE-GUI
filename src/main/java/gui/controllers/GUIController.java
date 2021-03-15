@@ -99,7 +99,6 @@ public class GUIController {
     }
 
     private void setCodeDetails(@Nullable ParsedOperator po) {
-        System.out.println("setCodeDetails " + po);
         if (po == null) {
             vBInputs.setVisible(false);
             vBOutputs.setVisible(false);
@@ -107,6 +106,7 @@ public class GUIController {
         } else {
             hBIdentifier.setVisible(true);
             ParsedOperator.Definition def = po.getDefinition();
+            btnModify.setDisable(!def.isModifiable());
             tfIdentifier.setText(def.getIdentifier());
             final int inputs = def.getInputCount();
             final int outputs = def.getOutputCount();
@@ -274,7 +274,6 @@ public class GUIController {
                     selectedOps[1] = op;
                     op.setSelectedIndex(1);
                 }
-                System.out.println("selected " + op.toString());
             }
             setVertexSelected(!deselected, op);
             updateButtons();
@@ -350,6 +349,9 @@ public class GUIController {
         btnModify.setOnAction(event -> {
             assert singleClickedOperator.getOperatorType() != null;
             ParsedOperator.Definition def = singleClickedOperator.getOperatorType().getDefinition();
+            if (!def.isModifiable()) {
+                return;
+            }
             String result = showModifyPopupWindow(def);
             if (result != null) { // null if Done was not pressed
                 def.setCodeMiddle(result);

@@ -22,6 +22,15 @@
     ],
     "Map": [
       "component.operator.in1.map.MapFunction"
+    ],
+    "FlatMap": [
+      "component.operator.in1.map.FlatMapFunction"
+    ],
+    "Filter": [
+      "component.operator.in1.filter.FilterFunction"
+    ],
+    "Router": [
+      "component.operator.router.RouterOperator"
     ]
   },
   "definition": {
@@ -58,7 +67,7 @@
       }
     },
     "Map": {
-      "before": "Operator<@IN1, @OUT1> @ID = q.addMapOperator(\"@ID\", (MapFunction<@IN1, @OUT1>) t -> {",
+      "before": "Operator<@IN1, @OUT1> @ID = q.addMapOperator(\"@ID\", (MapFunction<@IN1, @OUT1>) tuple -> {",
       "middle": "return null;",
       "after": "});",
       "placeholders": {
@@ -67,6 +76,46 @@
         ],
         "output": [
           "@OUT1"
+        ],
+        "identifier": "@ID"
+      }
+    },
+    "FlatMap": {
+      "before": "Operator<@IN1, @OUT1> @ID = q.addFlatMapOperator(\"@ID\", (FlatMapFunction<@IN1, @OUT1>) tuple -> {",
+      "middle": "return null;",
+      "after": "});",
+      "placeholders": {
+        "input": [
+          "@IN1"
+        ],
+        "output": [
+          "@OUT1"
+        ],
+        "identifier": "@ID"
+      }
+    },
+    "Filter": {
+      "before": "Operator<@IN1, @IN1> @ID = q.addFlatMapOperator(\"@ID\", (FilterFunction<@IN1>) tuple -> {",
+      "middle": "return false;",
+      "after": "});",
+      "placeholders": {
+        "input": [
+          "@IN1"
+        ],
+        "output": [
+        ],
+        "identifier": "@ID"
+      }
+    },
+    "Router": {
+      "before": "Operator<@IN1, @IN1> @ID = q.addRouterOperator(\"@ID\");",
+      "middle": "",
+      "after": "",
+      "placeholders": {
+        "input": [
+          "@IN1"
+        ],
+        "output": [
         ],
         "identifier": "@ID"
       }

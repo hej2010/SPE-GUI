@@ -6,8 +6,11 @@ import common.metrics.Metrics;
 import common.util.Util;
 import component.operator.Operator;
 import component.operator.in1.BaseOperator1In;
+import component.operator.in1.filter.FilterFunction;
+import component.operator.in1.map.FlatMapFunction;
 import component.operator.in1.map.MapFunction;
 import component.operator.in2.BaseOperator2In;
+import component.operator.router.RouterOperator;
 import component.sink.Sink;
 import component.source.Source;
 import component.source.SourceFunction;
@@ -68,6 +71,15 @@ public class SimpleQuery {
                 return null;
             }
         });
+        q.addFlatMapOperator("df", (FlatMapFunction<String, Integer>) tuple -> {
+            //
+            return null;
+        });
+        Operator<String, String> ID = q.addFilterOperator("fd", (FilterFunction<String>) s -> {
+            //
+            return false;
+        });
+        RouterOperator<Integer> r = q.addRouterOperator("");
 
         Sink<MyTuple> sink = q.addBaseSink("O1", tuple -> {
             //System.out.println(tuple.timestamp + "," + tuple.key + "," + tuple.value);

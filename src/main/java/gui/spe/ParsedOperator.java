@@ -36,6 +36,7 @@ public class ParsedOperator implements Cloneable {
         private final List<String> inputPlaceholders, outputPlaceholders;
         private final String identifierPlaceholder;
         private String identifier;
+        private final boolean modifiable;
 
         Definition(String codeBefore, String codeMiddle, String codeAfter, @Nonnull List<String> inputPlaceholders, @Nonnull List<String> outputPlaceholders, String identifierPlaceholder) {
             this.codeBefore = codeBefore;
@@ -45,12 +46,17 @@ public class ParsedOperator implements Cloneable {
             this.outputPlaceholders = outputPlaceholders;
             this.identifierPlaceholder = identifierPlaceholder;
             this.identifier = identifierPlaceholder;
+            this.modifiable = !codeMiddle.isEmpty();
         }
 
         @Override
         protected Object clone() {
             return new Definition(codeBefore, codeMiddle, codeAfter, new LinkedList<>(inputPlaceholders),
                     new LinkedList<>(outputPlaceholders), identifierPlaceholder);
+        }
+
+        public boolean isModifiable() {
+            return modifiable;
         }
 
         public String getCodeBefore(boolean replace) {
@@ -113,7 +119,9 @@ public class ParsedOperator implements Cloneable {
         }
 
         public void setCodeMiddle(@Nonnull String codeMiddle) {
-            this.codeMiddle = codeMiddle;
+            if (modifiable) {
+                this.codeMiddle = codeMiddle;
+            }
         }
 
         @Nonnull
