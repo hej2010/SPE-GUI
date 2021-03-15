@@ -82,11 +82,15 @@ public class SimpleQuery {
         RouterOperator<Integer> r = q.addRouterOperator("");
 
 
-        Sink<MyTuple> sink = q.addBaseSink("O1", tuple -> {
-            //System.out.println(tuple.timestamp + "," + tuple.key + "," + tuple.value);
+        Source<MyTuple> sink = q.addBaseSource("O1", () -> {
+            //
+            return null;
         });
+        Source<String> sink2 =q.addTextFileSource("fd",
+                "fdfd"
+        );
 
-        q.connect(source, multiply).connect(multiply, sink);
+        //q.connect(source, multiply).connect(multiply, sink);
 
         q.activate();
         Util.sleep(10000);

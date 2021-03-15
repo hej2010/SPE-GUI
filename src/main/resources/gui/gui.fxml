@@ -153,7 +153,7 @@
                         </HBox>
                         <HBox alignment="CENTER_LEFT" layoutX="15.0" layoutY="51.0" prefHeight="28.0" prefWidth="203.0">
                            <children>
-                              <Label prefHeight="17.0" prefWidth="64.0" text="Operator:" />
+                              <Label prefHeight="17.0" prefWidth="59.0" text="Operator:" />
                               <Pane>
                                  <children>
                                     <ChoiceBox fx:id="cBTypeSource" prefHeight="25.0" prefWidth="141.0" />

@@ -1,8 +1,14 @@
 {
   "name": "Liebre",
   "operators": {
-    "sources": [],
-    "sinks": [],
+    "sources": [
+      "BaseSource",
+      "TextFileSource"
+    ],
+    "sinks": [
+      "BaseSink",
+      "TextFileSink"
+    ],
     "regular": [
       "BaseOperator1In",
       "BaseOperator2In",
@@ -99,7 +105,7 @@
       }
     },
     "Filter": {
-      "before": "Operator<@IN1, @IN1> @ID = q.addFlatMapOperator(\"@ID\", (FilterFunction<@IN1>) tuple -> {",
+      "before": "Operator<@IN1, @IN1> @ID = q.addFlatMapOperator(\"@ID\", tuple -> {",
       "middle": "return false;",
       "after": "});",
       "placeholders": {
@@ -118,6 +124,57 @@
       "placeholders": {
         "input": [
           "@IN1"
+        ],
+        "output": [
+        ],
+        "identifier": "@ID"
+      }
+    },
+    "BaseSink": {
+      "before": "Sink<@OUT1> @ID = q.addBaseSink(\"@ID\", tuple -> {",
+      "middle": "//",
+      "after": "});",
+      "placeholders": {
+        "input": [
+        ],
+        "output": [
+          "@OUT1"
+        ],
+        "identifier": "@ID"
+      }
+    },
+    "TextFileSink": {
+      "before": "Sink<@OUT1> @ID = q.addTextFileSink(\"@ID\",",
+      "middle": "\"file.txt\" // path\n\"true // autoFlush\"",
+      "after": ");",
+      "placeholders": {
+        "input": [
+        ],
+        "output": [
+          "@OUT1"
+        ],
+        "identifier": "@ID"
+      }
+    },
+    "BaseSource": {
+      "before": "Source<@OUT1> @ID = q.addBaseSource(\"@ID\", () -> {",
+      "middle": "return null;",
+      "after": "});",
+      "placeholders": {
+        "input": [
+        ],
+        "output": [
+          "@OUT1"
+        ],
+        "identifier": "@ID"
+      }
+    },
+    "TextFileSource": {
+      "before": "Source<String> @ID = q.addTextFileSource(\"@ID\",",
+      "middle": "\"file.txt\" // path",
+      "after": ");",
+      "placeholders": {
+        "input": [
         ],
         "output": [
         ],
