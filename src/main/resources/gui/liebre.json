@@ -1,0 +1,38 @@
+{
+  "name": "Liebre",
+  "operators": [
+    "Map",
+    "FlatMap",
+    "Filter",
+    "Router",
+    "Aggregate",
+    "Join"
+  ],
+  "imports": {
+    "base": [
+      "query.Query"
+    ],
+    "Map": [
+      "component.operator.in1.map.MapFunction"
+    ]
+  },
+  "definition": {
+    "base": [
+      "Query q = new Query();"
+    ],
+    "Map": {
+      "before": "Operator<@INPUT1, @OUTPUT1> @ID = q.addMapOperator(\"@ID\", (MapFunction<@INPUT1, @OUTPUT1>) tuple -> {",
+      "middle": "return null;",
+      "after": "});",
+      "placeholders": {
+        "input": [
+          "@INPUT1"
+        ],
+        "output": [
+          "@OUTPUT1"
+        ],
+        "identifier": "@ID"
+      }
+    }
+  }
+}
