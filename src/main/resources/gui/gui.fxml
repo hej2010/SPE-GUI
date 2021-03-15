@@ -39,7 +39,6 @@
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
-<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.TextArea?>
@@ -132,59 +131,85 @@
           </children>
         </AnchorPane>
       <AnchorPane id="Content" fx:id="aPGraph" minHeight="-1.0" minWidth="-1.0" />
-            <ScrollPane prefHeight="551.0" prefWidth="420.0">
-               <content>
-              <AnchorPane fx:id="aPDetails" prefHeight="551.0" prefWidth="213.0">
-                <children>
-                  <Label alignment="CENTER" font="$x1" layoutX="14.0" layoutY="14.0" style="&#10;" text="Operator details" textAlignment="CENTER" textFill="$x2" wrapText="false" AnchorPane.leftAnchor="14.0" AnchorPane.topAnchor="14.0" />
-                        <VBox fx:id="vBDetails" layoutY="41.0" prefHeight="506.0" prefWidth="258.0" spacing="8.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="45.0">
-                           <padding>
-                              <Insets left="5.0" right="5.0" />
-                           </padding>
+        <AnchorPane fx:id="aPDetails">
+          <children>
+            <Label alignment="CENTER" font="$x1" layoutX="14.0" layoutY="14.0" style="&#10;" text="Operator details" textAlignment="CENTER" textFill="$x2" wrapText="false" AnchorPane.leftAnchor="14.0" AnchorPane.topAnchor="14.0" />
+                  <VBox fx:id="vBDetails" layoutY="41.0" spacing="8.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="45.0">
+                     <padding>
+                        <Insets left="5.0" right="5.0" />
+                     </padding>
+                     <children>
+                        <HBox alignment="CENTER_LEFT" prefHeight="40.0">
                            <children>
-                              <Label text="Name:" />
+                              <Label prefHeight="17.0" prefWidth="64.0" text="Name:" />
                               <TextField fx:id="tFName" promptText="Name" />
-                              <Label text="Operator:" />
-                              <ChoiceBox fx:id="cBType" prefHeight="25.0" />
-                              <VBox fx:id="vBInputs" prefWidth="350.0">
-                                 <children>
-                                    <Label text="Inputs" textAlignment="CENTER">
-                                       <font>
-                                          <Font size="14.0" />
-                                       </font>
-                                    </Label>
-                                    <Label text="Input1:" />
-                                    <TextField fx:id="tFInput1" prefHeight="25.0" promptText="Class" />
-                                    <Label text="Input2:" />
-                                    <TextField fx:id="tFInput2" prefHeight="25.0" promptText="Class" />
-                                 </children>
-                              </VBox>
-                              <VBox fx:id="vBOutputs" prefWidth="350.0">
-                                 <children>
-                                    <Label text="Outputs" textAlignment="CENTER">
-                                       <font>
-                                          <Font size="14.0" />
-                                       </font>
-                                    </Label>
-                                    <Label text="Output1:" />
-                                    <TextField fx:id="tFOutput1" prefHeight="25.0" promptText="Class" />
-                                    <Label text="Output2:" />
-                                    <TextField fx:id="tFOutput2" prefHeight="25.0" promptText="Class" />
-                                 </children>
-                              </VBox>
-                              <Label text="Code" textAlignment="CENTER">
+                           </children>
+                        </HBox>
+                        <HBox fx:id="hBIdentifier" alignment="CENTER_LEFT" prefHeight="28.0" prefWidth="203.0">
+                           <children>
+                              <Label prefHeight="17.0" prefWidth="64.0" text="Identifier:" />
+                              <TextField fx:id="tfIdentifier" promptText="Identifier" />
+                           </children>
+                        </HBox>
+                        <HBox alignment="CENTER_LEFT" layoutX="15.0" layoutY="51.0" prefHeight="28.0" prefWidth="203.0">
+                           <children>
+                              <Label prefHeight="17.0" prefWidth="60.0" text="Operator:" />
+                              <ChoiceBox fx:id="cBType" prefHeight="25.0" prefWidth="141.0" />
+                           </children>
+                        </HBox>
+                        <VBox fx:id="vBInputs" prefWidth="350.0">
+                           <children>
+                              <Label text="Inputs" textAlignment="CENTER">
                                  <font>
                                     <Font size="14.0" />
                                  </font>
                               </Label>
-                              <TextArea fx:id="tACode" editable="false" prefHeight="97.0" prefWidth="203.0" promptText="Operator code" />
-                              <Button fx:id="btnModify" mnemonicParsing="false" prefHeight="25.0" prefWidth="282.0" text="Modify" />
+                              <HBox alignment="CENTER_LEFT" prefHeight="28.0" prefWidth="203.0">
+                                 <children>
+                                    <Label prefHeight="17.0" prefWidth="64.0" text="Input1:" />
+                                    <TextField fx:id="tFInput1" prefHeight="25.0" promptText="Class" />
+                                 </children>
+                              </HBox>
+                              <HBox alignment="CENTER_LEFT" prefHeight="28.0" prefWidth="203.0">
+                                 <children>
+                                    <Label prefHeight="17.0" prefWidth="64.0" text="Input2:" />
+                                    <TextField fx:id="tFInput2" prefHeight="25.0" promptText="Class" />
+                                 </children>
+                              </HBox>
                            </children>
                         </VBox>
-                </children>
-              </AnchorPane>
-               </content>
-            </ScrollPane>
+                        <VBox fx:id="vBOutputs" prefWidth="350.0">
+                           <children>
+                              <Label text="Outputs" textAlignment="CENTER">
+                                 <font>
+                                    <Font size="14.0" />
+                                 </font>
+                              </Label>
+                              <HBox alignment="CENTER_LEFT" prefHeight="28.0" prefWidth="203.0">
+                                 <children>
+                                    <Label prefHeight="17.0" prefWidth="64.0" text="Output1:" />
+                                    <TextField fx:id="tFOutput1" prefHeight="25.0" promptText="Class" />
+                                 </children>
+                              </HBox>
+                              <HBox alignment="CENTER_LEFT" prefHeight="28.0" prefWidth="203.0">
+                                 <children>
+                                    <Label prefHeight="17.0" prefWidth="64.0" text="Output2:" />
+                                    <TextField fx:id="tFOutput2" prefHeight="25.0" promptText="Class" />
+                                 </children>
+                              </HBox>
+                           </children>
+                        </VBox>
+                        <Label text="Code" textAlignment="CENTER">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </Label>
+                        <TextArea fx:id="tACode" editable="false" prefHeight="97.0" prefWidth="203.0" promptText="Operator code" />
+                        <Button fx:id="btnModify" mnemonicParsing="false" prefHeight="25.0" prefWidth="282.0" text="Modify" />
+                     </children>
+                  </VBox>
+          </children>
+        </AnchorPane>
       </items>
     </SplitPane>
     <HBox id="HBox" alignment="CENTER_LEFT" spacing="5.0" VBox.vgrow="NEVER">

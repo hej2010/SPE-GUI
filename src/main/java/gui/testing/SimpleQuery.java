@@ -7,6 +7,7 @@ import common.util.Util;
 import component.operator.Operator;
 import component.operator.in1.BaseOperator1In;
 import component.operator.in1.map.MapFunction;
+import component.operator.in2.BaseOperator2In;
 import component.sink.Sink;
 import component.source.Source;
 import component.source.SourceFunction;
@@ -54,6 +55,18 @@ public class SimpleQuery {
         q.addMapOperator("df", (MapFunction<MyTuple, MyTuple>) myTuple -> {
             myTuple.key = 3434;
             return myTuple;
+        });
+        q.addOperator(new BaseOperator2In<String, Float, Integer>("") {
+
+            @Override
+            public List<Integer> processTupleIn1(String tuple) {
+                return null;
+            }
+
+            @Override
+            public List<Integer> processTupleIn2(Float tuple) {
+                return null;
+            }
         });
 
         Sink<MyTuple> sink = q.addBaseSink("O1", tuple -> {

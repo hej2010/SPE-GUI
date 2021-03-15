@@ -7,11 +7,15 @@ public abstract class GraphObject {
     protected final int id;
 
     public GraphObject() {
-        this.id = getId();
+        this.id = setId();
     }
 
-    private synchronized int getId() {
+    private synchronized int setId() {
         return ++ID_COUNT;
+    }
+
+    public int getId() {
+        return id;
     }
 
     @Override

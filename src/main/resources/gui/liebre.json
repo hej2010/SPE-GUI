@@ -1,6 +1,8 @@
 {
   "name": "Liebre",
   "operators": [
+    "BaseOperator1In",
+    "BaseOperator2In",
     "Map",
     "FlatMap",
     "Filter",
@@ -12,6 +14,12 @@
     "base": [
       "query.Query"
     ],
+    "BaseOperator1In": [
+      "component.operator.in1.BaseOperator1In"
+    ],
+    "BaseOperator2In": [
+      "component.operator.in2.BaseOperator2In"
+    ],
     "Map": [
       "component.operator.in1.map.MapFunction"
     ]
@@ -20,16 +28,45 @@
     "base": [
       "Query q = new Query();"
     ],
+    "BaseOperator1In": {
+      "before": "Operator<@IN1, @OUT1> @ID = new BaseOperator1In<@IN1, @OUT1>(\"@ID\") {\n@Override\npublic List<@OUT1> processTupleIn1(@IN1 tuple) {",
+      "middle": "return null;",
+      "after": "}\n});",
+      "placeholders": {
+        "input": [
+          "@IN1"
+        ],
+        "output": [
+          "@OUT1"
+        ],
+        "identifier": "@ID"
+      }
+    },
+    "BaseOperator2In": {
+      "before": "Operator<@IN1, @IN2, @OUT1> @ID = new BaseOperator2In<@IN1, @IN2, @OUT1>(\"@ID\") {",
+      "middle": "@Override\npublic List<@OUT1> processTupleIn1(@IN1 tuple) {\nreturn null;\n}\n\n@Override\npublic List<@OUT1> processTupleIn2(@IN2 tuple) {\nreturn null;\n}",
+      "after": "});",
+      "placeholders": {
+        "input": [
+          "@IN1",
+          "@IN2"
+        ],
+        "output": [
+          "@OUT1"
+        ],
+        "identifier": "@ID"
+      }
+    },
     "Map": {
-      "before": "Operator<@INPUT1, @OUTPUT1> @ID = q.addMapOperator(\"@ID\", (MapFunction<@INPUT1, @OUTPUT1>) tuple -> {",
+      "before": "Operator<@IN1, @OUT1> @ID = q.addMapOperator(\"@ID\", (MapFunction<@IN1, @OUT1>) t -> {",
       "middle": "return null;",
       "after": "});",
       "placeholders": {
         "input": [
-          "@INPUT1"
+          "@IN1"
         ],
         "output": [
-          "@OUTPUT1"
+          "@OUT1"
         ],
         "identifier": "@ID"
       }

@@ -1,9 +1,12 @@
 package gui.spe;
 
 import javax.annotation.Nonnull;
+import java.util.LinkedList;
 import java.util.List;
 
-public class ParsedOperator {
+public class ParsedOperator implements Cloneable {
+    private static final String PLACEHOLDER_IN = "@IN";
+    private static final String PLACEHOLDER_OUT = "@OUT";
     private final String name;
     private final Definition definition;
 
@@ -22,11 +25,17 @@ public class ParsedOperator {
         return definition;
     }
 
-    public static class Definition {
+    @Override
+    public ParsedOperator clone() {
+        return new ParsedOperator(name, (Definition) this.definition.clone());
+    }
+
+    public static class Definition implements Cloneable {
         private final String codeBefore, codeAfter;
         private String codeMiddle;
         private final List<String> inputPlaceholders, outputPlaceholders;
         private final String identifierPlaceholder;
+        private String identifier;
 
         Definition(String codeBefore, String codeMiddle, String codeAfter, @Nonnull List<String> inputPlaceholders, @Nonnull List<String> outputPlaceholders, String identifierPlaceholder) {
             this.codeBefore = codeBefore;
@@ -35,36 +44,35 @@ public class ParsedOperator {
             this.inputPlaceholders = inputPlaceholders;
             this.outputPlaceholders = outputPlaceholders;
             this.identifierPlaceholder = identifierPlaceholder;
+            this.identifier = identifierPlaceholder;
+        }
+
+        @Override
+        protected Object clone() {
+            return new Definition(codeBefore, codeMiddle, codeAfter, new LinkedList<>(inputPlaceholders),
+                    new LinkedList<>(outputPlaceholders), identifierPlaceholder);
         }
 
         public String getCodeBefore(boolean replace) {
-            String before = codeBefore;
-            if (replace) {
-                for (String s : inputPlaceholders) {
-                    for (int i = 1; i <= getInputCount(); i++) {
-                        String toReplace = "@INPUT" + i;
-                        if (toReplace.equals(s)) {
-                            s = "";
-                        }
-                        before = before.replace(toReplace, s);
-                    }
-                }
-                for (String s : outputPlaceholders) {
-                    for (int i = 1; i <= getOutputCount(); i++) {
-                        String toReplace = "@OUTPUT" + i;
-                        if (toReplace.equals(s)) {
-                            s = "";
-                        }
-                        before = before.replace(toReplace, s);
-                    }
-                }
-            }
-            System.out.println("Get code before: " + before);
-            return before;
+            return getReplaced(replace, codeBefore);
         }
 
-        public String getCodeMiddle() {
-            return codeMiddle;
+        public String getCodeMiddle(boolean replace) {
+            return getReplaced(replace, codeMiddle);
+        }
+
+        private String getReplaced(boolean replace, String codeMiddle) {
+            String middle = codeMiddle;
+            if (replace) {
+                for (int i = 1; i <= getInputCount(); i++) {
+                    middle = middle.replace(PLACEHOLDER_IN + i, inputPlaceholders.get(i - 1));
+                }
+                for (int i = 1; i <= getOutputCount(); i++) {
+                    middle = middle.replace(PLACEHOLDER_OUT + i, outputPlaceholders.get(i - 1));
+                }
+                middle = middle.replace(identifierPlaceholder, identifier);
+            }
+            return middle;
         }
 
         public String getCodeAfter() {
@@ -89,6 +97,7 @@ public class ParsedOperator {
             return outputPlaceholders;
         }
 
+        @Nonnull
         public String getIdentifierPlaceholder() {
             return identifierPlaceholder;
         }
@@ -103,12 +112,22 @@ public class ParsedOperator {
             outputPlaceholders.add(pos, placeholder);
         }
 
-        public void setCodeMiddle(String codeMiddle) {
+        public void setCodeMiddle(@Nonnull String codeMiddle) {
             this.codeMiddle = codeMiddle;
         }
 
+        @Nonnull
         public String getCode() {
-            return getCodeBefore(true) + "\n" + codeMiddle + "\n" + getCodeAfter();
+            return getCodeBefore(true) + "\n" + getCodeMiddle(true) + "\n" + getCodeAfter();
+        }
+
+        @Nonnull
+        public String getIdentifier() {
+            return identifier;
+        }
+
+        public void setIdentifier(@Nonnull String identifier) {
+            this.identifier = identifier.trim().replace(" ", "");
         }
     }
 }

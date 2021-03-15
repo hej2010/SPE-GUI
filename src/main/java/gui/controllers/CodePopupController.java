@@ -25,7 +25,7 @@ public class CodePopupController implements Initializable {
     public void init(@Nonnull ParsedOperator.Definition definition) {
         lblCodeBefore.setText(definition.getCodeBefore(true));
         lblCodeAfter.setText(definition.getCodeAfter());
-        tACode.setText(definition.getCodeMiddle());
+        tACode.setText(definition.getCodeMiddle(true));
     }
 
     @Override

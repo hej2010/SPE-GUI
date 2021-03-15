@@ -21,6 +21,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -44,11 +45,13 @@ public class GUIController {
     @FXML
     public Button btnAddSource, btnAddOp, btnAddSink, btnConnect, btnDisconnect, btnModify;
     @FXML
-    public TextField tFName, tFInput1, tFInput2, tFOutput1, tFOutput2;
+    public TextField tFName, tfIdentifier, tFInput1, tFInput2, tFOutput1, tFOutput2;
     @FXML
     public ChoiceBox<String> cBType;
     @FXML
     public VBox vBDetails, vBInputs, vBOutputs;
+    @FXML
+    public HBox hBIdentifier;
     @FXML
     public MenuItem mIChangeSpe;
     @FXML
@@ -96,12 +99,15 @@ public class GUIController {
     }
 
     private void setCodeDetails(@Nullable ParsedOperator po) {
+        System.out.println("setCodeDetails " + po);
         if (po == null) {
             vBInputs.setVisible(false);
             vBOutputs.setVisible(false);
+            hBIdentifier.setVisible(false);
         } else {
-            vBOutputs.setVisible(true);
+            hBIdentifier.setVisible(true);
             ParsedOperator.Definition def = po.getDefinition();
+            tfIdentifier.setText(def.getIdentifier());
             final int inputs = def.getInputCount();
             final int outputs = def.getOutputCount();
             if (inputs > 0) {
@@ -122,7 +128,7 @@ public class GUIController {
                 vBOutputs.setVisible(true);
                 List<String> in = def.getOutputPlaceholders();
                 tFOutput1.setText(in.get(0));
-                if (inputs > 1) {
+                if (outputs > 1) {
                     tFOutput2.setDisable(false);
                     tFOutput2.setText(in.get(1));
                 } else {
@@ -150,7 +156,11 @@ public class GUIController {
         cBType.setItems(FXCollections.observableArrayList(list));
         cBType.setOnAction(event -> {
             if (singleClickedOperator != null) {
-                singleClickedOperator.setOperatorType(findOperatorTypeFrom(cBType.getSelectionModel().getSelectedItem()));
+                String selected = cBType.getSelectionModel().getSelectedItem();
+                ParsedOperator po = findOperatorTypeFrom(selected);
+                System.out.println("selected " + selected + ", " + po);
+                singleClickedOperator.setOperatorType(po);
+                setDetails(singleClickedOperator);
                 graphView.update();
             }
         });
@@ -159,7 +169,7 @@ public class GUIController {
     private ParsedOperator findOperatorTypeFrom(String name) {
         for (ParsedOperator pOp : parsedSPE.getOperators()) {
             if (pOp.getName().equals(name)) {
-                return pOp;
+                return pOp.clone();
             }
         }
         return null;
@@ -372,6 +382,14 @@ public class GUIController {
                 }
             });
         }
+        tfIdentifier.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue) { // out of focus
+                assert singleClickedOperator.getOperatorType() != null;
+                ParsedOperator.Definition def = singleClickedOperator.getOperatorType().getDefinition();
+                def.setIdentifier(tfIdentifier.getText());
+                tACode.setText(def.getCode());
+            }
+        });
     }
 
     @Nullable
