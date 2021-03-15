@@ -33,10 +33,12 @@ public abstract class ParsedSPE {
     }
 
     @Nonnull
-    public List<String> getOperatorNames() {
+    public List<String> getOperatorNames(int type) {
         List<String> name = new LinkedList<>();
         for (ParsedOperator o : operators) {
-            name.add(o.getName());
+            if (type == o.getType()) {
+                name.add(o.getName());
+            }
         }
         return name;
     }

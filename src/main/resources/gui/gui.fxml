@@ -153,8 +153,14 @@
                         </HBox>
                         <HBox alignment="CENTER_LEFT" layoutX="15.0" layoutY="51.0" prefHeight="28.0" prefWidth="203.0">
                            <children>
-                              <Label prefHeight="17.0" prefWidth="60.0" text="Operator:" />
-                              <ChoiceBox fx:id="cBType" prefHeight="25.0" prefWidth="141.0" />
+                              <Label prefHeight="17.0" prefWidth="64.0" text="Operator:" />
+                              <Pane>
+                                 <children>
+                                    <ChoiceBox fx:id="cBTypeSource" prefHeight="25.0" prefWidth="141.0" />
+                                    <ChoiceBox fx:id="cBTypeRegular" prefHeight="25.0" prefWidth="141.0" />
+                                    <ChoiceBox fx:id="cBTypeSink" prefHeight="25.0" prefWidth="141.0" />
+                                 </children>
+                              </Pane>
                            </children>
                         </HBox>
                         <VBox fx:id="vBInputs" prefWidth="350.0">

@@ -47,7 +47,7 @@ public class GUIController {
     @FXML
     public TextField tFName, tfIdentifier, tFInput1, tFInput2, tFOutput1, tFOutput2;
     @FXML
-    public ChoiceBox<String> cBType;
+    public ChoiceBox<String> cBTypeSource, cBTypeRegular, cBTypeSink;
     @FXML
     public VBox vBDetails, vBInputs, vBOutputs;
     @FXML
@@ -92,8 +92,8 @@ public class GUIController {
             vBDetails.setVisible(true);
             vBDetails.setDisable(false);
             tFName.setText(selectedOperator.getName());
-            ParsedOperator po = selectedOperator.getOperatorType();
-            setSelectedType(po);
+            ParsedOperator po = selectedOperator.getParsedOperator();
+            setSelectedType(po, singleClickedOperator);
             setCodeDetails(po);
         }
     }
@@ -103,6 +103,8 @@ public class GUIController {
             vBInputs.setVisible(false);
             vBOutputs.setVisible(false);
             hBIdentifier.setVisible(false);
+            btnModify.setDisable(true);
+            tACode.setText("");
         } else {
             hBIdentifier.setVisible(true);
             ParsedOperator.Definition def = po.getDefinition();
@@ -142,7 +144,8 @@ public class GUIController {
         }
     }
 
-    private void setSelectedType(ParsedOperator operatorType) {
+    private void setSelectedType(ParsedOperator operatorType, GraphOperator singleClickedOperator) {
+        ChoiceBox<String> cBType = selectChoiceBox(singleClickedOperator);
         if (operatorType == null) {
             cBType.getSelectionModel().select(-1);
         } else {
@@ -150,15 +153,38 @@ public class GUIController {
         }
     }
 
+    private ChoiceBox<String> selectChoiceBox(GraphOperator operator) {
+        if (operator instanceof SourceOperator) {
+            cBTypeSource.setVisible(true);
+            cBTypeRegular.setVisible(false);
+            cBTypeSink.setVisible(false);
+            return cBTypeSource;
+        } else if (operator instanceof Operator) {
+            cBTypeSource.setVisible(false);
+            cBTypeRegular.setVisible(true);
+            cBTypeSink.setVisible(false);
+            return cBTypeRegular;
+        } else {
+            cBTypeSource.setVisible(false);
+            cBTypeRegular.setVisible(false);
+            cBTypeSink.setVisible(true);
+            return cBTypeSink;
+        }
+    }
+
     private void setChoiceBoxItems() {
-        List<String> list = parsedSPE.getOperatorNames();
+        prepare(parsedSPE.getOperatorNames(ParsedOperator.TYPE_SOURCE_OPERATOR), cBTypeSource);
+        prepare(parsedSPE.getOperatorNames(ParsedOperator.TYPE_REGULAR_OPERATOR), cBTypeRegular);
+        prepare(parsedSPE.getOperatorNames(ParsedOperator.TYPE_SINK_OPERATOR), cBTypeSink);
+    }
+
+    private void prepare(@Nonnull List<String> list, @Nonnull ChoiceBox<String> choiceBox) {
         list.add(0, "");
-        cBType.setItems(FXCollections.observableArrayList(list));
-        cBType.setOnAction(event -> {
+        choiceBox.setItems(FXCollections.observableArrayList(list));
+        choiceBox.setOnAction(event -> {
             if (singleClickedOperator != null) {
-                String selected = cBType.getSelectionModel().getSelectedItem();
+                String selected = choiceBox.getSelectionModel().getSelectedItem();
                 ParsedOperator po = findOperatorTypeFrom(selected);
-                System.out.println("selected " + selected + ", " + po);
                 singleClickedOperator.setOperatorType(po);
                 setDetails(singleClickedOperator);
                 graphView.update();
@@ -178,6 +204,7 @@ public class GUIController {
     private void initGraph() {
         //IMPORTANT - Called after scene is displayed so we can have width and height values
         graphView.init();
+        graphView.setAutomaticLayout(true);
         graphView.setEdgeDoubleClickAction(smartGraphEdge -> {
             System.out.println("Double click edge: " + smartGraphEdge.getUnderlyingEdge().element());
             Edge<GraphStream, GraphOperator> edge = smartGraphEdge.getUnderlyingEdge();
@@ -347,8 +374,8 @@ public class GUIController {
             }
         });
         btnModify.setOnAction(event -> {
-            assert singleClickedOperator.getOperatorType() != null;
-            ParsedOperator.Definition def = singleClickedOperator.getOperatorType().getDefinition();
+            assert singleClickedOperator.getParsedOperator() != null;
+            ParsedOperator.Definition def = singleClickedOperator.getParsedOperator().getDefinition();
             if (!def.isModifiable()) {
                 return;
             }
@@ -365,8 +392,8 @@ public class GUIController {
             int finalI = i;
             tf.focusedProperty().addListener((observable, oldValue, newValue) -> {
                 if (!newValue) { // out of focus
-                    assert singleClickedOperator.getOperatorType() != null;
-                    ParsedOperator.Definition def = singleClickedOperator.getOperatorType().getDefinition();
+                    assert singleClickedOperator.getParsedOperator() != null;
+                    ParsedOperator.Definition def = singleClickedOperator.getParsedOperator().getDefinition();
                     def.setInputPlaceholders(finalI, tf.getText());
                     tACode.setText(def.getCode());
                 }
@@ -377,8 +404,8 @@ public class GUIController {
             int finalI = i;
             tf.focusedProperty().addListener((observable, oldValue, newValue) -> {
                 if (!newValue) { // out of focus
-                    assert singleClickedOperator.getOperatorType() != null;
-                    ParsedOperator.Definition def = singleClickedOperator.getOperatorType().getDefinition();
+                    assert singleClickedOperator.getParsedOperator() != null;
+                    ParsedOperator.Definition def = singleClickedOperator.getParsedOperator().getDefinition();
                     def.setOutputPlaceholders(finalI, tf.getText());
                     tACode.setText(def.getCode());
                 }
@@ -386,8 +413,8 @@ public class GUIController {
         }
         tfIdentifier.focusedProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue) { // out of focus
-                assert singleClickedOperator.getOperatorType() != null;
-                ParsedOperator.Definition def = singleClickedOperator.getOperatorType().getDefinition();
+                assert singleClickedOperator.getParsedOperator() != null;
+                ParsedOperator.Definition def = singleClickedOperator.getParsedOperator().getDefinition();
                 def.setIdentifier(tfIdentifier.getText());
                 tACode.setText(def.getCode());
             }

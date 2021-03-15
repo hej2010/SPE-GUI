@@ -56,7 +56,7 @@ public abstract class GraphOperator extends GraphObject {
     }
 
     @Nullable
-    public ParsedOperator getOperatorType() {
+    public ParsedOperator getParsedOperator() {
         return operatorType;
     }
 

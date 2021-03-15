@@ -1,15 +1,19 @@
 {
   "name": "Liebre",
-  "operators": [
-    "BaseOperator1In",
-    "BaseOperator2In",
-    "Map",
-    "FlatMap",
-    "Filter",
-    "Router",
-    "Aggregate",
-    "Join"
-  ],
+  "operators": {
+    "sources": [],
+    "sinks": [],
+    "regular": [
+      "BaseOperator1In",
+      "BaseOperator2In",
+      "Map",
+      "FlatMap",
+      "Filter",
+      "Router",
+      "Aggregate",
+      "Join"
+    ]
+  },
   "imports": {
     "base": [
       "query.Query"

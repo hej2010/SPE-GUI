@@ -81,6 +81,7 @@ public class SimpleQuery {
         });
         RouterOperator<Integer> r = q.addRouterOperator("");
 
+
         Sink<MyTuple> sink = q.addBaseSink("O1", tuple -> {
             //System.out.println(tuple.timestamp + "," + tuple.key + "," + tuple.value);
         });

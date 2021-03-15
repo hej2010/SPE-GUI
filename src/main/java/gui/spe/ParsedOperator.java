@@ -5,14 +5,23 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class ParsedOperator implements Cloneable {
+    public static final int TYPE_SOURCE_OPERATOR = 0;
+    public static final int TYPE_REGULAR_OPERATOR = 1;
+    public static final int TYPE_SINK_OPERATOR = 2;
     private static final String PLACEHOLDER_IN = "@IN";
     private static final String PLACEHOLDER_OUT = "@OUT";
     private final String name;
     private final Definition definition;
+    private final int type;
 
-    ParsedOperator(@Nonnull String name, @Nonnull Definition definition) {
+    ParsedOperator(@Nonnull String name, @Nonnull Definition definition, int type) {
         this.name = name;
         this.definition = definition;
+        this.type = type;
+    }
+
+    public int getType() {
+        return type;
     }
 
     @Nonnull
@@ -27,7 +36,7 @@ public class ParsedOperator implements Cloneable {
 
     @Override
     public ParsedOperator clone() {
-        return new ParsedOperator(name, (Definition) this.definition.clone());
+        return new ParsedOperator(name, (Definition) this.definition.clone(), type);
     }
 
     public static class Definition implements Cloneable {
