@@ -9,7 +9,7 @@ public abstract class GraphOperator extends GraphObject {
     protected String name;
     private int selectionIndex;
     private OnSelectionChangedListener listener;
-    private ParsedOperator operatorType;
+    private ParsedOperator parsedOperator;
 
     public GraphOperator(String name) {
         super();
@@ -44,7 +44,7 @@ public abstract class GraphOperator extends GraphObject {
     @Override
     @Nonnull
     public String toString() {
-        return (isSelected() ? "[" + (selectionIndex == 0 ? "FROM" : "TO") + "] " : "") + name + " (" + (operatorType == null ? "" : (operatorType.getName() + ", ")) + id + ")";
+        return (isSelected() ? "[" + (selectionIndex == 0 ? "FROM" : "TO") + "] " : "") + name + " (" + (parsedOperator == null ? "" : (parsedOperator.getName() + ", ")) + id + ")";
     }
 
     @Override
@@ -57,11 +57,11 @@ public abstract class GraphOperator extends GraphObject {
 
     @Nullable
     public ParsedOperator getParsedOperator() {
-        return operatorType;
+        return parsedOperator;
     }
 
-    public void setOperatorType(@Nullable ParsedOperator operatorType) {
-        this.operatorType = operatorType;
+    public void setParsedOperator(@Nullable ParsedOperator parsedOperator) {
+        this.parsedOperator = parsedOperator;
     }
 
 }

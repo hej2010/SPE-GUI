@@ -13,6 +13,7 @@ import gui.graph.dag.DirectedGraph;
 import gui.graph.data.*;
 import gui.spe.ParsedOperator;
 import gui.spe.ParsedSPE;
+import gui.utils.Files;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -23,12 +24,15 @@ import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.List;
 
 public class GUIController {
@@ -39,11 +43,12 @@ public class GUIController {
     private Edge<GraphStream, GraphOperator> selectedEdge;
     private ParsedSPE parsedSPE;
     private GraphOperator singleClickedOperator;
+    private File selectedDirectory;
 
     @FXML
     public AnchorPane aPMaster, aPGraph, aPDetails;
     @FXML
-    public Button btnAddSource, btnAddOp, btnAddSink, btnConnect, btnDisconnect, btnModify;
+    public Button btnAddSource, btnAddOp, btnAddSink, btnConnect, btnDisconnect, btnModify, btnSelectFile, btnGenerate;
     @FXML
     public TextField tFName, tfIdentifier, tFInput1, tFInput2, tFOutput1, tFOutput2;
     @FXML
@@ -55,7 +60,7 @@ public class GUIController {
     @FXML
     public MenuItem mIChangeSpe;
     @FXML
-    public Label lblCurrentSPE;
+    public Label lblCurrentSPE, lblSelectedFile, lblSavedTo, lblSavedToTitle;
     @FXML
     public TextArea tACode;
 
@@ -185,7 +190,7 @@ public class GUIController {
             if (singleClickedOperator != null) {
                 String selected = choiceBox.getSelectionModel().getSelectedItem();
                 ParsedOperator po = findOperatorTypeFrom(selected);
-                singleClickedOperator.setOperatorType(po);
+                singleClickedOperator.setParsedOperator(po);
                 setDetails(singleClickedOperator);
                 graphView.update();
             }
@@ -393,10 +398,12 @@ public class GUIController {
             int finalI = i;
             tf.focusedProperty().addListener((observable, oldValue, newValue) -> {
                 if (!newValue) { // out of focus
-                    assert singleClickedOperator.getParsedOperator() != null;
-                    ParsedOperator.Definition def = singleClickedOperator.getParsedOperator().getDefinition();
-                    def.setInputPlaceholders(finalI, tf.getText());
-                    tACode.setText(def.getCode());
+                    ParsedOperator op = singleClickedOperator.getParsedOperator();
+                    if (op != null) {
+                        ParsedOperator.Definition def = op.getDefinition();
+                        def.setInputPlaceholders(finalI, tf.getText());
+                        tACode.setText(def.getCode());
+                    }
                 }
             });
         }
@@ -405,19 +412,51 @@ public class GUIController {
             int finalI = i;
             tf.focusedProperty().addListener((observable, oldValue, newValue) -> {
                 if (!newValue) { // out of focus
-                    assert singleClickedOperator.getParsedOperator() != null;
-                    ParsedOperator.Definition def = singleClickedOperator.getParsedOperator().getDefinition();
-                    def.setOutputPlaceholders(finalI, tf.getText());
-                    tACode.setText(def.getCode());
+                    ParsedOperator op = singleClickedOperator.getParsedOperator();
+                    if (op != null) {
+                        ParsedOperator.Definition def = op.getDefinition();
+                        def.setOutputPlaceholders(finalI, tf.getText());
+                        tACode.setText(def.getCode());
+                    }
                 }
             });
         }
         tfIdentifier.focusedProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue) { // out of focus
-                assert singleClickedOperator.getParsedOperator() != null;
-                ParsedOperator.Definition def = singleClickedOperator.getParsedOperator().getDefinition();
-                def.setIdentifier(tfIdentifier.getText());
-                tACode.setText(def.getCode());
+                ParsedOperator op = singleClickedOperator.getParsedOperator();
+                if (op != null) {
+                    ParsedOperator.Definition def = op.getDefinition();
+                    def.setIdentifier(tfIdentifier.getText());
+                    tACode.setText(def.getCode());
+                }
+            }
+        });
+        btnSelectFile.setOnAction(event -> {
+            DirectoryChooser directoryChooser = new DirectoryChooser();
+            String path = Paths.get(".").toAbsolutePath().normalize().toString() + "/src/main/java/gui";
+            directoryChooser.setInitialDirectory(new File(path));
+
+            selectedDirectory = directoryChooser.showDialog(gui.getPrimaryStage());
+            lblSelectedFile.setText(selectedDirectory.getPath());
+            btnGenerate.setDisable(false);
+            System.out.println("Selected: " + selectedDirectory.getPath());
+        });
+        btnGenerate.setOnAction(event -> {
+            DirectedGraph d = DirectedGraph.fromGraphView(graph);
+            String fileName = parsedSPE.getName() + System.currentTimeMillis();
+            String fileNameWithSuffix = fileName + ".java";
+            File file = new File(selectedDirectory, fileNameWithSuffix);
+            String code = parsedSPE.generateCodeFrom(d, parsedSPE, fileName);
+            String errorMessage = Files.writeFile(file, code);
+            lblSavedToTitle.setVisible(true);
+            if (errorMessage == null) {
+                // success
+                lblSavedToTitle.setText("Saved to:");
+                lblSavedTo.setText(file.getPath());
+            } else {
+                // failed
+                lblSavedToTitle.setText("Error:");
+                lblSavedTo.setText(errorMessage);
             }
         });
     }

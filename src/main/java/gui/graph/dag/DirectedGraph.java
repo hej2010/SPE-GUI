@@ -14,9 +14,25 @@ import java.util.List;
 
 public class DirectedGraph {
     private final List<Node<GraphOperator>> sourceOps;
+    private final int nodeCount;
 
     private DirectedGraph(List<Node<GraphOperator>> sourceOps) {
         this.sourceOps = sourceOps;
+        int count = 0;
+        for (Node<GraphOperator> n : sourceOps) {
+            count += countNodes(n);
+        }
+        nodeCount = count;
+        System.out.println("Nodes: " + nodeCount);
+    }
+
+    private int countNodes(Node<GraphOperator> n) {
+        int count = 1;
+        n.getSuccessors();
+        for (Node<GraphOperator> n2 : n.getSuccessors()) {
+            count += countNodes(n2);
+        }
+        return count;
     }
 
     public List<Node<GraphOperator>> getGraph() {
@@ -75,5 +91,9 @@ public class DirectedGraph {
             sb.append(n.toString()).append("\n");
         }
         return sb.append('}').toString();
+    }
+
+    public int getNodeCount() {
+        return nodeCount;
     }
 }

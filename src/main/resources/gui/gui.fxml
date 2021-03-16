@@ -126,6 +126,27 @@
                         <Label text="Streams:" />
                         <Button fx:id="btnConnect" disable="true" mnemonicParsing="false" prefHeight="25.0" prefWidth="175.0" text="Connect selected" />
                         <Button fx:id="btnDisconnect" disable="true" mnemonicParsing="false" prefHeight="25.0" prefWidth="175.0" text="Remove stream" />
+                        <Label fx:id="lblCurrentSPE1" alignment="CENTER" text="Generate code:">
+                           <font>
+                              <Font name="System Bold" size="12.0" />
+                           </font>
+                           <VBox.margin>
+                              <Insets top="50.0" />
+                           </VBox.margin>
+                        </Label>
+                        <Button fx:id="btnSelectFile" mnemonicParsing="false" text="Select output path" />
+                        <Label fx:id="lblSelectedFile" prefHeight="37.0" prefWidth="177.0" text="No path selected" wrapText="true">
+                           <font>
+                              <Font name="System Italic" size="10.0" />
+                           </font>
+                        </Label>
+                        <Button fx:id="btnGenerate" defaultButton="true" disable="true" mnemonicParsing="false" text="Generate" />
+                        <Label fx:id="lblSavedToTitle" text="Saved to:" visible="false" />
+                        <Label fx:id="lblSavedTo" prefHeight="37.0" prefWidth="177.0" wrapText="true">
+                           <font>
+                              <Font name="System Italic" size="10.0" />
+                           </font>
+                        </Label>
                      </children>
                   </VBox>
           </children>

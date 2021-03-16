@@ -8,10 +8,10 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class ParsedSPE {
-    final String name;
-    final List<ParsedOperator> operators;
-    final List<String> baseImports, baseDefinition;
-    final Map<String, List<String>> operatorImportsMap;
+    private final String name;
+    private final List<ParsedOperator> operators;
+    private final List<String> baseImports, baseDefinition;
+    private final Map<String, List<String>> operatorImportsMap;
 
     ParsedSPE(@Nonnull String name, @Nonnull List<ParsedOperator> operators, @Nonnull List<String> baseImports,
               @Nonnull List<String> baseDefinition, @Nonnull Map<String, List<String>> operatorImportsMap) {
@@ -59,5 +59,5 @@ public abstract class ParsedSPE {
     }
 
     @Nonnull
-    public abstract String generateCodeFrom(@Nonnull DirectedGraph directedGraph);
+    public abstract String generateCodeFrom(@Nonnull DirectedGraph directedGraph, @Nonnull ParsedSPE parsedSPE, @Nonnull String fileName);
 }

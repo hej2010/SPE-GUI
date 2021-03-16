@@ -15,7 +15,7 @@ public class ParsedFlinkSPE extends ParsedSPE {
 
     @Nonnull
     @Override
-    public String generateCodeFrom(@NotNull DirectedGraph directedGraph) {
+    public String generateCodeFrom(@Nonnull DirectedGraph directedGraph, @Nonnull ParsedSPE parsedSPE, @Nonnull String fileName) {
 
         return "todo";
     }

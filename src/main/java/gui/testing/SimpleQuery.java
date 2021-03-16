@@ -12,6 +12,7 @@ import component.operator.in1.map.MapFunction;
 import component.operator.in2.BaseOperator2In;
 import component.operator.router.RouterOperator;
 import component.sink.Sink;
+import component.sink.SinkFunction;
 import component.source.Source;
 import component.source.SourceFunction;
 import query.LiebreContext;
@@ -37,15 +38,7 @@ public class SimpleQuery {
         graphiteReporter.start(1, TimeUnit.SECONDS);
 
         Query q = new Query();
-        Source<MyTuple> source = q.addBaseSource("I1", new SourceFunction<>() {
-            private final Random r = new Random();
 
-            @Override
-            public MyTuple get() {
-                Util.sleep(r.nextInt(150));
-                return new MyTuple(System.currentTimeMillis(), r.nextInt(5), r.nextInt(100));
-            }
-        });
 
         Operator<MyTuple, MyTuple> multiply = q.addOperator(new BaseOperator1In<>("M") {
             @Override
