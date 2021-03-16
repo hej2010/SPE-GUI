@@ -10,12 +10,12 @@ public class ParsedOperator implements Cloneable {
     public static final int TYPE_SINK_OPERATOR = 2;
     private static final String PLACEHOLDER_IN = "@IN";
     private static final String PLACEHOLDER_OUT = "@OUT";
-    private final String name;
+    private final String operatorName;
     private final Definition definition;
     private final int type;
 
-    ParsedOperator(@Nonnull String name, @Nonnull Definition definition, int type) {
-        this.name = name;
+    ParsedOperator(@Nonnull String operatorName, @Nonnull Definition definition, int type) {
+        this.operatorName = operatorName;
         this.definition = definition;
         this.type = type;
     }
@@ -25,8 +25,8 @@ public class ParsedOperator implements Cloneable {
     }
 
     @Nonnull
-    public String getName() {
-        return name;
+    public String getOperatorName() {
+        return operatorName;
     }
 
     @Nonnull
@@ -36,7 +36,7 @@ public class ParsedOperator implements Cloneable {
 
     @Override
     public ParsedOperator clone() {
-        return new ParsedOperator(name, (Definition) this.definition.clone(), type);
+        return new ParsedOperator(operatorName, (Definition) this.definition.clone(), type);
     }
 
     public static class Definition implements Cloneable {

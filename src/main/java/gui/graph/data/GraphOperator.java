@@ -4,17 +4,22 @@ import gui.spe.ParsedOperator;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public abstract class GraphOperator extends GraphObject {
     protected String name;
     private int selectionIndex;
     private OnSelectionChangedListener listener;
-    private ParsedOperator parsedOperator;
+    private final Map<String, ParsedOperator> operatorsMap;
+    private ParsedOperator currentOperator;
 
     public GraphOperator(String name) {
         super();
         this.name = name;
         this.selectionIndex = -1;
+        this.operatorsMap = new HashMap<>();
     }
 
     public boolean isSelected() {
@@ -44,7 +49,7 @@ public abstract class GraphOperator extends GraphObject {
     @Override
     @Nonnull
     public String toString() {
-        return (isSelected() ? "[" + (selectionIndex == 0 ? "FROM" : "TO") + "] " : "") + name + " (" + (parsedOperator == null ? "" : (parsedOperator.getName() + ", ")) + id + ")";
+        return (isSelected() ? "[" + (selectionIndex == 0 ? "FROM" : "TO") + "] " : "") + name + " (" + (currentOperator == null ? "" : (currentOperator.getOperatorName() + ", ")) + id + ")";
     }
 
     @Override
@@ -56,12 +61,24 @@ public abstract class GraphOperator extends GraphObject {
     }
 
     @Nullable
-    public ParsedOperator getParsedOperator() {
-        return parsedOperator;
+    public ParsedOperator getCurrentOperator() {
+        return currentOperator;
     }
 
-    public void setParsedOperator(@Nullable ParsedOperator parsedOperator) {
-        this.parsedOperator = parsedOperator;
+    public void selectOperator(@Nullable String operatorName, List<ParsedOperator> operators) {
+        this.currentOperator = getOrInitOperator(operatorName, operators);
+    }
+
+    private ParsedOperator getOrInitOperator(String operatorName, List<ParsedOperator> operators) {
+        if (!operatorsMap.containsKey(operatorName)) {
+            for (ParsedOperator op : operators) {
+                if (op.getOperatorName().equals(operatorName)) {
+                    operatorsMap.put(operatorName, op.clone());
+                    break;
+                }
+            }
+        }
+        return operatorsMap.get(operatorName);
     }
 
 }

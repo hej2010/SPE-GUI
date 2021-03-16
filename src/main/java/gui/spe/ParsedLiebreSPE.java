@@ -1,5 +1,7 @@
 package gui.spe;
 
+import com.google.googlejavaformat.java.Formatter;
+import com.google.googlejavaformat.java.FormatterException;
 import gui.graph.dag.DirectedGraph;
 import gui.graph.dag.Node;
 import gui.graph.data.GraphOperator;
@@ -32,7 +34,12 @@ public class ParsedLiebreSPE extends ParsedSPE {
         connect(sb, graph);
         sb.append("\nq.activate();\n}\n}");
 
-        return sb.toString();
+        try {
+            return new Formatter().formatSourceAndFixImports(sb.toString());
+        } catch (FormatterException e) {
+            e.printStackTrace();
+            return sb.toString();
+        }
     }
 
     /**
@@ -42,8 +49,8 @@ public class ParsedLiebreSPE extends ParsedSPE {
         for (Node<GraphOperator> node : graph) {
             List<Node<GraphOperator>> connectedWith = node.getSuccessors();
             for (Node<GraphOperator> successor : connectedWith) {
-                ParsedOperator pop = node.getItem().getParsedOperator();
-                ParsedOperator popSuccessor = successor.getItem().getParsedOperator();
+                ParsedOperator pop = node.getItem().getCurrentOperator();
+                ParsedOperator popSuccessor = successor.getItem().getCurrentOperator();
                 if (pop != null && popSuccessor != null) {
                     sb.append("\nq.connect(").append(pop.getDefinition().getIdentifier()).append(", ").append(popSuccessor.getDefinition().getIdentifier()).append(");");
                 }
@@ -54,7 +61,7 @@ public class ParsedLiebreSPE extends ParsedSPE {
 
     private void addNodeCode(StringBuilder sb, List<Node<GraphOperator>> graph) {
         for (Node<GraphOperator> node : graph) {
-            ParsedOperator pop = node.getItem().getParsedOperator();
+            ParsedOperator pop = node.getItem().getCurrentOperator();
             if (pop != null) {
                 ParsedOperator.Definition definition = pop.getDefinition();
                 sb.append(definition.getCode()).append("\n");
@@ -68,9 +75,9 @@ public class ParsedLiebreSPE extends ParsedSPE {
      */
     private void addNodeImports(@Nonnull StringBuilder sb, @Nonnull List<Node<GraphOperator>> graph, @Nonnull ParsedSPE parsedSPE) {
         for (Node<GraphOperator> op : graph) {
-            ParsedOperator pop = op.getItem().getParsedOperator();
+            ParsedOperator pop = op.getItem().getCurrentOperator();
             if (pop != null) {
-                List<String> imports = parsedSPE.getImportsForOperator(pop.getName());
+                List<String> imports = parsedSPE.getImportsForOperator(pop.getOperatorName());
                 addStringRow(sb, imports, true);
             }
             addNodeImports(sb, op.getSuccessors(), parsedSPE);

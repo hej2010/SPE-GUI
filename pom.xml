@@ -45,6 +45,11 @@
             <artifactId>JavaFXSmartGraph</artifactId>
             <version>v0.0.9</version> <!-- BUILD LOG: https://jitpack.io/com/github/hej2010/JavaFXSmartGraph/TAG/build.log -->
         </dependency>
+        <dependency>
+            <groupId>com.google.googlejavaformat</groupId>
+            <artifactId>google-java-format</artifactId>
+            <version>1.9</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

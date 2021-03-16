@@ -97,7 +97,7 @@ public class GUIController {
             vBDetails.setVisible(true);
             vBDetails.setDisable(false);
             tFName.setText(selectedOperator.getName());
-            ParsedOperator po = selectedOperator.getParsedOperator();
+            ParsedOperator po = selectedOperator.getCurrentOperator();
             setSelectedType(po, singleClickedOperator);
             setCodeDetails(po);
         }
@@ -149,12 +149,12 @@ public class GUIController {
         }
     }
 
-    private void setSelectedType(ParsedOperator operatorType, GraphOperator singleClickedOperator) {
+    private void setSelectedType(ParsedOperator parsedOperator, GraphOperator singleClickedOperator) {
         ChoiceBox<String> cBType = selectChoiceBox(singleClickedOperator);
-        if (operatorType == null) {
+        if (parsedOperator == null) {
             cBType.getSelectionModel().select(-1);
         } else {
-            cBType.getSelectionModel().select(operatorType.getName());
+            cBType.getSelectionModel().select(parsedOperator.getOperatorName());
         }
     }
 
@@ -190,7 +190,9 @@ public class GUIController {
             if (singleClickedOperator != null) {
                 String selected = choiceBox.getSelectionModel().getSelectedItem();
                 ParsedOperator po = findOperatorTypeFrom(selected);
-                singleClickedOperator.setParsedOperator(po);
+                // TODO not working?
+                System.out.println("set parsed operator: " + po + " for " + singleClickedOperator.getName() + ", SELECTED: " + selected);
+                singleClickedOperator.selectOperator(selected, parsedSPE.getOperators());
                 setDetails(singleClickedOperator);
                 graphView.update();
             }
@@ -199,7 +201,7 @@ public class GUIController {
 
     private ParsedOperator findOperatorTypeFrom(String name) {
         for (ParsedOperator pOp : parsedSPE.getOperators()) {
-            if (pOp.getName().equals(name)) {
+            if (pOp.getOperatorName().equals(name)) {
                 return pOp.clone();
             }
         }
@@ -212,7 +214,7 @@ public class GUIController {
         graphView.setAutomaticLayout(true);
         graphView.setRepulsionForce(100);
         graphView.setEdgeDoubleClickAction(smartGraphEdge -> {
-            System.out.println("Double click edge: " + smartGraphEdge.getUnderlyingEdge().element());
+            //System.out.println("Double click edge: " + smartGraphEdge.getUnderlyingEdge().element());
             Edge<GraphStream, GraphOperator> edge = smartGraphEdge.getUnderlyingEdge();
             if (selectedEdge == edge) {
                 selectedEdge = null;
@@ -231,17 +233,17 @@ public class GUIController {
         graphView.setVertexDoubleClickAction(smartGraphVertex -> {
             Vertex<GraphOperator> v = smartGraphVertex.getUnderlyingVertex();
             doOnVertexClicked(v);
-            System.out.println("Double click vertex: " + v.element());
+            //System.out.println("Double click vertex: " + v.element());
             //
         });
         graphView.setVertexSingleClickAction(smartGraphVertex -> {
-            System.out.println("Single click vertex: " + smartGraphVertex.getUnderlyingVertex().element());
+            //System.out.println("Single click vertex: " + smartGraphVertex.getUnderlyingVertex().element());
             setDetails(smartGraphVertex.getUnderlyingVertex().element());
             //
         });
 
         graphView.setEdgeSingleClickAction(smartGraphEdge -> {
-            System.out.println("Single click edge: " + smartGraphEdge.getUnderlyingEdge().element());
+            //System.out.println("Single click edge: " + smartGraphEdge.getUnderlyingEdge().element());
             //
         });
     }
@@ -255,7 +257,7 @@ public class GUIController {
         }
     }
 
-    private void setVertexSelected(boolean selected, GraphOperator vertex) {
+    private void setVertexSelectedStyle(boolean selected, GraphOperator vertex) {
         if (vertex != null) {
             SmartStylableNode node = graphView.getStylableVertex(vertex);
             if (node != null) {
@@ -300,7 +302,7 @@ public class GUIController {
                     selectedOps[1] = op;
                     op.setSelectedIndex(1);
                 } else {
-                    setVertexSelected(false, selectedOps[0]);
+                    setVertexSelectedStyle(false, selectedOps[0]);
                     selectedOps[0].setSelectedIndex(-1);
                     selectedOps[0] = selectedOps[1];
                     selectedOps[0].setSelectedIndex(0);
@@ -308,7 +310,7 @@ public class GUIController {
                     op.setSelectedIndex(1);
                 }
             }
-            setVertexSelected(!deselected, op);
+            setVertexSelectedStyle(!deselected, op);
             updateButtons();
             graphView.update();
         }
@@ -350,8 +352,8 @@ public class GUIController {
                     graph.insertEdge(from, to, new Stream());
                     from.setSelectedIndex(-1);
                     to.setSelectedIndex(-1);
-                    setVertexSelected(false, from);
-                    setVertexSelected(false, to);
+                    setVertexSelectedStyle(false, from);
+                    setVertexSelectedStyle(false, to);
                     selectedOps[0] = null;
                     selectedOps[1] = null;
                     graphView.update();
@@ -380,8 +382,8 @@ public class GUIController {
             }
         });
         btnModify.setOnAction(event -> {
-            assert singleClickedOperator.getParsedOperator() != null;
-            ParsedOperator.Definition def = singleClickedOperator.getParsedOperator().getDefinition();
+            assert singleClickedOperator.getCurrentOperator() != null;
+            ParsedOperator.Definition def = singleClickedOperator.getCurrentOperator().getDefinition();
             if (!def.isModifiable()) {
                 return;
             }
@@ -398,7 +400,7 @@ public class GUIController {
             int finalI = i;
             tf.focusedProperty().addListener((observable, oldValue, newValue) -> {
                 if (!newValue) { // out of focus
-                    ParsedOperator op = singleClickedOperator.getParsedOperator();
+                    ParsedOperator op = singleClickedOperator.getCurrentOperator();
                     if (op != null) {
                         ParsedOperator.Definition def = op.getDefinition();
                         def.setInputPlaceholders(finalI, tf.getText());
@@ -412,7 +414,7 @@ public class GUIController {
             int finalI = i;
             tf.focusedProperty().addListener((observable, oldValue, newValue) -> {
                 if (!newValue) { // out of focus
-                    ParsedOperator op = singleClickedOperator.getParsedOperator();
+                    ParsedOperator op = singleClickedOperator.getCurrentOperator();
                     if (op != null) {
                         ParsedOperator.Definition def = op.getDefinition();
                         def.setOutputPlaceholders(finalI, tf.getText());
@@ -423,7 +425,7 @@ public class GUIController {
         }
         tfIdentifier.focusedProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue) { // out of focus
-                ParsedOperator op = singleClickedOperator.getParsedOperator();
+                ParsedOperator op = singleClickedOperator.getCurrentOperator();
                 if (op != null) {
                     ParsedOperator.Definition def = op.getDefinition();
                     def.setIdentifier(tfIdentifier.getText());
