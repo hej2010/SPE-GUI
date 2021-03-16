@@ -189,23 +189,11 @@ public class GUIController {
         choiceBox.setOnAction(event -> {
             if (singleClickedOperator != null) {
                 String selected = choiceBox.getSelectionModel().getSelectedItem();
-                ParsedOperator po = findOperatorTypeFrom(selected);
-                // TODO not working?
-                System.out.println("set parsed operator: " + po + " for " + singleClickedOperator.getName() + ", SELECTED: " + selected);
                 singleClickedOperator.selectOperator(selected, parsedSPE.getOperators());
                 setDetails(singleClickedOperator);
                 graphView.update();
             }
         });
-    }
-
-    private ParsedOperator findOperatorTypeFrom(String name) {
-        for (ParsedOperator pOp : parsedSPE.getOperators()) {
-            if (pOp.getOperatorName().equals(name)) {
-                return pOp.clone();
-            }
-        }
-        return null;
     }
 
     private void initGraph() {
