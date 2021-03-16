@@ -33,14 +33,6 @@ public class SPEParser {
     private static final String OUTPUT = "output";
     private static final String IDENTIFIER = "identifier";
 
-    public static void main(String[] args) {
-        try {
-            parseSPE(SPE.LIEBRE);
-        } catch (IOException | URISyntaxException e) {
-            e.printStackTrace();
-        }
-    }
-
     public static ParsedSPE parseSPE(@Nonnull SPE spe) throws IOException, URISyntaxException {
         URL url = SPEParser.class.getClassLoader().getResource("gui");
         if (url == null) {

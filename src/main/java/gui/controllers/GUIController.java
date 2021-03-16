@@ -11,6 +11,7 @@ import com.brunomnsilva.smartgraph.graphview.SmartStylableNode;
 import gui.GUI;
 import gui.graph.dag.DirectedGraph;
 import gui.graph.data.*;
+import gui.graph.export.ExportManager;
 import gui.spe.ParsedOperator;
 import gui.spe.ParsedSPE;
 import gui.utils.Files;
@@ -27,6 +28,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import org.json.JSONObject;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -58,7 +60,7 @@ public class GUIController {
     @FXML
     public HBox hBIdentifier;
     @FXML
-    public MenuItem mIChangeSpe;
+    public MenuItem mIChangeSpe, mIExport;
     @FXML
     public Label lblCurrentSPE, lblSelectedFile, lblSavedTo, lblSavedToTitle;
     @FXML
@@ -369,6 +371,10 @@ public class GUIController {
                 e.printStackTrace();
             }
         });
+        mIExport.setOnAction(event -> {
+            JSONObject o = ExportManager.projectToJson(DirectedGraph.fromGraphView(graph));
+            System.out.println(o);
+        });
         btnModify.setOnAction(event -> {
             assert singleClickedOperator.getCurrentOperator() != null;
             ParsedOperator.Definition def = singleClickedOperator.getCurrentOperator().getDefinition();
@@ -427,26 +433,30 @@ public class GUIController {
             directoryChooser.setInitialDirectory(new File(path));
 
             selectedDirectory = directoryChooser.showDialog(gui.getPrimaryStage());
-            lblSelectedFile.setText(selectedDirectory.getPath());
-            btnGenerate.setDisable(false);
-            System.out.println("Selected: " + selectedDirectory.getPath());
+            if (selectedDirectory != null) {
+                lblSelectedFile.setText(selectedDirectory.getPath());
+                btnGenerate.setDisable(false);
+                System.out.println("Selected: " + selectedDirectory.getPath());
+            }
         });
         btnGenerate.setOnAction(event -> {
-            DirectedGraph d = DirectedGraph.fromGraphView(graph);
-            String fileName = parsedSPE.getName() + System.currentTimeMillis();
-            String fileNameWithSuffix = fileName + ".java";
-            File file = new File(selectedDirectory, fileNameWithSuffix);
-            String code = parsedSPE.generateCodeFrom(d, parsedSPE, fileName);
-            String errorMessage = Files.writeFile(file, code);
-            lblSavedToTitle.setVisible(true);
-            if (errorMessage == null) {
-                // success
-                lblSavedToTitle.setText("Saved to:");
-                lblSavedTo.setText(file.getPath());
-            } else {
-                // failed
-                lblSavedToTitle.setText("Error:");
-                lblSavedTo.setText(errorMessage);
+            if (selectedDirectory != null) {
+                DirectedGraph d = DirectedGraph.fromGraphView(graph);
+                String fileName = parsedSPE.getName() + System.currentTimeMillis();
+                String fileNameWithSuffix = fileName + ".java";
+                File file = new File(selectedDirectory, fileNameWithSuffix);
+                String code = parsedSPE.generateCodeFrom(d, parsedSPE, fileName);
+                String errorMessage = Files.writeFile(file, code);
+                lblSavedToTitle.setVisible(true);
+                if (errorMessage == null) {
+                    // success
+                    lblSavedToTitle.setText("Saved to:");
+                    lblSavedTo.setText(file.getPath());
+                } else {
+                    // failed
+                    lblSavedToTitle.setText("Error:");
+                    lblSavedTo.setText(errorMessage);
+                }
             }
         });
     }

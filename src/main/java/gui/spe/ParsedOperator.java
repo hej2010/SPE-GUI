@@ -1,10 +1,14 @@
 package gui.spe;
 
+import gui.graph.export.JsonExported;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import javax.annotation.Nonnull;
 import java.util.LinkedList;
 import java.util.List;
 
-public class ParsedOperator implements Cloneable {
+public class ParsedOperator implements Cloneable, JsonExported {
     public static final int TYPE_SOURCE_OPERATOR = 0;
     public static final int TYPE_REGULAR_OPERATOR = 1;
     public static final int TYPE_SINK_OPERATOR = 2;
@@ -39,7 +43,21 @@ public class ParsedOperator implements Cloneable {
         return new ParsedOperator(operatorName, (Definition) this.definition.clone(), type);
     }
 
-    public static class Definition implements Cloneable {
+    @Override
+    public JSONObject toJsonObject() {
+        JSONObject o = new JSONObject();
+        o.put("name", operatorName);
+        o.put("type", type);
+        o.put("definition", definition.toJsonObject());
+        return o;
+    }
+
+    @Override
+    public Object fromJsonObject(JSONObject from) {
+        return null;
+    }
+
+    public static class Definition implements Cloneable, JsonExported {
         private final String codeBefore, codeAfter;
         private String codeMiddle;
         private final List<String> inputPlaceholders, outputPlaceholders;
@@ -145,6 +163,21 @@ public class ParsedOperator implements Cloneable {
 
         public void setIdentifier(@Nonnull String identifier) {
             this.identifier = identifier.trim().replace(" ", "");
+        }
+
+        @Override
+        public JSONObject toJsonObject() {
+            JSONObject o = new JSONObject();
+            o.put("middle", codeMiddle);
+            o.put("identifier", identifier);
+            o.put("in", new JSONArray(inputPlaceholders));
+            o.put("out", new JSONArray(outputPlaceholders));
+            return o;
+        }
+
+        @Override
+        public Object fromJsonObject(JSONObject from) {
+            return null;
         }
     }
 }

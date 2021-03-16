@@ -57,6 +57,7 @@
         <Menu mnemonicParsing="false" text="File">
           <items>
                   <MenuItem fx:id="mIChangeSpe" mnemonicParsing="false" text="Change SPE" />
+                  <MenuItem fx:id="mIExport" mnemonicParsing="false" text="Export to file" />
                   <SeparatorMenuItem mnemonicParsing="false" />
             <MenuItem mnemonicParsing="false" text="New" />
             <MenuItem mnemonicParsing="false" text="Open…" />

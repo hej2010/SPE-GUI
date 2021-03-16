@@ -1,14 +1,17 @@
 package gui.graph.data;
 
+import gui.graph.export.JsonExported;
 import gui.spe.ParsedOperator;
+import org.json.JSONObject;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
-public abstract class GraphOperator extends GraphObject {
+public abstract class GraphOperator extends GraphObject implements JsonExported {
     protected String name;
     private int selectionIndex;
     private OnSelectionChangedListener listener;
@@ -81,4 +84,25 @@ public abstract class GraphOperator extends GraphObject {
         return operatorsMap.get(operatorName);
     }
 
+    @Override
+    public JSONObject toJsonObject() {
+        JSONObject o = new JSONObject();
+        o.put("name", name);
+        o.put("ops", getOperators());
+        return o;
+    }
+
+    private JSONObject getOperators() {
+        Set<Map.Entry<String, ParsedOperator>> set = operatorsMap.entrySet();
+        JSONObject o = new JSONObject();
+        for (Map.Entry<String, ParsedOperator> e : set) {
+            o.put(e.getKey(), e.getValue().toJsonObject());
+        }
+        return o;
+    }
+
+    @Override
+    public Object fromJsonObject(JSONObject from) {
+        return null;
+    }
 }
