@@ -94,5 +94,4 @@ public class ParsedLiebreSPE extends ParsedSPE {
         }
     }
 
-    // TODO the connection method etc is different for each SPE
 }

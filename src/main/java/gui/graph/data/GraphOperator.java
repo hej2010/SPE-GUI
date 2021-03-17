@@ -2,6 +2,7 @@ package gui.graph.data;
 
 import gui.graph.export.JsonExported;
 import gui.spe.ParsedOperator;
+import gui.spe.ParsedSPE;
 import org.json.JSONObject;
 
 import javax.annotation.Nonnull;
@@ -88,11 +89,20 @@ public abstract class GraphOperator extends GraphObject implements JsonExported 
     public JSONObject toJsonObject() {
         JSONObject o = new JSONObject();
         o.put("name", name);
-        o.put("ops", getOperators());
+        o.put("ops", getOperatorsAsJson());
+        int type;
+        if (this instanceof SourceOperator) {
+            type = ParsedOperator.TYPE_SOURCE_OPERATOR;
+        } else if (this instanceof Operator) {
+            type = ParsedOperator.TYPE_REGULAR_OPERATOR;
+        } else {
+            type = ParsedOperator.TYPE_SINK_OPERATOR;
+        }
+        o.put("type", type);
         return o;
     }
 
-    private JSONObject getOperators() {
+    private JSONObject getOperatorsAsJson() {
         Set<Map.Entry<String, ParsedOperator>> set = operatorsMap.entrySet();
         JSONObject o = new JSONObject();
         for (Map.Entry<String, ParsedOperator> e : set) {
@@ -101,8 +111,19 @@ public abstract class GraphOperator extends GraphObject implements JsonExported 
         return o;
     }
 
-    @Override
-    public Object fromJsonObject(JSONObject from) {
-        return null;
+    public GraphOperator fromJsonObject(JSONObject from, ParsedSPE parsedSPE) {
+        name = from.getString("name");
+        operatorsMap.clear();
+        JSONObject ops = from.getJSONObject("ops");
+        for (String operatorName : ops.keySet()) {
+            for (ParsedOperator op : parsedSPE.getOperators()) {
+                if (operatorName.equals(op.getOperatorName())) {
+                    operatorsMap.put(operatorName, ParsedOperator.fromJsonObject(ops.getJSONObject(operatorName), op.getDefinition()));
+                    selectOperator(operatorName, parsedSPE.getOperators());
+                }
+            }
+
+        }
+        return this;
     }
 }

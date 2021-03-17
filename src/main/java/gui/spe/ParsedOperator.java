@@ -43,20 +43,6 @@ public class ParsedOperator implements Cloneable, JsonExported {
         return new ParsedOperator(operatorName, (Definition) this.definition.clone(), type);
     }
 
-    @Override
-    public JSONObject toJsonObject() {
-        JSONObject o = new JSONObject();
-        o.put("name", operatorName);
-        o.put("type", type);
-        o.put("definition", definition.toJsonObject());
-        return o;
-    }
-
-    @Override
-    public Object fromJsonObject(JSONObject from) {
-        return null;
-    }
-
     public static class Definition implements Cloneable, JsonExported {
         private final String codeBefore, codeAfter;
         private String codeMiddle;
@@ -136,12 +122,16 @@ public class ParsedOperator implements Cloneable, JsonExported {
         }
 
         public void setInputPlaceholders(int pos, String placeholder) {
-            inputPlaceholders.remove(pos);
+            if (inputPlaceholders.size() > pos) {
+                inputPlaceholders.remove(pos);
+            }
             inputPlaceholders.add(pos, placeholder);
         }
 
         public void setOutputPlaceholders(int pos, String placeholder) {
-            outputPlaceholders.remove(pos);
+            if (outputPlaceholders.size() > pos) {
+                outputPlaceholders.remove(pos);
+            }
             outputPlaceholders.add(pos, placeholder);
         }
 
@@ -175,9 +165,33 @@ public class ParsedOperator implements Cloneable, JsonExported {
             return o;
         }
 
-        @Override
-        public Object fromJsonObject(JSONObject from) {
-            return null;
+        public Definition fromJsonObject(JSONObject from) {
+            codeMiddle = from.getString("middle");
+            identifier = from.getString("identifier");
+            setNewList(inputPlaceholders, from.getJSONArray("in"));
+            setNewList(outputPlaceholders, from.getJSONArray("out"));
+            return this;
+        }
+
+        private void setNewList(List<String> list, JSONArray arr) {
+            list.clear();
+            for(int i = 0; i < arr.length();i++) {
+                list.add(arr.getString(i));
+            }
         }
     }
+
+    @Override
+    public JSONObject toJsonObject() {
+        JSONObject o = new JSONObject();
+        o.put("name", operatorName);
+        o.put("type", type);
+        o.put("definition", definition.toJsonObject());
+        return o;
+    }
+
+    public static ParsedOperator fromJsonObject(JSONObject from, Definition definition) {
+        return new ParsedOperator(from.getString("name"), definition.fromJsonObject(from.getJSONObject("definition")), from.getInt("type"));
+    }
+
 }

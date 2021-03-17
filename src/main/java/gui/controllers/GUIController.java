@@ -10,6 +10,7 @@ import com.brunomnsilva.smartgraph.graphview.SmartPlacementStrategy;
 import com.brunomnsilva.smartgraph.graphview.SmartStylableNode;
 import gui.GUI;
 import gui.graph.dag.DirectedGraph;
+import gui.graph.dag.Node;
 import gui.graph.data.*;
 import gui.graph.export.ExportManager;
 import gui.spe.ParsedOperator;
@@ -26,6 +27,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
+import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.json.JSONObject;
@@ -60,7 +62,7 @@ public class GUIController {
     @FXML
     public HBox hBIdentifier;
     @FXML
-    public MenuItem mIChangeSpe, mIExport;
+    public MenuItem mIChangeSpe, mIExport, mIImport;
     @FXML
     public Label lblCurrentSPE, lblSelectedFile, lblSavedTo, lblSavedToTitle;
     @FXML
@@ -348,8 +350,8 @@ public class GUIController {
                     selectedOps[1] = null;
                     graphView.update();
                     btnConnect.setDisable(true);
-                    DirectedGraph d = DirectedGraph.fromGraphView(graph);
-                    System.out.println(d.toString());
+                    //DirectedGraph d = DirectedGraph.fromGraphView(graph);
+                    //System.out.println(d.toString());
                 }
             }
         });
@@ -373,7 +375,31 @@ public class GUIController {
         });
         mIExport.setOnAction(event -> {
             JSONObject o = ExportManager.projectToJson(DirectedGraph.fromGraphView(graph));
+            DirectoryChooser directoryChooser = new DirectoryChooser();
+            String path = Paths.get(".").toAbsolutePath().normalize().toString() + "/src/main/java/gui";
+            directoryChooser.setInitialDirectory(new File(path));
+
+            File dir = directoryChooser.showDialog(gui.getPrimaryStage());
+            if (dir != null) {
+                File file = new File(dir, "export-" + System.currentTimeMillis() + ".gui");
+                Files.writeFile(file, o.toString());
+            }
             System.out.println(o);
+        });
+        mIImport.setOnAction(event -> {
+            FileChooser fileChooser = new FileChooser();
+            String path = Paths.get(".").toAbsolutePath().normalize().toString() + "/src/main/java/gui";
+            fileChooser.setInitialDirectory(new File(path));
+
+            File file = fileChooser.showOpenDialog(gui.getPrimaryStage());
+            if (file != null) {
+                List<Node<GraphOperator>> opsList = ExportManager.projectFromFile(file, parsedSPE);
+                graph.clearGraph();
+                if (opsList != null) {
+                    addToGraph(opsList, null);
+                }
+                graphView.update();
+            }
         });
         btnModify.setOnAction(event -> {
             assert singleClickedOperator.getCurrentOperator() != null;
@@ -459,6 +485,20 @@ public class GUIController {
                 }
             }
         });
+    }
+
+    private void addToGraph(@Nonnull List<Node<GraphOperator>> opsList, @Nullable GraphOperator parent) {
+        for (Node<GraphOperator> node : opsList) {
+            final GraphOperator op = node.getItem();
+            graph.insertVertex(op);
+            if (parent != null) {
+                graph.insertEdge(parent, op, new Stream());
+            }
+            List<Node<GraphOperator>> successors = node.getSuccessors();
+            if (!successors.isEmpty()) {
+                addToGraph(successors, op);
+            }
+        }
     }
 
     @Nullable
