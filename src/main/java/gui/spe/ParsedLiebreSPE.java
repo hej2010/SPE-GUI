@@ -8,8 +8,10 @@ import gui.graph.data.GraphOperator;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class ParsedLiebreSPE extends ParsedSPE {
 
@@ -21,6 +23,7 @@ public class ParsedLiebreSPE extends ParsedSPE {
     @Override
     public String generateCodeFrom(@Nonnull DirectedGraph directedGraph, @Nonnull ParsedSPE parsedSPE, @Nonnull String fileName) {
         StringBuilder sb = new StringBuilder();
+        Set<String> addedNodes = new HashSet<>();
 
         addStringRow(sb, parsedSPE.getBaseImports(), true);
 
@@ -29,7 +32,7 @@ public class ParsedLiebreSPE extends ParsedSPE {
 
         sb.append("\npublic class ").append(fileName).append(" {\npublic static void main(String[] args) {\n");
         addStringRow(sb, parsedSPE.getBaseDefinition(), false);
-        addNodeCode(sb, graph);
+        addNodeCode(sb, graph, addedNodes);
         sb.append("\n");
         connect(sb, graph);
         sb.append("\nq.activate();\n}\n}");
@@ -49,24 +52,26 @@ public class ParsedLiebreSPE extends ParsedSPE {
         for (Node<GraphOperator> node : graph) {
             List<Node<GraphOperator>> connectedWith = node.getSuccessors();
             for (Node<GraphOperator> successor : connectedWith) {
-                ParsedOperator pop = node.getItem().getCurrentOperator();
-                ParsedOperator popSuccessor = successor.getItem().getCurrentOperator();
-                if (pop != null && popSuccessor != null) {
-                    sb.append("\nq.connect(").append(pop.getDefinition().getIdentifier()).append(", ").append(popSuccessor.getDefinition().getIdentifier()).append(");");
-                }
+                GraphOperator op = node.getItem();
+                GraphOperator popSuccessor = successor.getItem();
+                sb.append("\nq.connect(").append(op.getIdentifier()).append(", ").append(popSuccessor.getIdentifier()).append(");");
             }
             connect(sb, connectedWith);
         }
     }
 
-    private void addNodeCode(StringBuilder sb, List<Node<GraphOperator>> graph) {
+    private void addNodeCode(StringBuilder sb, List<Node<GraphOperator>> graph, Set<String> addedNodes) {
         for (Node<GraphOperator> node : graph) {
-            ParsedOperator pop = node.getItem().getCurrentOperator();
+            GraphOperator op = node.getItem();
+            ParsedOperator pop = op.getCurrentOperator();
             if (pop != null) {
                 ParsedOperator.Definition definition = pop.getDefinition();
-                sb.append(definition.getCode()).append("\n");
+                if (!addedNodes.contains(op.getIdentifier())) {
+                    sb.append(definition.getCode(op.getIdentifier())).append("\n");
+                    addedNodes.add(op.getIdentifier());
+                }
             }
-            addNodeCode(sb, node.getSuccessors());
+            addNodeCode(sb, node.getSuccessors(), addedNodes);
         }
     }
 

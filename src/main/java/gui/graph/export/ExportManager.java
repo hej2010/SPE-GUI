@@ -19,6 +19,15 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class ExportManager {
+    public static final String EXPORT_NAME = "name";
+    public static final String EXPORT_DATA = "data";
+    public static final String EXPORT_TYPE = "type";
+    public static final String EXPORT_NODES = "nodes";
+    public static final String EXPORT_MIDDLE = "mid";
+    public static final String EXPORT_IN = "in";
+    public static final String EXPORT_OUT = "out";
+    public static final String EXPORT_SUCCESSORS = "suc";
+    public static final String EXPORT_DEFINITION = "def";
 
     public static JSONObject projectToJson(@Nonnull DirectedGraph dag) {
         JSONObject o = new JSONObject();
@@ -27,13 +36,13 @@ public class ExportManager {
         for (Node<GraphOperator> op : graph) {
             rootNodes.put(getSuccessors(op));
         }
-        o.put("nodes", rootNodes);
+        o.put(EXPORT_NODES, rootNodes);
         return o;
     }
 
     private static JSONObject getSuccessors(@Nonnull Node<GraphOperator> node) {
         JSONObject o = new JSONObject();
-        o.put("data", node.getItem().toJsonObject());
+        o.put(EXPORT_DATA, node.getItem().toJsonObject());
         JSONArray arr = new JSONArray();
         if (!node.getSuccessors().isEmpty()) {
             for (Node<GraphOperator> op : node.getSuccessors()) {
@@ -41,7 +50,7 @@ public class ExportManager {
             }
         }
         if (!arr.isEmpty()) {
-            o.put("successors", arr);
+            o.put(EXPORT_SUCCESSORS, arr);
         }
         return o;
     }
@@ -57,7 +66,7 @@ public class ExportManager {
             return null;
         }
         JSONObject o = new JSONObject(s);
-        JSONArray arr = o.getJSONArray("nodes");
+        JSONArray arr = o.getJSONArray(EXPORT_NODES);
 
         for (int i = 0; i < arr.length(); i++) {
             JSONObject node = arr.getJSONObject(i);
@@ -67,23 +76,10 @@ public class ExportManager {
         return list;
     }
 
-    /**
-    {nodes
-        [
-            { // node
-                data: {
-                    ops: {}
-                    name: "name"
-                },
-                successors: [{...}]
-            }
-        ]
-    }
-     */
-    private static Node<GraphOperator> getNode(JSONObject node, ParsedSPE parsedSPE){
-        JSONObject data = node.getJSONObject("data");
-        String name = data.getString("name");
-        int type = data.getInt("type");
+    private static Node<GraphOperator> getNode(JSONObject node, ParsedSPE parsedSPE) {
+        JSONObject data = node.getJSONObject(EXPORT_DATA);
+        String name = data.getString(EXPORT_NAME);
+        int type = data.getInt(EXPORT_TYPE);
         GraphOperator op;
         if (type == ParsedOperator.TYPE_SOURCE_OPERATOR) {
             op = new SourceOperator(name);
@@ -94,8 +90,8 @@ public class ExportManager {
         }
         op = op.fromJsonObject(data, parsedSPE);
         List<Node<GraphOperator>> successors = new LinkedList<>();
-        if (node.has("successors")) {
-            JSONArray arr = node.getJSONArray("successors");
+        if (node.has(EXPORT_SUCCESSORS)) {
+            JSONArray arr = node.getJSONArray(EXPORT_SUCCESSORS);
             for (int i = 0; i < arr.length(); i++) {
                 successors.add(getNode(arr.getJSONObject(i), parsedSPE));
             }

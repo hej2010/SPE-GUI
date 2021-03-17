@@ -13,15 +13,15 @@ import java.util.Map;
 import java.util.Set;
 
 public abstract class GraphOperator extends GraphObject implements JsonExported {
-    protected String name;
+    protected String identifier;
     private int selectionIndex;
     private OnSelectionChangedListener listener;
     private final Map<String, ParsedOperator> operatorsMap;
     private ParsedOperator currentOperator;
 
-    public GraphOperator(String name) {
+    protected GraphOperator(String identifier, boolean addIdToIdentifier) {
         super();
-        this.name = name;
+        this.identifier = identifier + (addIdToIdentifier ? getId() : "");
         this.selectionIndex = -1;
         this.operatorsMap = new HashMap<>();
     }
@@ -46,14 +46,18 @@ public abstract class GraphOperator extends GraphObject implements JsonExported 
         this.listener = listener;
     }
 
-    public String getName() {
-        return name;
+    public String getIdentifier() {
+        return identifier;
+    }
+
+    public void setIdentifier(@Nonnull String identifier) {
+        this.identifier = identifier.trim().replace(" ", "");
     }
 
     @Override
     @Nonnull
     public String toString() {
-        return (isSelected() ? "[" + (selectionIndex == 0 ? "FROM" : "TO") + "] " : "") + name + " (" + (currentOperator == null ? "" : (currentOperator.getOperatorName() + ", ")) + id + ")";
+        return (isSelected() ? "[" + (selectionIndex == 0 ? "FROM" : "TO") + "] " : "") + identifier + " (" + (currentOperator == null ? "" : (currentOperator.getOperatorName() + ", ")) + id + ")";
     }
 
     @Override
@@ -88,7 +92,7 @@ public abstract class GraphOperator extends GraphObject implements JsonExported 
     @Override
     public JSONObject toJsonObject() {
         JSONObject o = new JSONObject();
-        o.put("name", name);
+        o.put("name", identifier);
         o.put("ops", getOperatorsAsJson());
         int type;
         if (this instanceof SourceOperator) {
@@ -112,7 +116,7 @@ public abstract class GraphOperator extends GraphObject implements JsonExported 
     }
 
     public GraphOperator fromJsonObject(JSONObject from, ParsedSPE parsedSPE) {
-        name = from.getString("name");
+        identifier = from.getString("name");
         operatorsMap.clear();
         JSONObject ops = from.getJSONObject("ops");
         for (String operatorName : ops.keySet()) {

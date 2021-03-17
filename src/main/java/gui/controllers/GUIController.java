@@ -24,7 +24,6 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
@@ -37,7 +36,10 @@ import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 public class GUIController {
     private GUI gui;
@@ -54,13 +56,11 @@ public class GUIController {
     @FXML
     public Button btnAddSource, btnAddOp, btnAddSink, btnConnect, btnDisconnect, btnModify, btnSelectFile, btnGenerate;
     @FXML
-    public TextField tFName, tfIdentifier, tFInput1, tFInput2, tFOutput1, tFOutput2;
+    public TextField tfIdentifier, tFInput1, tFInput2, tFOutput1, tFOutput2;
     @FXML
     public ChoiceBox<String> cBTypeSource, cBTypeRegular, cBTypeSink;
     @FXML
     public VBox vBDetails, vBInputs, vBOutputs;
-    @FXML
-    public HBox hBIdentifier;
     @FXML
     public MenuItem mIChangeSpe, mIExport, mIImport;
     @FXML
@@ -100,25 +100,22 @@ public class GUIController {
         } else {
             vBDetails.setVisible(true);
             vBDetails.setDisable(false);
-            tFName.setText(selectedOperator.getName());
+            tfIdentifier.setText(selectedOperator.getIdentifier());
             ParsedOperator po = selectedOperator.getCurrentOperator();
             setSelectedType(po, singleClickedOperator);
-            setCodeDetails(po);
+            setCodeDetails(po, selectedOperator.getIdentifier());
         }
     }
 
-    private void setCodeDetails(@Nullable ParsedOperator po) {
+    private void setCodeDetails(@Nullable ParsedOperator po, @Nonnull String operatorIdentifier) {
         if (po == null) {
             vBInputs.setVisible(false);
             vBOutputs.setVisible(false);
-            hBIdentifier.setVisible(false);
             btnModify.setDisable(true);
             tACode.setText("");
         } else {
-            hBIdentifier.setVisible(true);
             ParsedOperator.Definition def = po.getDefinition();
             btnModify.setDisable(!def.isModifiable());
-            tfIdentifier.setText(def.getIdentifier());
             final int inputs = def.getInputCount();
             final int outputs = def.getOutputCount();
             if (inputs > 0) {
@@ -149,7 +146,7 @@ public class GUIController {
             } else {
                 vBOutputs.setVisible(false);
             }
-            tACode.setText(def.getCode());
+            tACode.setText(def.getCode(operatorIdentifier));
         }
     }
 
@@ -315,19 +312,19 @@ public class GUIController {
     private void initButtonListeners(GUI gui) {
         btnAddOp.setOnAction(event -> {
             if (graph != null) {
-                graph.insertVertex(new Operator("OP"));
+                graph.insertVertex(new Operator());
                 update();
             }
         });
         btnAddSource.setOnAction(event -> {
             if (graph != null) {
-                graph.insertVertex(new SourceOperator("Source"));
+                graph.insertVertex(new SourceOperator());
                 update();
             }
         });
         btnAddSink.setOnAction(event -> {
             if (graph != null) {
-                graph.insertVertex(new SinkOperator("Sink"));
+                graph.insertVertex(new SinkOperator());
                 update();
             }
         });
@@ -381,7 +378,7 @@ public class GUIController {
 
             File dir = directoryChooser.showDialog(gui.getPrimaryStage());
             if (dir != null) {
-                File file = new File(dir, "export-" + System.currentTimeMillis() + ".gui");
+                File file = new File(dir, "export-" + System.currentTimeMillis() + ".json");
                 Files.writeFile(file, o.toString());
             }
             System.out.println(o);
@@ -394,9 +391,11 @@ public class GUIController {
             File file = fileChooser.showOpenDialog(gui.getPrimaryStage());
             if (file != null) {
                 List<Node<GraphOperator>> opsList = ExportManager.projectFromFile(file, parsedSPE);
+                Set<String> addedIdentifiers = new HashSet<>();
+                List<GraphOperator> addedNodes = new LinkedList<>();
                 graph.clearGraph();
                 if (opsList != null) {
-                    addToGraph(opsList, null);
+                    addToGraph(opsList, null, addedIdentifiers, addedNodes);
                 }
                 graphView.update();
             }
@@ -407,10 +406,10 @@ public class GUIController {
             if (!def.isModifiable()) {
                 return;
             }
-            String result = showModifyPopupWindow(def);
+            String result = showModifyPopupWindow(def, singleClickedOperator.getIdentifier());
             if (result != null) { // null if Done was not pressed
                 def.setCodeMiddle(result);
-                tACode.setText(def.getCode());
+                tACode.setText(def.getCode(singleClickedOperator.getIdentifier()));
             }
         });
         TextField[] tfsIn = new TextField[]{tFInput1, tFInput2};
@@ -418,39 +417,33 @@ public class GUIController {
         for (int i = 0; i < tfsIn.length; i++) {
             TextField tf = tfsIn[i];
             int finalI = i;
-            tf.focusedProperty().addListener((observable, oldValue, newValue) -> {
-                if (!newValue) { // out of focus
-                    ParsedOperator op = singleClickedOperator.getCurrentOperator();
-                    if (op != null) {
-                        ParsedOperator.Definition def = op.getDefinition();
-                        def.setInputPlaceholders(finalI, tf.getText());
-                        tACode.setText(def.getCode());
-                    }
+            tf.textProperty().addListener((observable, oldValue, newValue) -> {
+                ParsedOperator op = singleClickedOperator.getCurrentOperator();
+                if (op != null) {
+                    ParsedOperator.Definition def = op.getDefinition();
+                    def.setInputPlaceholders(finalI, tf.getText());
+                    tACode.setText(def.getCode(singleClickedOperator.getIdentifier()));
                 }
             });
         }
         for (int i = 0; i < tfsOut.length; i++) {
             TextField tf = tfsOut[i];
             int finalI = i;
-            tf.focusedProperty().addListener((observable, oldValue, newValue) -> {
-                if (!newValue) { // out of focus
-                    ParsedOperator op = singleClickedOperator.getCurrentOperator();
-                    if (op != null) {
-                        ParsedOperator.Definition def = op.getDefinition();
-                        def.setOutputPlaceholders(finalI, tf.getText());
-                        tACode.setText(def.getCode());
-                    }
-                }
-            });
-        }
-        tfIdentifier.focusedProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue) { // out of focus
+            tf.textProperty().addListener((observable, oldValue, newValue) -> {
                 ParsedOperator op = singleClickedOperator.getCurrentOperator();
                 if (op != null) {
                     ParsedOperator.Definition def = op.getDefinition();
-                    def.setIdentifier(tfIdentifier.getText());
-                    tACode.setText(def.getCode());
+                    def.setOutputPlaceholders(finalI, tf.getText());
+                    tACode.setText(def.getCode(singleClickedOperator.getIdentifier()));
                 }
+            });
+        }
+        tfIdentifier.textProperty().addListener((observable, oldValue, newValue) -> {
+            singleClickedOperator.setIdentifier(tfIdentifier.getText());
+            ParsedOperator op = singleClickedOperator.getCurrentOperator();
+            if (op != null) {
+                ParsedOperator.Definition def = op.getDefinition();
+                tACode.setText(def.getCode(singleClickedOperator.getIdentifier()));
             }
         });
         btnSelectFile.setOnAction(event -> {
@@ -487,22 +480,35 @@ public class GUIController {
         });
     }
 
-    private void addToGraph(@Nonnull List<Node<GraphOperator>> opsList, @Nullable GraphOperator parent) {
+    private void addToGraph(@Nonnull List<Node<GraphOperator>> opsList, @Nullable GraphOperator parent, Set<String> addedIdentifiers, List<GraphOperator> addedNodes) {
         for (Node<GraphOperator> node : opsList) {
-            final GraphOperator op = node.getItem();
-            graph.insertVertex(op);
+            GraphOperator op = node.getItem();
+            if (!addedIdentifiers.contains(op.getIdentifier())) {
+                graph.insertVertex(op);
+                addedIdentifiers.add(op.getIdentifier());
+                addedNodes.add(op);
+
+                List<Node<GraphOperator>> successors = node.getSuccessors();
+                if (!successors.isEmpty()) {
+                    addToGraph(successors, op, addedIdentifiers, addedNodes);
+                }
+            } else {
+                for (GraphOperator go : addedNodes) {
+                    if (go.getIdentifier().equals(op.getIdentifier())) {
+                        op = go;
+                        break;
+                    }
+                }
+            }
+
             if (parent != null) {
                 graph.insertEdge(parent, op, new Stream());
-            }
-            List<Node<GraphOperator>> successors = node.getSuccessors();
-            if (!successors.isEmpty()) {
-                addToGraph(successors, op);
             }
         }
     }
 
     @Nullable
-    private String showModifyPopupWindow(ParsedOperator.Definition def) { // From https://stackoverflow.com/a/37417736/7232269
+    private String showModifyPopupWindow(ParsedOperator.Definition def, String identifier) { // From https://stackoverflow.com/a/37417736/7232269
         FXMLLoader loader = new FXMLLoader(GUI.class.getResource("popup.fxml"));
 
         // initializing the controller
@@ -520,7 +526,7 @@ public class GUIController {
             }
             popupStage.initModality(Modality.WINDOW_MODAL);
             popupStage.setScene(scene);
-            controller.init(def);
+            controller.init(def, identifier);
             popupStage.showAndWait();
             return controller.getResult();
         } catch (IOException e) {

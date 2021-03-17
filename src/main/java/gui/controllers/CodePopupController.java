@@ -22,10 +22,10 @@ public class CodePopupController implements Initializable {
     private Stage stage = null;
     private String result = null;
 
-    public void init(@Nonnull ParsedOperator.Definition definition) {
-        lblCodeBefore.setText(definition.getCodeBefore(true));
+    public void init(@Nonnull ParsedOperator.Definition definition, @Nonnull String operatorIdentifier) {
+        lblCodeBefore.setText(definition.getCodeBefore(true, operatorIdentifier));
         lblCodeAfter.setText(definition.getCodeAfter());
-        tACode.setText(definition.getCodeMiddle(true));
+        tACode.setText(definition.getCodeMiddle(true, operatorIdentifier));
     }
 
     @Override

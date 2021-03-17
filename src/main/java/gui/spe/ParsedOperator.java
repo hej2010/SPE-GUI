@@ -1,5 +1,6 @@
 package gui.spe;
 
+import gui.graph.export.ExportManager;
 import gui.graph.export.JsonExported;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -48,7 +49,6 @@ public class ParsedOperator implements Cloneable, JsonExported {
         private String codeMiddle;
         private final List<String> inputPlaceholders, outputPlaceholders;
         private final String identifierPlaceholder;
-        private String identifier;
         private final boolean modifiable;
 
         Definition(String codeBefore, String codeMiddle, String codeAfter, @Nonnull List<String> inputPlaceholders, @Nonnull List<String> outputPlaceholders, String identifierPlaceholder) {
@@ -58,7 +58,6 @@ public class ParsedOperator implements Cloneable, JsonExported {
             this.inputPlaceholders = inputPlaceholders;
             this.outputPlaceholders = outputPlaceholders;
             this.identifierPlaceholder = identifierPlaceholder;
-            this.identifier = identifierPlaceholder;
             this.modifiable = !codeMiddle.isEmpty();
         }
 
@@ -72,15 +71,15 @@ public class ParsedOperator implements Cloneable, JsonExported {
             return modifiable;
         }
 
-        public String getCodeBefore(boolean replace) {
-            return getReplaced(replace, codeBefore);
+        public String getCodeBefore(boolean replace, String operatorIdentifier) {
+            return getReplaced(replace, codeBefore, operatorIdentifier);
         }
 
-        public String getCodeMiddle(boolean replace) {
-            return getReplaced(replace, codeMiddle);
+        public String getCodeMiddle(boolean replace, String operatorIdentifier) {
+            return getReplaced(replace, codeMiddle, operatorIdentifier);
         }
 
-        private String getReplaced(boolean replace, String codeMiddle) {
+        private String getReplaced(boolean replace, String codeMiddle, String operatorIdentifier) {
             String middle = codeMiddle;
             if (replace) {
                 for (int i = 1; i <= getInputCount(); i++) {
@@ -89,7 +88,7 @@ public class ParsedOperator implements Cloneable, JsonExported {
                 for (int i = 1; i <= getOutputCount(); i++) {
                     middle = middle.replace(PLACEHOLDER_OUT + i, outputPlaceholders.get(i - 1));
                 }
-                middle = middle.replace(identifierPlaceholder, identifier);
+                middle = middle.replace(identifierPlaceholder, operatorIdentifier);
             }
             return middle;
         }
@@ -142,34 +141,23 @@ public class ParsedOperator implements Cloneable, JsonExported {
         }
 
         @Nonnull
-        public String getCode() {
-            return getCodeBefore(true) + "\n" + getCodeMiddle(true) + "\n" + getCodeAfter();
-        }
-
-        @Nonnull
-        public String getIdentifier() {
-            return identifier;
-        }
-
-        public void setIdentifier(@Nonnull String identifier) {
-            this.identifier = identifier.trim().replace(" ", "");
+        public String getCode(String operatorIdentifier) {
+            return getCodeBefore(true, operatorIdentifier) + "\n" + getCodeMiddle(true, operatorIdentifier) + "\n" + getCodeAfter();
         }
 
         @Override
         public JSONObject toJsonObject() {
             JSONObject o = new JSONObject();
-            o.put("middle", codeMiddle);
-            o.put("identifier", identifier);
-            o.put("in", new JSONArray(inputPlaceholders));
-            o.put("out", new JSONArray(outputPlaceholders));
+            o.put(ExportManager.EXPORT_MIDDLE, codeMiddle);
+            o.put(ExportManager.EXPORT_IN, new JSONArray(inputPlaceholders));
+            o.put(ExportManager.EXPORT_OUT, new JSONArray(outputPlaceholders));
             return o;
         }
 
         public Definition fromJsonObject(JSONObject from) {
-            codeMiddle = from.getString("middle");
-            identifier = from.getString("identifier");
-            setNewList(inputPlaceholders, from.getJSONArray("in"));
-            setNewList(outputPlaceholders, from.getJSONArray("out"));
+            codeMiddle = from.getString(ExportManager.EXPORT_MIDDLE);
+            setNewList(inputPlaceholders, from.getJSONArray(ExportManager.EXPORT_IN));
+            setNewList(outputPlaceholders, from.getJSONArray(ExportManager.EXPORT_OUT));
             return this;
         }
 
@@ -184,14 +172,14 @@ public class ParsedOperator implements Cloneable, JsonExported {
     @Override
     public JSONObject toJsonObject() {
         JSONObject o = new JSONObject();
-        o.put("name", operatorName);
-        o.put("type", type);
-        o.put("definition", definition.toJsonObject());
+        o.put(ExportManager.EXPORT_NAME, operatorName);
+        o.put(ExportManager.EXPORT_TYPE, type);
+        o.put(ExportManager.EXPORT_DEFINITION, definition.toJsonObject());
         return o;
     }
 
     public static ParsedOperator fromJsonObject(JSONObject from, Definition definition) {
-        return new ParsedOperator(from.getString("name"), definition.fromJsonObject(from.getJSONObject("definition")), from.getInt("type"));
+        return new ParsedOperator(from.getString(ExportManager.EXPORT_NAME), definition.fromJsonObject(from.getJSONObject(ExportManager.EXPORT_DEFINITION)), from.getInt(ExportManager.EXPORT_TYPE));
     }
 
 }

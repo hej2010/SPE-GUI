@@ -162,12 +162,6 @@
                         <Insets left="5.0" right="5.0" />
                      </padding>
                      <children>
-                        <HBox alignment="CENTER_LEFT" prefHeight="40.0">
-                           <children>
-                              <Label prefHeight="17.0" prefWidth="64.0" text="Name:" />
-                              <TextField fx:id="tFName" promptText="Name" />
-                           </children>
-                        </HBox>
                         <HBox fx:id="hBIdentifier" alignment="CENTER_LEFT" prefHeight="28.0" prefWidth="203.0">
                            <children>
                               <Label prefHeight="17.0" prefWidth="64.0" text="Identifier:" />
