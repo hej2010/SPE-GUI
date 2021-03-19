@@ -50,6 +50,7 @@
 <?import javafx.scene.paint.Color?>
 <?import javafx.scene.text.Font?>
 
+<?import gui.views.AutoCompleteTextField?>
 <VBox prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.controllers.GUIController">
   <children>
     <MenuBar VBox.vgrow="NEVER">
@@ -190,13 +191,13 @@
                               <HBox alignment="CENTER_LEFT" prefHeight="28.0" prefWidth="203.0">
                                  <children>
                                     <Label prefHeight="17.0" prefWidth="64.0" text="Input1:" />
-                                    <TextField fx:id="tFInput1" prefHeight="25.0" promptText="Class" />
+                                    <AutoCompleteTextField fx:id="tFInput1" prefHeight="25.0" promptText="Class" />
                                  </children>
                               </HBox>
                               <HBox alignment="CENTER_LEFT" prefHeight="28.0" prefWidth="203.0">
                                  <children>
                                     <Label prefHeight="17.0" prefWidth="64.0" text="Input2:" />
-                                    <TextField fx:id="tFInput2" prefHeight="25.0" promptText="Class" />
+                                    <AutoCompleteTextField fx:id="tFInput2" prefHeight="25.0" promptText="Class" />
                                  </children>
                               </HBox>
                            </children>
@@ -211,13 +212,13 @@
                               <HBox alignment="CENTER_LEFT" prefHeight="28.0" prefWidth="203.0">
                                  <children>
                                     <Label prefHeight="17.0" prefWidth="64.0" text="Output1:" />
-                                    <TextField fx:id="tFOutput1" prefHeight="25.0" promptText="Class" />
+                                    <AutoCompleteTextField fx:id="tFOutput1" prefHeight="25.0" promptText="Class" />
                                  </children>
                               </HBox>
                               <HBox alignment="CENTER_LEFT" prefHeight="28.0" prefWidth="203.0">
                                  <children>
                                     <Label prefHeight="17.0" prefWidth="64.0" text="Output2:" />
-                                    <TextField fx:id="tFOutput2" prefHeight="25.0" promptText="Class" />
+                                    <AutoCompleteTextField fx:id="tFOutput2" prefHeight="25.0" promptText="Class" />
                                  </children>
                               </HBox>
                            </children>

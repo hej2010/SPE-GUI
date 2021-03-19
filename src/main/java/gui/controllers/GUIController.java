@@ -13,11 +13,15 @@ import gui.graph.dag.DirectedGraph;
 import gui.graph.dag.Node;
 import gui.graph.data.*;
 import gui.graph.export.ExportManager;
+import gui.spe.ParsedLiebreSPE;
 import gui.spe.ParsedOperator;
 import gui.spe.ParsedSPE;
+import gui.spe.SPEParser;
 import gui.utils.Files;
+import gui.views.AutoCompleteTextField;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
+import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -35,11 +39,9 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.file.Paths;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class GUIController {
     private GUI gui;
@@ -56,7 +58,9 @@ public class GUIController {
     @FXML
     public Button btnAddSource, btnAddOp, btnAddSink, btnConnect, btnDisconnect, btnModify, btnSelectFile, btnGenerate;
     @FXML
-    public TextField tfIdentifier, tFInput1, tFInput2, tFOutput1, tFOutput2;
+    public TextField tfIdentifier;
+    @FXML
+    public AutoCompleteTextField<String> tFInput1, tFInput2, tFOutput1, tFOutput2;
     @FXML
     public ChoiceBox<String> cBTypeSource, cBTypeRegular, cBTypeSink;
     @FXML
@@ -90,6 +94,37 @@ public class GUIController {
         setDetails(null);
         initButtonListeners(gui);
         Platform.runLater(this::initGraph);
+        new Thread(() -> {
+            try {
+                initAutoCompletion();
+            } catch (URISyntaxException | IOException e) {
+                e.printStackTrace();
+            }
+        }).start();
+    }
+
+    private void initAutoCompletion() throws URISyntaxException, IOException {
+        String fileName = (parsedSPE instanceof ParsedLiebreSPE ? "liebre" : "flink") + "-classes.txt";
+        String file = Files.readFile(Paths.get(Paths.get(SPEParser.class.getClassLoader().getResource("gui").toURI()).toString(), fileName).toString());
+        String javaFiles = Files.readFile(Paths.get(Paths.get(SPEParser.class.getClassLoader().getResource("gui").toURI()).toString(), "java-classes.txt").toString());
+        String both = file + "," + javaFiles;
+
+        SortedSet<String> set = new TreeSet<>(Arrays.asList(both.split(",")));
+
+        tFInput1.setEntries(set);
+        tFInput2.setEntries(set);
+        tFOutput1.setEntries(set);
+        tFOutput2.setEntries(set);
+
+        tFInput1.getEntryMenu().setOnAction(e -> {
+            ((MenuItem) e.getTarget()).addEventHandler(Event.ANY, event ->
+            {
+                if (tFInput1.getLastSelectedObject() != null) {
+                    tFInput1.setText(tFInput1.getLastSelectedObject());
+                    System.out.println(tFInput1.getLastSelectedObject());
+                }
+            });
+        });
     }
 
     private void setDetails(@Nullable GraphOperator selectedOperator) {

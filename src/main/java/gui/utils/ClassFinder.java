@@ -1,7 +1,6 @@
 package gui.utils;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.*;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -22,7 +21,10 @@ public class ClassFinder {
         System.out.println(p);
         findClassesIn(new ConcurrentLinkedQueue<>(), p);*/
         Path p = Paths.get(Paths.get(".").toAbsolutePath().normalize().toString(), "/src/main/java/gui");
+        //Path p = new File("").toPath();
         Set<String> set = findJavaClassesIn(p.toFile());
+        //gui.utils.Files.writeFile(Paths.get("." + System.currentTimeMillis() + ".txt").toFile(), StringStuff.toCommaSeparatedString(set));
+        System.out.println(StringStuff.toCommaSeparatedString(set));
     }
 
     /**
@@ -31,7 +33,7 @@ public class ClassFinder {
      * @param directory the root directory to traverse
      * @return a set of all class names
      */
-    @Nullable
+    @Nonnull
     public static Set<String> findJavaClassesIn(@Nonnull File directory) {
         final long start = System.currentTimeMillis();
         Queue<String> javaClasses = new ConcurrentLinkedQueue<>();
@@ -44,10 +46,10 @@ public class ClassFinder {
             startThread.start();
         } catch (IOException e) {
             e.printStackTrace();
-            return null;
+            return new HashSet<>();
         }
         Thread t;
-        while ((t = threads.peek()) != null) {
+        while ((t = threads.peek()) != null) { // wait for all threads to finish
             try {
                 t.join();
                 threads.remove();
@@ -55,8 +57,9 @@ public class ClassFinder {
                 e.printStackTrace();
             }
         }
-        System.err.println("findJavaClassesIn took " + (System.currentTimeMillis() - start) + " ms");
-        return new HashSet<>(javaClasses);
+        Set<String> set = new HashSet<>(javaClasses);
+        System.err.println("findJavaClassesIn() took " + (System.currentTimeMillis() - start) + " ms, found " + set.size() + " classes");
+        return set;
     }
 
     private static void findClassFilesIn(Queue<String> javaClasses, DirectoryStream<Path> dirStream, Queue<Thread> threads) {
@@ -75,7 +78,7 @@ public class ClassFinder {
             } else {
                 String fileName = p.getFileName().toString();
                 if (fileName.endsWith(".java")) {
-                    Thread readerThread = new Thread(() -> findClassesIn(javaClasses, p));
+                    Thread readerThread = new Thread(() -> findClassesInFile(javaClasses, p.toFile()));
                     threads.add(readerThread);
                     readerThread.start();
                 }
@@ -83,12 +86,12 @@ public class ClassFinder {
         }
     }
 
-    private static void findClassesIn(Queue<String> javaClasses, Path p) {
+    private static void findClassesInFile(Queue<String> javaClasses, File file) {
 
         String currentLine;
         BufferedReader bufferedReader;
         try {
-            bufferedReader = new BufferedReader(new FileReader(p.toFile().getPath()));
+            bufferedReader = new BufferedReader(new FileReader(file.getPath()));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             return;
@@ -99,7 +102,7 @@ public class ClassFinder {
                 Matcher classDeclarationMatcher = classDeclarationPattern.matcher(currentLine);
                 if (classDeclarationMatcher.matches() && classDeclarationMatcher.groupCount() > 8) {
                     String className = classDeclarationMatcher.group(8);
-                    System.out.println("Found class in file: " + className);
+                    //System.out.println("Found class in file: " + className);
                     javaClasses.add(className);
                 }
             }
