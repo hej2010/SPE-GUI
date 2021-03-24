@@ -1,0 +1,169 @@
+{
+  "name": "Liebre",
+  "operators": {
+    "sources": [
+      "SourceFunction",
+      "TextFileSource"
+    ],
+    "sinks": [
+      "SinkFunction"
+    ],
+    "regular": [
+      "Map",
+      "FlatMap",
+      "Filter",
+      "KeyBy",
+      "Reduce",
+      "sum",
+      "min",
+      "max",
+      "minBy",
+      "maxBy",
+      "Window",
+      "WindowAll",
+      "Window Apply",
+      "Window Reduce",
+      "Union",
+      "Window Join",
+      "Interval Join",
+      "Window CoGroup",
+      "Connect",
+      "CoMap",
+      "CoFlatMap"
+    ]
+  },
+  "imports": {
+    "base": [
+      "org.apache.flink.streaming.api.environment.StreamExecutionEnvironment",
+      "org.apache.flink.streaming.api.datastream.DataStream"
+    ],
+    "SourceFunction": [
+      "org.apache.flink.streaming.api.functions.source.SourceFunction"
+    ],
+    "SinkFunction": [
+      "org.apache.flink.streaming.api.functions.sink.SinkFunction"
+    ],
+    "Map": [
+      "org.apache.flink.api.common.functions.MapFunction"
+    ],
+    "FlatMap": [
+      "org.apache.flink.api.common.functions.FlatMapFunction"
+    ],
+    "Filter": [
+      "org.apache.flink.api.common.functions.FilterFunction"
+    ],
+    "Reduce": [
+      "org.apache.flink.api.common.functions.ReduceFunction"
+    ]
+  },
+  "definition": {
+    "base": [
+      "final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();"
+    ],
+    "SourceFunction": {
+      "before": "DataStream<@IN1> @ID = env.addSource(new SourceFunction<@IN1>() {",
+      "middle": "@Override\npublic void run(SourceContext<@IN1> ctx) throws Exception {\n//\n}\n\n@Override\npublic void cancel() {\n//\n}",
+      "after": "});",
+      "placeholders": {
+        "input": [
+          "@IN1"
+        ],
+        "output": [
+        ],
+        "identifier": "@ID"
+      }
+    },
+    "TextFileSource": {
+      "before": "DataStream<@OUT1> @ID = env.readTextFile(",
+      "middle": "file:///path/to/file",
+      "after": ");",
+      "placeholders": {
+        "input": [
+        ],
+        "output": [
+          "@OUT1"
+        ],
+        "identifier": "@ID"
+      }
+    },
+    "SinkFunction": {
+      "before": "DataStreamSink<@IN1> @ID = text.addSink(new SinkFunction<>() {\n@Override\npublic void invoke(@IN1 value, Context context) throws Exception {",
+      "middle": "//",
+      "after": "}\n});",
+      "placeholders": {
+        "input": [
+          "@IN1"
+        ],
+        "output": [
+        ],
+        "identifier": "@ID"
+      }
+    },
+    "Map": {
+      "before": "@ID.map((MapFunction<@IN1, @OUT1>) value -> {",
+      "middle": "return null;",
+      "after": "});",
+      "placeholders": {
+        "input": [
+          "@IN1"
+        ],
+        "output": [
+          "@OUT1"
+        ],
+        "identifier": "@ID"
+      }
+    },
+    "FlatMap": {
+      "before": "@ID.flatMap((FlatMapFunction<@IN1, @OUT1>) (value, out) -> {",
+      "middle": "//out.collect(value);",
+      "after": "});",
+      "placeholders": {
+        "input": [
+          "@IN1"
+        ],
+        "output": [
+          "@OUT1"
+        ],
+        "identifier": "@ID"
+      }
+    },
+    "Filter": {
+      "before": "@ID.filter((FilterFunction<@IN1>) value -> {",
+      "middle": "return false;",
+      "after": "});",
+      "placeholders": {
+        "input": [
+          "@IN1"
+        ],
+        "output": [
+        ],
+        "identifier": "@ID"
+      }
+    },
+    "KeyBy": {
+      "before": "@ID.keyBy(value ->",
+      "middle": "// value.getSomeKey()",
+      "after": ");",
+      "placeholders": {
+        "input": [
+        ],
+        "output": [
+        ],
+        "identifier": "@ID"
+      }
+    },
+    "Reduce": {
+      "before": "@ID.reduce((ReduceFunction<@IN1>) (value1, value2) -> {",
+      "middle": "// return value1 + value2",
+      "after": "});",
+      "placeholders": {
+        "input": [
+          "@IN1"
+        ],
+        "output": [
+        ],
+        "identifier": "@ID"
+      }
+    }
+  }
+}

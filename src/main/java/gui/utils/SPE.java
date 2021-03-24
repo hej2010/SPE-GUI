@@ -7,7 +7,7 @@ import java.util.List;
 
 public enum SPE {
     LIEBRE("Liebre", "liebre.json"),
-    FLINK("Apache Flink", "flink.json");
+    FLINK("Apache Flink", "apache-flink.json");
 
     public final String name, fileName;
 

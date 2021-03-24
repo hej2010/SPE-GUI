@@ -11,20 +11,16 @@ import component.operator.in1.map.FlatMapFunction;
 import component.operator.in1.map.MapFunction;
 import component.operator.in2.BaseOperator2In;
 import component.operator.router.RouterOperator;
-import component.sink.Sink;
-import component.sink.SinkFunction;
 import component.source.Source;
-import component.source.SourceFunction;
 import query.LiebreContext;
 import query.Query;
 
 import java.net.InetSocketAddress;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
-public class SimpleQuery {
+public class SimpleLiebreQuery {
     public static void main(String[] args) {
 
         LiebreContext.setOperatorMetrics(Metrics.dropWizard());
@@ -79,7 +75,7 @@ public class SimpleQuery {
             //
             return null;
         });
-        Source<String> sink2 =q.addTextFileSource("fd",
+        Source<String> sink2 = q.addTextFileSource("fd",
                 "fdfd"
         );
 

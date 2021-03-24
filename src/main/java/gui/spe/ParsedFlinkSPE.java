@@ -20,5 +20,4 @@ public class ParsedFlinkSPE extends ParsedSPE {
         return "todo";
     }
 
-    // TODO the connection method etc is different for each SPE
 }
