@@ -87,7 +87,7 @@
       }
     },
     "SinkFunction": {
-      "before": "DataStreamSink<@IN1> @ID = text.addSink(new SinkFunction<>() {\n@Override\npublic void invoke(@IN1 value, Context context) throws Exception {",
+      "before": "DataStreamSink<@IN1> @ID = @PID.addSink(new SinkFunction<>() {\n@Override\npublic void invoke(@IN1 value, Context context) throws Exception {",
       "middle": "//",
       "after": "}\n});",
       "placeholders": {
@@ -96,11 +96,12 @@
         ],
         "output": [
         ],
-        "identifier": "@ID"
+        "identifier": "@ID",
+        "prev_identifier": "@PID"
       }
     },
     "Map": {
-      "before": "@ID.map((MapFunction<@IN1, @OUT1>) value -> {",
+      "before": "DataStream<@OUT1> @ID = @PID.map((MapFunction<@IN1, @OUT1>) value -> {",
       "middle": "return null;",
       "after": "});",
       "placeholders": {
@@ -110,11 +111,12 @@
         "output": [
           "@OUT1"
         ],
-        "identifier": "@ID"
+        "identifier": "@ID",
+        "prev_identifier": "@PID"
       }
     },
     "FlatMap": {
-      "before": "@ID.flatMap((FlatMapFunction<@IN1, @OUT1>) (value, out) -> {",
+      "before": "DataStream<@OUT1> @ID = @PID.flatMap((FlatMapFunction<@IN1, @OUT1>) (value, out) -> {",
       "middle": "//out.collect(value);",
       "after": "});",
       "placeholders": {
@@ -124,11 +126,12 @@
         "output": [
           "@OUT1"
         ],
-        "identifier": "@ID"
+        "identifier": "@ID",
+        "prev_identifier": "@PID"
       }
     },
     "Filter": {
-      "before": "@ID.filter((FilterFunction<@IN1>) value -> {",
+      "before": "DataStream<@IN1> @ID = @PID.filter((FilterFunction<@IN1>) value -> {",
       "middle": "return false;",
       "after": "});",
       "placeholders": {
@@ -137,24 +140,28 @@
         ],
         "output": [
         ],
-        "identifier": "@ID"
+        "identifier": "@ID",
+        "prev_identifier": "@PID"
       }
     },
     "KeyBy": {
-      "before": "@ID.keyBy(value ->",
-      "middle": "// value.getSomeKey()",
+      "before": "KeyedStream<@IN1, @IN2> @ID = @PID.keyBy((KeySelector<@IN1, @IN2>) value -> {",
+      "middle": "return null; // value.getSomeKey()",
       "after": ");",
       "placeholders": {
         "input": [
+          "@IN1",
+          "@IN2"
         ],
         "output": [
         ],
-        "identifier": "@ID"
+        "identifier": "@ID",
+        "prev_identifier": "@PID"
       }
     },
     "Reduce": {
-      "before": "@ID.reduce((ReduceFunction<@IN1>) (value1, value2) -> {",
-      "middle": "// return value1 + value2",
+      "before": "DataStream<@IN1> @ID = @PID.reduce((ReduceFunction<@IN1>) (value1, value2) -> {",
+      "middle": "return null; // return value1 + value2",
       "after": "});",
       "placeholders": {
         "input": [
@@ -162,7 +169,8 @@
         ],
         "output": [
         ],
-        "identifier": "@ID"
+        "identifier": "@ID",
+        "prev_identifier": "@PID"
       }
     }
   }

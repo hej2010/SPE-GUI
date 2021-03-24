@@ -32,6 +32,7 @@ public class SPEParser {
     private static final String INPUT = "input";
     private static final String OUTPUT = "output";
     private static final String IDENTIFIER = "identifier";
+    private static final String PREV_IDENTIFIER = "prev_identifier";
 
     public static ParsedSPE parseSPE(@Nonnull SPE spe) throws IOException, URISyntaxException {
         URL url = SPEParser.class.getClassLoader().getResource("gui");
@@ -90,7 +91,11 @@ public class SPEParser {
         List<String> input = getStringListFromArr(o.getJSONArray(INPUT));
         List<String> output = getStringListFromArr(o.getJSONArray(OUTPUT));
         String identifier = getStringOrEmpty(IDENTIFIER, o);
-        return new ParsedOperator.Definition(codeBefore, codeMiddle, codeAfter, input, output, identifier);
+        String prevIdentifier = getStringOrEmpty(PREV_IDENTIFIER, o);
+        if (prevIdentifier.isEmpty()) {
+            prevIdentifier = null;
+        }
+        return new ParsedOperator.Definition(codeBefore, codeMiddle, codeAfter, input, output, identifier, prevIdentifier);
     }
 
     private static String getStringOrEmpty(String s, JSONObject o) {

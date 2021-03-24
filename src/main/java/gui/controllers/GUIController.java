@@ -9,14 +9,12 @@ import com.brunomnsilva.smartgraph.graphview.SmartGraphPanel;
 import com.brunomnsilva.smartgraph.graphview.SmartPlacementStrategy;
 import com.brunomnsilva.smartgraph.graphview.SmartStylableNode;
 import gui.GUI;
+import gui.controllers.spe.FlinkController;
 import gui.graph.dag.DirectedGraph;
 import gui.graph.dag.Node;
 import gui.graph.data.*;
 import gui.graph.export.ExportManager;
-import gui.spe.ParsedLiebreSPE;
-import gui.spe.ParsedOperator;
-import gui.spe.ParsedSPE;
-import gui.spe.SPEParser;
+import gui.spe.*;
 import gui.utils.Files;
 import gui.views.AutoCompleteTextField;
 import javafx.application.Platform;
@@ -135,14 +133,15 @@ public class GUIController {
         } else {
             vBDetails.setVisible(true);
             vBDetails.setDisable(false);
-            tfIdentifier.setText(selectedOperator.getIdentifier());
+            tfIdentifier.setText(selectedOperator.getIdentifier().get());
             ParsedOperator po = selectedOperator.getCurrentOperator();
             setSelectedType(po, singleClickedOperator);
-            setCodeDetails(po, selectedOperator.getIdentifier());
+            setCodeDetails(selectedOperator);
         }
     }
 
-    private void setCodeDetails(@Nullable ParsedOperator po, @Nonnull String operatorIdentifier) {
+    private void setCodeDetails(@Nonnull GraphOperator op) {
+        final ParsedOperator po = op.getCurrentOperator();
         if (po == null) {
             vBInputs.setVisible(false);
             vBOutputs.setVisible(false);
@@ -181,7 +180,7 @@ public class GUIController {
             } else {
                 vBOutputs.setVisible(false);
             }
-            tACode.setText(def.getCode(operatorIdentifier));
+            tACode.setText(def.getCode(op));
         }
     }
 
@@ -369,11 +368,11 @@ public class GUIController {
                     GraphOperator from = selectedOps[0];
                     GraphOperator to = selectedOps[1];
                     assert from != null && to != null;
-                    if (from instanceof SinkOperator || to instanceof SourceOperator) {
+                    if (from instanceof SinkOperator || to instanceof SourceOperator) { // wrong stream direction
                         return;
                     }
                     // TODO cancel if creates a cycle
-                    graph.insertEdge(from, to, new Stream());
+                    graph.insertEdge(from, to, new Stream()); // add an edge between them
                     from.setSelectedIndex(-1);
                     to.setSelectedIndex(-1);
                     setVertexSelectedStyle(false, from);
@@ -382,6 +381,12 @@ public class GUIController {
                     selectedOps[1] = null;
                     graphView.update();
                     btnConnect.setDisable(true);
+                    if (parsedSPE instanceof ParsedFlinkSPE) { // update identifiers
+                        FlinkController.updateGraphOnConnect(from, to, graph);
+                        if (singleClickedOperator != null) {
+                            setCodeDetails(singleClickedOperator);
+                        }
+                    }
                     //DirectedGraph d = DirectedGraph.fromGraphView(graph);
                     //System.out.println(d.toString());
                 }
@@ -395,6 +400,9 @@ public class GUIController {
                     selectedEdge = null;
                     graphView.update();
                     btnDisconnect.setDisable(true);
+                    if (parsedSPE instanceof ParsedFlinkSPE) { // update identifiers
+                        selectedEdge.vertices()[1].element().setPrevIdentifier(null);
+                    }
                 }
             }
         });
@@ -441,10 +449,10 @@ public class GUIController {
             if (!def.isModifiable()) {
                 return;
             }
-            String result = showModifyPopupWindow(def, singleClickedOperator.getIdentifier());
+            String result = showModifyPopupWindow(def, singleClickedOperator);
             if (result != null) { // null if Done was not pressed
                 def.setCodeMiddle(result);
-                tACode.setText(def.getCode(singleClickedOperator.getIdentifier()));
+                tACode.setText(def.getCode(singleClickedOperator));
             }
         });
         TextField[] tfsIn = new TextField[]{tFInput1, tFInput2};
@@ -457,7 +465,7 @@ public class GUIController {
                 if (op != null) {
                     ParsedOperator.Definition def = op.getDefinition();
                     def.setInputPlaceholders(finalI, tf.getText());
-                    tACode.setText(def.getCode(singleClickedOperator.getIdentifier()));
+                    tACode.setText(def.getCode(singleClickedOperator));
                 }
             });
         }
@@ -469,7 +477,7 @@ public class GUIController {
                 if (op != null) {
                     ParsedOperator.Definition def = op.getDefinition();
                     def.setOutputPlaceholders(finalI, tf.getText());
-                    tACode.setText(def.getCode(singleClickedOperator.getIdentifier()));
+                    tACode.setText(def.getCode(singleClickedOperator));
                 }
             });
         }
@@ -478,7 +486,7 @@ public class GUIController {
             ParsedOperator op = singleClickedOperator.getCurrentOperator();
             if (op != null) {
                 ParsedOperator.Definition def = op.getDefinition();
-                tACode.setText(def.getCode(singleClickedOperator.getIdentifier()));
+                tACode.setText(def.getCode(singleClickedOperator));
             }
         });
         btnSelectFile.setOnAction(event -> {
@@ -518,9 +526,9 @@ public class GUIController {
     private void addToGraph(@Nonnull List<Node<GraphOperator>> opsList, @Nullable GraphOperator parent, Set<String> addedIdentifiers, List<GraphOperator> addedNodes) {
         for (Node<GraphOperator> node : opsList) {
             GraphOperator op = node.getItem();
-            if (!addedIdentifiers.contains(op.getIdentifier())) {
+            if (!addedIdentifiers.contains(op.getIdentifier().get())) {
                 graph.insertVertex(op);
-                addedIdentifiers.add(op.getIdentifier());
+                addedIdentifiers.add(op.getIdentifier().get());
                 addedNodes.add(op);
 
                 List<Node<GraphOperator>> successors = node.getSuccessors();
@@ -543,7 +551,7 @@ public class GUIController {
     }
 
     @Nullable
-    private String showModifyPopupWindow(ParsedOperator.Definition def, String identifier) { // From https://stackoverflow.com/a/37417736/7232269
+    private String showModifyPopupWindow(ParsedOperator.Definition def, GraphOperator operator) { // From https://stackoverflow.com/a/37417736/7232269
         FXMLLoader loader = new FXMLLoader(GUI.class.getResource("popup.fxml"));
 
         // initializing the controller
@@ -561,7 +569,7 @@ public class GUIController {
             }
             popupStage.initModality(Modality.WINDOW_MODAL);
             popupStage.setScene(scene);
-            controller.init(def, identifier);
+            controller.init(def, operator);
             popupStage.showAndWait();
             return controller.getResult();
         } catch (IOException e) {

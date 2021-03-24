@@ -1,5 +1,6 @@
 package gui.controllers;
 
+import gui.graph.data.GraphOperator;
 import gui.spe.ParsedOperator;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -22,10 +23,10 @@ public class CodePopupController implements Initializable {
     private Stage stage = null;
     private String result = null;
 
-    public void init(@Nonnull ParsedOperator.Definition definition, @Nonnull String operatorIdentifier) {
-        lblCodeBefore.setText(definition.getCodeBefore(true, operatorIdentifier));
+    public void init(@Nonnull ParsedOperator.Definition definition, @Nonnull GraphOperator operator) {
+        lblCodeBefore.setText(definition.getCodeBefore(operator));
         lblCodeAfter.setText(definition.getCodeAfter());
-        tACode.setText(definition.getCodeMiddle(true, operatorIdentifier));
+        tACode.setText(definition.getCodeMiddle(operator));
     }
 
     @Override

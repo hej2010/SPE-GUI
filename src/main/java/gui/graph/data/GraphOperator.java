@@ -1,5 +1,6 @@
 package gui.graph.data;
 
+import gui.graph.export.ExportManager;
 import gui.graph.export.JsonExported;
 import gui.spe.ParsedOperator;
 import gui.spe.ParsedSPE;
@@ -13,7 +14,7 @@ import java.util.Map;
 import java.util.Set;
 
 public abstract class GraphOperator extends GraphObject implements JsonExported {
-    protected String identifier;
+    protected StringData identifier, prevIdentifier;
     private int selectionIndex;
     private OnSelectionChangedListener listener;
     private final Map<String, ParsedOperator> operatorsMap;
@@ -21,7 +22,8 @@ public abstract class GraphOperator extends GraphObject implements JsonExported 
 
     protected GraphOperator(String identifier, boolean addIdToIdentifier) {
         super();
-        this.identifier = identifier + (addIdToIdentifier ? getId() : "");
+        this.identifier = new StringData(identifier + (addIdToIdentifier ? getId() : ""));
+        this.prevIdentifier = null;
         this.selectionIndex = -1;
         this.operatorsMap = new HashMap<>();
     }
@@ -46,12 +48,21 @@ public abstract class GraphOperator extends GraphObject implements JsonExported 
         this.listener = listener;
     }
 
-    public String getIdentifier() {
+    public StringData getIdentifier() {
         return identifier;
     }
 
+    @Nullable
+    public StringData getPrevIdentifier() {
+        return prevIdentifier;
+    }
+
     public void setIdentifier(@Nonnull String identifier) {
-        this.identifier = identifier.trim().replace(" ", "");
+        this.identifier.set(identifier.trim().replace(" ", ""));
+    }
+
+    public void setPrevIdentifier(@Nullable StringData stringData) {
+        this.prevIdentifier = stringData;
     }
 
     @Override
@@ -92,8 +103,9 @@ public abstract class GraphOperator extends GraphObject implements JsonExported 
     @Override
     public JSONObject toJsonObject() {
         JSONObject o = new JSONObject();
-        o.put("name", identifier);
-        o.put("ops", getOperatorsAsJson());
+        o.put(ExportManager.EXPORT_NAME, identifier);
+        o.put(ExportManager.EXPORT_PREV_NAME, prevIdentifier);
+        o.put(ExportManager.EXPORT_OPS, getOperatorsAsJson());
         int type;
         if (this instanceof SourceOperator) {
             type = ParsedOperator.TYPE_SOURCE_OPERATOR;
@@ -102,7 +114,7 @@ public abstract class GraphOperator extends GraphObject implements JsonExported 
         } else {
             type = ParsedOperator.TYPE_SINK_OPERATOR;
         }
-        o.put("type", type);
+        o.put(ExportManager.EXPORT_TYPE, type);
         return o;
     }
 
@@ -116,9 +128,10 @@ public abstract class GraphOperator extends GraphObject implements JsonExported 
     }
 
     public GraphOperator fromJsonObject(JSONObject from, ParsedSPE parsedSPE) {
-        identifier = from.getString("name");
+        identifier = new StringData(from.getString(ExportManager.EXPORT_NAME));
+        prevIdentifier = new StringData(from.getString(ExportManager.EXPORT_PREV_NAME));
         operatorsMap.clear();
-        JSONObject ops = from.getJSONObject("ops");
+        JSONObject ops = from.getJSONObject(ExportManager.EXPORT_OPS);
         for (String operatorName : ops.keySet()) {
             for (ParsedOperator op : parsedSPE.getOperators()) {
                 if (operatorName.equals(op.getOperatorName())) {

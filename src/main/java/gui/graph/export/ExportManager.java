@@ -20,6 +20,8 @@ import java.util.List;
 
 public class ExportManager {
     public static final String EXPORT_NAME = "name";
+    public static final String EXPORT_PREV_NAME = "prev_name";
+    public static final String EXPORT_OPS = "ops";
     public static final String EXPORT_DATA = "data";
     public static final String EXPORT_TYPE = "type";
     public static final String EXPORT_NODES = "nodes";

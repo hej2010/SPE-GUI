@@ -1,11 +1,15 @@
 package gui.spe;
 
+import gui.graph.data.GraphOperator;
 import gui.graph.export.ExportManager;
 import gui.graph.export.JsonExported;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ObservableStringValue;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -48,49 +52,53 @@ public class ParsedOperator implements Cloneable, JsonExported {
         private final String codeBefore, codeAfter;
         private String codeMiddle;
         private final List<String> inputPlaceholders, outputPlaceholders;
-        private final String identifierPlaceholder;
+        private final String identifierPlaceholder, prevIdentifierPlaceholder;
         private final boolean modifiable;
 
-        Definition(String codeBefore, String codeMiddle, String codeAfter, @Nonnull List<String> inputPlaceholders, @Nonnull List<String> outputPlaceholders, String identifierPlaceholder) {
+        Definition(String codeBefore, String codeMiddle, String codeAfter, @Nonnull List<String> inputPlaceholders, @Nonnull List<String> outputPlaceholders,
+                   String identifierPlaceholder, @Nullable String prevIdentifierPlaceholder) {
             this.codeBefore = codeBefore;
             this.codeMiddle = codeMiddle;
             this.codeAfter = codeAfter;
             this.inputPlaceholders = inputPlaceholders;
             this.outputPlaceholders = outputPlaceholders;
             this.identifierPlaceholder = identifierPlaceholder;
+            this.prevIdentifierPlaceholder = prevIdentifierPlaceholder;
             this.modifiable = !codeMiddle.isEmpty();
         }
 
         @Override
         protected Object clone() {
             return new Definition(codeBefore, codeMiddle, codeAfter, new LinkedList<>(inputPlaceholders),
-                    new LinkedList<>(outputPlaceholders), identifierPlaceholder);
+                    new LinkedList<>(outputPlaceholders), identifierPlaceholder, prevIdentifierPlaceholder);
         }
 
         public boolean isModifiable() {
             return modifiable;
         }
 
-        public String getCodeBefore(boolean replace, String operatorIdentifier) {
-            return getReplaced(replace, codeBefore, operatorIdentifier);
+        public String getCodeBefore(GraphOperator operator) {
+            return getReplaced(operator, codeBefore);
         }
 
-        public String getCodeMiddle(boolean replace, String operatorIdentifier) {
-            return getReplaced(replace, codeMiddle, operatorIdentifier);
+        public String getCodeMiddle(GraphOperator operator) {
+            return getReplaced(operator, codeMiddle);
         }
 
-        private String getReplaced(boolean replace, String codeMiddle, String operatorIdentifier) {
-            String middle = codeMiddle;
-            if (replace) {
-                for (int i = 1; i <= getInputCount(); i++) {
-                    middle = middle.replace(PLACEHOLDER_IN + i, inputPlaceholders.get(i - 1));
-                }
-                for (int i = 1; i <= getOutputCount(); i++) {
-                    middle = middle.replace(PLACEHOLDER_OUT + i, outputPlaceholders.get(i - 1));
-                }
-                middle = middle.replace(identifierPlaceholder, operatorIdentifier);
+        private String getReplaced(GraphOperator operator, String code) {
+            String s = code;
+
+            for (int i = 1; i <= getInputCount(); i++) {
+                s = s.replace(PLACEHOLDER_IN + i, inputPlaceholders.get(i - 1));
             }
-            return middle;
+            for (int i = 1; i <= getOutputCount(); i++) {
+                s = s.replace(PLACEHOLDER_OUT + i, outputPlaceholders.get(i - 1));
+            }
+            s = s.replace(identifierPlaceholder, operator.getIdentifier().get());
+            if (operator.getPrevIdentifier() != null) {
+                s = s.replace(prevIdentifierPlaceholder, operator.getPrevIdentifier().get());
+            }
+            return s;
         }
 
         public String getCodeAfter() {
@@ -141,8 +149,8 @@ public class ParsedOperator implements Cloneable, JsonExported {
         }
 
         @Nonnull
-        public String getCode(String operatorIdentifier) {
-            return getCodeBefore(true, operatorIdentifier) + "\n" + getCodeMiddle(true, operatorIdentifier) + "\n" + getCodeAfter();
+        public String getCode(GraphOperator operator) {
+            return getCodeBefore(operator) + "\n" + getCodeMiddle(operator) + "\n" + getCodeAfter();
         }
 
         @Override
@@ -163,7 +171,7 @@ public class ParsedOperator implements Cloneable, JsonExported {
 
         private void setNewList(List<String> list, JSONArray arr) {
             list.clear();
-            for(int i = 0; i < arr.length();i++) {
+            for (int i = 0; i < arr.length(); i++) {
                 list.add(arr.getString(i));
             }
         }

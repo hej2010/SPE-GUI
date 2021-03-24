@@ -66,9 +66,9 @@ public class ParsedLiebreSPE extends ParsedSPE {
             ParsedOperator pop = op.getCurrentOperator();
             if (pop != null) {
                 ParsedOperator.Definition definition = pop.getDefinition();
-                if (!addedNodes.contains(op.getIdentifier())) {
-                    sb.append(definition.getCode(op.getIdentifier())).append("\n");
-                    addedNodes.add(op.getIdentifier());
+                if (!addedNodes.contains(op.getIdentifier().get())) {
+                    sb.append(definition.getCode(op)).append("\n");
+                    addedNodes.add(op.getIdentifier().get());
                 }
             }
             addNodeCode(sb, node.getSuccessors(), addedNodes);
