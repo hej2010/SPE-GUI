@@ -396,13 +396,13 @@ public class GUIController {
             if (graph != null) {
                 synchronized (this) {
                     assert selectedEdge != null;
+                    if (parsedSPE instanceof ParsedFlinkSPE) { // update identifiers
+                        selectedEdge.vertices()[1].element().setPrevIdentifier(null);
+                    }
                     graph.removeEdge(selectedEdge);
                     selectedEdge = null;
                     graphView.update();
                     btnDisconnect.setDisable(true);
-                    if (parsedSPE instanceof ParsedFlinkSPE) { // update identifiers
-                        selectedEdge.vertices()[1].element().setPrevIdentifier(null);
-                    }
                 }
             }
         });
