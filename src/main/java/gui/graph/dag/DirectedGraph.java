@@ -41,11 +41,10 @@ public class DirectedGraph {
 
     @Nonnull
     public static DirectedGraph fromGraphView(@Nonnull Graph<GraphOperator, GraphStream> graph) {
-        final Collection<Vertex<GraphOperator>> ops = graph.vertices();
         final List<Node<GraphOperator>> sourcesList = new LinkedList<>();
 
         graph.vertices().forEach(v -> { // find all source operators
-            if (v.element() instanceof SourceOperator) {
+            if (!hasPredecessor(v, graph)) {
                 sourcesList.add(new Node<>(v.element(), getSuccessorsFrom(v, graph)));
             }
         });
@@ -81,6 +80,20 @@ public class DirectedGraph {
         });
 
         return successors;
+    }
+
+    private static boolean hasPredecessor(Vertex<GraphOperator> node, Graph<GraphOperator, GraphStream> graph) {
+        Collection<Edge<GraphStream, GraphOperator>> incidentEdges = graph.incidentEdges(node);
+        if (incidentEdges.isEmpty()) {
+            return false;
+        }
+
+        for (Edge<GraphStream, GraphOperator> e : incidentEdges) {
+            if (e.vertices()[1].element().equals(node.element())) { // if the edge ends at this node
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

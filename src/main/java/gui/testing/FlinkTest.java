@@ -8,15 +8,21 @@ import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSink;
 import org.apache.flink.streaming.api.datastream.KeyedStream;
+import org.apache.flink.streaming.api.datastream.WindowedStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.sink.SinkFunction;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
+import org.apache.flink.streaming.api.windowing.assigners.SlidingProcessingTimeWindows;
+import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
+import org.apache.flink.streaming.api.windowing.time.Time;
+import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
+import org.apache.flink.streaming.api.windowing.windows.Window;
 
 public class FlinkTest {
     public static void main(String[] args) {
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         DataStream<String> text = env.readTextFile("file:///path/to/file");
-        DataStream<String> text2 = env.addSource(new SourceFunction<String>() {
+        DataStream<String> sourceStream = env.addSource(new SourceFunction<String>() {
             @Override
             public void run(SourceContext<String> ctx) throws Exception {
                 //
@@ -36,10 +42,17 @@ public class FlinkTest {
             }
         });
 
-        DataStream<String> map1 = text.map((MapFunction<String, String>) value -> {
-            //
-            return value;
-        });
+        sourceStream.filter(new FilterFunction<String>() {
+            @Override
+            public boolean filter(String value) throws Exception {
+                return false;
+            }
+        }).keyBy(new KeySelector<String, Object>() {
+            @Override
+            public Object getKey(String value) throws Exception {
+                return null;
+            }
+        }).max("temp");
 
         DataStream<String> flatmap1 = text.flatMap((FlatMapFunction<String, String>) (value, out) -> {
             //
@@ -60,6 +73,7 @@ public class FlinkTest {
             //
             return null;
         });
+        WindowedStream<String, String, TimeWindow> window = keyby1.window(SlidingProcessingTimeWindows.of(Time.minutes(4), Time.minutes(4)));
 
 
     }

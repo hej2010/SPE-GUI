@@ -19,6 +19,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class ExportManager {
+    public static final String EXPORT_SPE = "spe";
     public static final String EXPORT_NAME = "name";
     public static final String EXPORT_PREV_NAME = "prev_name";
     public static final String EXPORT_OPS = "ops";
@@ -31,7 +32,7 @@ public class ExportManager {
     public static final String EXPORT_SUCCESSORS = "suc";
     public static final String EXPORT_DEFINITION = "def";
 
-    public static JSONObject projectToJson(@Nonnull DirectedGraph dag) {
+    public static JSONObject projectToJson(@Nonnull DirectedGraph dag, ParsedSPE spe) {
         JSONObject o = new JSONObject();
         JSONArray rootNodes = new JSONArray();
         List<Node<GraphOperator>> graph = dag.getGraph();
@@ -39,6 +40,7 @@ public class ExportManager {
             rootNodes.put(getSuccessors(op));
         }
         o.put(EXPORT_NODES, rootNodes);
+        o.put(EXPORT_SPE, spe.getName());
         return o;
     }
 
@@ -69,6 +71,10 @@ public class ExportManager {
         }
         JSONObject o = new JSONObject(s);
         JSONArray arr = o.getJSONArray(EXPORT_NODES);
+        String spe = o.getString(EXPORT_SPE);
+        if (!parsedSPE.getName().equals(spe)) {
+            throw new RuntimeException("Wrong SPE selected! Wanted " + parsedSPE.getName() + " but found " + spe);
+        }
 
         for (int i = 0; i < arr.length(); i++) {
             JSONObject node = arr.getJSONObject(i);

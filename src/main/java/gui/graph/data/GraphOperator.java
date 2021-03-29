@@ -48,6 +48,7 @@ public abstract class GraphOperator extends GraphObject implements JsonExported 
         this.listener = listener;
     }
 
+    @Nonnull
     public StringData getIdentifier() {
         return identifier;
     }
@@ -55,6 +56,16 @@ public abstract class GraphOperator extends GraphObject implements JsonExported 
     @Nullable
     public StringData getPrevIdentifier() {
         return prevIdentifier;
+    }
+
+    @Nonnull
+    private String getIdentifierString() {
+        return identifier == null ? "" : identifier.get();
+    }
+
+    @Nonnull
+    private String getPrevIdentifierString() {
+        return prevIdentifier == null ? "" : prevIdentifier.get();
     }
 
     public void setIdentifier(@Nonnull String identifier) {
@@ -103,8 +114,8 @@ public abstract class GraphOperator extends GraphObject implements JsonExported 
     @Override
     public JSONObject toJsonObject() {
         JSONObject o = new JSONObject();
-        o.put(ExportManager.EXPORT_NAME, identifier);
-        o.put(ExportManager.EXPORT_PREV_NAME, prevIdentifier);
+        o.put(ExportManager.EXPORT_NAME, getIdentifierString());
+        o.put(ExportManager.EXPORT_PREV_NAME, getPrevIdentifierString());
         o.put(ExportManager.EXPORT_OPS, getOperatorsAsJson());
         int type;
         if (this instanceof SourceOperator) {

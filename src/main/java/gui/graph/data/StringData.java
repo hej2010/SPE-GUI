@@ -26,6 +26,9 @@ public class StringData {
 
     @Override
     public boolean equals(Object o) {
+        if (!(o instanceof StringData)) {
+            return false;
+        }
         return s.equals(o.toString());
     }
 

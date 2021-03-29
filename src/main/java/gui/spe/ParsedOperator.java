@@ -3,8 +3,6 @@ package gui.spe;
 import gui.graph.data.GraphOperator;
 import gui.graph.export.ExportManager;
 import gui.graph.export.JsonExported;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.value.ObservableStringValue;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -95,7 +93,7 @@ public class ParsedOperator implements Cloneable, JsonExported {
                 s = s.replace(PLACEHOLDER_OUT + i, outputPlaceholders.get(i - 1));
             }
             s = s.replace(identifierPlaceholder, operator.getIdentifier().get());
-            if (operator.getPrevIdentifier() != null) {
+            if (operator.getPrevIdentifier() != null && prevIdentifierPlaceholder != null) {
                 s = s.replace(prevIdentifierPlaceholder, operator.getPrevIdentifier().get());
             }
             return s;

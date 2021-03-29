@@ -414,7 +414,7 @@ public class GUIController {
             }
         });
         mIExport.setOnAction(event -> {
-            JSONObject o = ExportManager.projectToJson(DirectedGraph.fromGraphView(graph));
+            JSONObject o = ExportManager.projectToJson(DirectedGraph.fromGraphView(graph), parsedSPE);
             DirectoryChooser directoryChooser = new DirectoryChooser();
             String path = Paths.get(".").toAbsolutePath().normalize().toString() + "/src/main/java/gui";
             directoryChooser.setInitialDirectory(new File(path));

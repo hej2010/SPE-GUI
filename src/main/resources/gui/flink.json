@@ -54,6 +54,12 @@
     ],
     "Reduce": [
       "org.apache.flink.api.common.functions.ReduceFunction"
+    ],
+    "Window": [
+      "org.apache.flink.streaming.api.windowing.assigners.SlidingProcessingTimeWindows",
+      "org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows",
+      "org.apache.flink.streaming.api.windowing.time.Time",
+      "org.apache.flink.streaming.api.windowing.windows.TimeWindow"
     ]
   },
   "definition": {
@@ -163,6 +169,90 @@
       "before": "DataStream<@IN1> @ID = @PID.reduce((ReduceFunction<@IN1>) (value1, value2) -> {",
       "middle": "return null; // return value1 + value2",
       "after": "});",
+      "placeholders": {
+        "input": [
+          "@IN1"
+        ],
+        "output": [
+        ],
+        "identifier": "@ID",
+        "prev_identifier": "@PID"
+      }
+    },
+    "sum": {
+      "before": "DataStream<@IN1> @ID = @PID.",
+      "middle": "sum(\"key\")",
+      "after": ";",
+      "placeholders": {
+        "input": [
+          "@IN1"
+        ],
+        "output": [
+        ],
+        "identifier": "@ID",
+        "prev_identifier": "@PID"
+      }
+    },
+    "min": {
+      "before": "DataStream<@IN1> @ID = @PID.",
+      "middle": "min(\"key\")",
+      "after": ";",
+      "placeholders": {
+        "input": [
+          "@IN1"
+        ],
+        "output": [
+        ],
+        "identifier": "@ID",
+        "prev_identifier": "@PID"
+      }
+    },
+    "max": {
+      "before": "DataStream<@IN1> @ID = @PID.",
+      "middle": "max(\"key\")",
+      "after": ";",
+      "placeholders": {
+        "input": [
+          "@IN1"
+        ],
+        "output": [
+        ],
+        "identifier": "@ID",
+        "prev_identifier": "@PID"
+      }
+    },
+    "maxBy": {
+      "before": "DataStream<@IN1> @ID = @PID.",
+      "middle": "maxBy(\"key\")",
+      "after": ";",
+      "placeholders": {
+        "input": [
+          "@IN1"
+        ],
+        "output": [
+        ],
+        "identifier": "@ID",
+        "prev_identifier": "@PID"
+      }
+    },
+    "minBy": {
+      "before": "DataStream<@IN1> @ID = @PID.",
+      "middle": "minBy(\"key\")",
+      "after": ";",
+      "placeholders": {
+        "input": [
+          "@IN1"
+        ],
+        "output": [
+        ],
+        "identifier": "@ID",
+        "prev_identifier": "@PID"
+      }
+    },
+    "Window": {
+      "before": "WindowedStream<@IN1, @IN1, TimeWindow> @ID = @PID.window(",
+      "middle": "//SlidingProcessingTimeWindows.of(Time.minutes(5), Time.minutes(5))",
+      "after": ");",
       "placeholders": {
         "input": [
           "@IN1"
