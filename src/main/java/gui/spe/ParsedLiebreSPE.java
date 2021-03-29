@@ -37,12 +37,7 @@ public class ParsedLiebreSPE extends ParsedSPE {
         connect(sb, graph);
         sb.append("\nq.activate();\n}\n}");
 
-        try {
-            return new Formatter().formatSourceAndFixImports(sb.toString());
-        } catch (FormatterException e) {
-            e.printStackTrace();
-            return sb.toString();
-        }
+        return super.getFormattedCode(sb);
     }
 
     /**
@@ -70,6 +65,8 @@ public class ParsedLiebreSPE extends ParsedSPE {
                     sb.append(definition.getCode(op)).append("\n");
                     addedNodes.add(op.getIdentifier().get());
                 }
+            } else {
+                sb.append("//").append(op.getIdentifier()).append("\n");
             }
             addNodeCode(sb, node.getSuccessors(), addedNodes);
         }

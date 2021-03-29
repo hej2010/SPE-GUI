@@ -75,7 +75,7 @@
       }
     },
     "BaseOperator2In": {
-      "before": "Operator<@IN1, @IN2, @OUT1> @ID = new BaseOperator2In<@IN1, @IN2, @OUT1>(\"@ID\") {",
+      "before": "BaseOperator2In<@IN1, @IN2, @OUT1> @ID = new BaseOperator2In<@IN1, @IN2, @OUT1>(\"@ID\") {",
       "middle": "@Override\npublic List<@OUT1> processTupleIn1(@IN1 tuple) {\nreturn null;\n}\n\n@Override\npublic List<@OUT1> processTupleIn2(@IN2 tuple) {\nreturn null;\n}",
       "after": "});",
       "placeholders": {

@@ -1,5 +1,7 @@
 package gui.spe;
 
+import com.google.googlejavaformat.java.Formatter;
+import com.google.googlejavaformat.java.FormatterException;
 import gui.graph.dag.DirectedGraph;
 
 import javax.annotation.Nonnull;
@@ -60,4 +62,14 @@ public abstract class ParsedSPE {
 
     @Nonnull
     public abstract String generateCodeFrom(@Nonnull DirectedGraph directedGraph, @Nonnull ParsedSPE parsedSPE, @Nonnull String fileName);
+
+    @Nonnull
+    protected String getFormattedCode(@Nonnull StringBuilder sb) {
+        try {
+            return new Formatter().formatSourceAndFixImports(sb.toString());
+        } catch (FormatterException e) {
+            e.printStackTrace();
+            return sb.toString();
+        }
+    }
 }
