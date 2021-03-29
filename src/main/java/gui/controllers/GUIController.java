@@ -421,7 +421,7 @@ public class GUIController {
 
             File dir = directoryChooser.showDialog(gui.getPrimaryStage());
             if (dir != null) {
-                File file = new File(dir, "export-" + System.currentTimeMillis() + ".json");
+                File file = new File(dir, "export-" + parsedSPE.getName() + "-" + System.currentTimeMillis() + ".json");
                 Files.writeFile(file, o.toString());
             }
             System.out.println(o);
