@@ -1,5 +1,5 @@
 {
-  "name": "Liebre",
+  "name": "Apache Flink",
   "operators": {
     "sources": [
       "SourceFunction",
@@ -41,7 +41,8 @@
       "org.apache.flink.streaming.api.functions.source.SourceFunction"
     ],
     "SinkFunction": [
-      "org.apache.flink.streaming.api.functions.sink.SinkFunction"
+      "org.apache.flink.streaming.api.functions.sink.SinkFunction",
+      "org.apache.flink.streaming.api.datastream.DataStreamSink"
     ],
     "Map": [
       "org.apache.flink.api.common.functions.MapFunction"
@@ -81,7 +82,7 @@
     },
     "TextFileSource": {
       "before": "DataStream<@OUT1> @ID = env.readTextFile(",
-      "middle": "file:///path/to/file",
+      "middle": "\"file:///path/to/file\"",
       "after": ");",
       "placeholders": {
         "input": [

@@ -504,7 +504,7 @@ public class GUIController {
         btnGenerate.setOnAction(event -> {
             if (selectedDirectory != null) {
                 DirectedGraph d = DirectedGraph.fromGraphView(graph);
-                String fileName = parsedSPE.getName() + System.currentTimeMillis();
+                String fileName = parsedSPE.getFileName() + System.currentTimeMillis();
                 String fileNameWithSuffix = fileName + ".java";
                 File file = new File(selectedDirectory, fileNameWithSuffix);
                 String code = parsedSPE.generateCodeFrom(d, parsedSPE, fileName);

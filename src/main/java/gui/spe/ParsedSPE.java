@@ -3,11 +3,14 @@ package gui.spe;
 import com.google.googlejavaformat.java.Formatter;
 import com.google.googlejavaformat.java.FormatterException;
 import gui.graph.dag.DirectedGraph;
+import gui.graph.dag.Node;
+import gui.graph.data.GraphOperator;
 
 import javax.annotation.Nonnull;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public abstract class ParsedSPE {
     private final String name;
@@ -27,6 +30,11 @@ public abstract class ParsedSPE {
     @Nonnull
     public String getName() {
         return name;
+    }
+
+    @Nonnull
+    public String getFileName() {
+        return name.replace(" ", "");
     }
 
     @Nonnull
@@ -65,11 +73,52 @@ public abstract class ParsedSPE {
 
     @Nonnull
     protected String getFormattedCode(@Nonnull StringBuilder sb) {
-        try {
+        return sb.toString();
+        /*try {
             return new Formatter().formatSourceAndFixImports(sb.toString());
         } catch (FormatterException e) {
             e.printStackTrace();
             return sb.toString();
+        }*/    }
+
+    /**
+     * Recursively adds all node imports
+     */
+    protected void addNodeImports(@Nonnull StringBuilder sb, @Nonnull List<Node<GraphOperator>> graph, @Nonnull ParsedSPE parsedSPE) {
+        for (Node<GraphOperator> op : graph) {
+            ParsedOperator pop = op.getItem().getCurrentOperator();
+            if (pop != null) {
+                List<String> imports = parsedSPE.getImportsForOperator(pop.getOperatorName());
+                addStringRow(sb, imports, true);
+            }
+            addNodeImports(sb, op.getSuccessors(), parsedSPE);
+        }
+    }
+
+    protected <E> void addStringRow(@Nonnull StringBuilder sb, @Nonnull List<E> list, boolean isImports) {
+        for (E e : list) {
+            if (isImports) {
+                sb.append("import ").append(e).append(";\n");
+            } else {
+                sb.append(e).append("\n");
+            }
+        }
+    }
+
+    protected void addNodeCode(@Nonnull StringBuilder sb, @Nonnull List<Node<GraphOperator>> graph, @Nonnull Set<String> addedNodes) {
+        for (Node<GraphOperator> node : graph) {
+            GraphOperator op = node.getItem();
+            ParsedOperator pop = op.getCurrentOperator();
+            if (pop != null) {
+                ParsedOperator.Definition definition = pop.getDefinition();
+                if (!addedNodes.contains(op.getIdentifier().get())) {
+                    sb.append(definition.getCode(op)).append("\n");
+                    addedNodes.add(op.getIdentifier().get());
+                }
+            } else {
+                sb.append("//").append(op.getIdentifier()).append("\n");
+            }
+            addNodeCode(sb, node.getSuccessors(), addedNodes);
         }
     }
 }
