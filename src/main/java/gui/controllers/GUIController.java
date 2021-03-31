@@ -14,6 +14,7 @@ import gui.graph.dag.DirectedGraph;
 import gui.graph.dag.Node;
 import gui.graph.data.*;
 import gui.graph.export.ExportManager;
+import gui.graph.visualisation.VisualisationManager;
 import gui.spe.*;
 import gui.utils.Files;
 import gui.views.AutoCompleteTextField;
@@ -31,6 +32,7 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.util.Pair;
 import org.json.JSONObject;
 
 import javax.annotation.Nonnull;
@@ -64,7 +66,7 @@ public class GUIController {
     @FXML
     public VBox vBDetails, vBInputs, vBOutputs;
     @FXML
-    public MenuItem mIChangeSpe, mIExport, mIImport;
+    public MenuItem mIChangeSpe, mIExport, mIImport, mIVisFromFile;
     @FXML
     public Label lblCurrentSPE, lblSelectedFile, lblSavedTo, lblSavedToTitle;
     @FXML
@@ -443,6 +445,23 @@ public class GUIController {
                 graphView.update();
             }
         });
+        mIVisFromFile.setOnAction(event -> {
+            FileChooser fileChooser = new FileChooser();
+            String path = Paths.get(".").toAbsolutePath().normalize().toString() + "/src/main/java/gui";
+            fileChooser.setInitialDirectory(new File(path));
+
+            File file = fileChooser.showOpenDialog(gui.getPrimaryStage());
+            if (file != null) {
+                List<Pair<Node<GraphOperator>, VisualisationManager.VisInfo>> visResult = VisualisationManager.projectFromFile(file, parsedSPE);
+                Set<String> addedIdentifiers = new HashSet<>();
+                List<GraphOperator> addedNodes = new LinkedList<>();
+                graph.clearGraph();
+                if (visResult != null) {
+                    addToGraph2(visResult, null, addedIdentifiers, addedNodes);
+                }
+                graphView.update();
+            }
+        });
         btnModify.setOnAction(event -> {
             assert singleClickedOperator.getCurrentOperator() != null;
             ParsedOperator.Definition def = singleClickedOperator.getCurrentOperator().getDefinition();
@@ -548,6 +567,14 @@ public class GUIController {
                 graph.insertEdge(parent, op, new Stream());
             }
         }
+    }
+
+    private void addToGraph2(@Nonnull List<Pair<Node<GraphOperator>, VisualisationManager.VisInfo>> opsList, @Nullable GraphOperator parent, Set<String> addedIdentifiers, List<GraphOperator> addedNodes) {
+        List<Node<GraphOperator>> l = new LinkedList<>();
+        for (Pair<Node<GraphOperator>, VisualisationManager.VisInfo> p : opsList) {
+            l.add(p.getKey());
+        }
+        addToGraph(l, parent, addedIdentifiers, addedNodes);
     }
 
     @Nullable

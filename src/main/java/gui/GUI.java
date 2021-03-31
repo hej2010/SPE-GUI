@@ -18,7 +18,7 @@ import java.io.IOException;
  */
 public class GUI extends Application {
     public static final String FXML_MAIN = "start_screen.fxml";
-    public static final String FXML_GUI = "gui.fxml";
+    public static final String FXML_GUI = "gui-vis.fxml";
 
     // Docs: https://fxdocs.github.io/docs/html5/
 
