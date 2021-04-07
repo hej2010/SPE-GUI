@@ -14,6 +14,7 @@ import gui.graph.dag.DirectedGraph;
 import gui.graph.dag.Node;
 import gui.graph.data.*;
 import gui.graph.export.ExportManager;
+import gui.graph.visualisation.VisInfo;
 import gui.graph.visualisation.VisualisationManager;
 import gui.spe.*;
 import gui.utils.Files;
@@ -452,7 +453,7 @@ public class GUIController {
 
             File file = fileChooser.showOpenDialog(gui.getPrimaryStage());
             if (file != null) {
-                List<Pair<Node<GraphOperator>, VisualisationManager.VisInfo>> visResult = VisualisationManager.projectFromFile(file, parsedSPE);
+                List<Pair<Node<GraphOperator>, VisInfo>> visResult = VisualisationManager.projectFromFile(file, parsedSPE);
                 Set<String> addedIdentifiers = new HashSet<>();
                 List<GraphOperator> addedNodes = new LinkedList<>();
                 graph.clearGraph();
@@ -569,9 +570,9 @@ public class GUIController {
         }
     }
 
-    private void addToGraph2(@Nonnull List<Pair<Node<GraphOperator>, VisualisationManager.VisInfo>> opsList, @Nullable GraphOperator parent, Set<String> addedIdentifiers, List<GraphOperator> addedNodes) {
+    private void addToGraph2(@Nonnull List<Pair<Node<GraphOperator>, VisInfo>> opsList, @Nullable GraphOperator parent, Set<String> addedIdentifiers, List<GraphOperator> addedNodes) {
         List<Node<GraphOperator>> l = new LinkedList<>();
-        for (Pair<Node<GraphOperator>, VisualisationManager.VisInfo> p : opsList) {
+        for (Pair<Node<GraphOperator>, VisInfo> p : opsList) {
             l.add(p.getKey());
         }
         addToGraph(l, parent, addedIdentifiers, addedNodes);
