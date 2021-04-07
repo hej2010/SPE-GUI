@@ -129,10 +129,12 @@ public class VisualisationManager {
             }
 
             if (n != null) {
-                Pair<String, String> variableName = findLocalVariableName(m);
-                //System.out.println("Found pair: " + variableName);
-                final VisInfo.VariableInfo i = variableName == null ? new VisInfo.VariableInfo(null, null, null)
-                        : new VisInfo.VariableInfo(variableName.getKey(), variableName.getValue(), null);
+                Pair<String, String> pair = findLocalVariableName(m);
+                if (pair != null) {
+                    System.out.println("Found pair: " + pair);
+                }
+                final VisInfo.VariableInfo i = pair == null ? new VisInfo.VariableInfo(null, null, null)
+                        : new VisInfo.VariableInfo(pair.getKey(), pair.getValue(), null);
                 VisInfo info = new VisInfo(fileName, c.getName().asString(), method.getNameAsString(), i);
                 methodData.add(new Pair<>(n, info));
                 ops.clear();
@@ -149,7 +151,11 @@ public class VisualisationManager {
                     return null;
                 } else if (s.contains("=")) { // we found a variable
                     String[] strings = s.split("=", 2);
-                    return new Pair<>(strings[0], strings[1].split("\\.", 2)[0]);
+                    if (strings[0].split(" ").length > 2) { // not correct equals sign
+                        return findLocalVariableName(parent);
+                    } else {
+                        return new Pair<>(strings[0], strings[1].split("\\.", 2)[0]);
+                    }
                 } else { // no variable yet, search from parent
                     return findLocalVariableName(parent);
                 }
@@ -226,74 +232,5 @@ public class VisualisationManager {
         }
 
     }
-
-
-                        /*
-
-                        private MethodInfo extractVariable(String s) {
-                    if (s.contains("=")) {
-                        String[] s2 = s.split("=", 2);
-                        String variableClass = null;
-                        String variableName;
-                        if (s2[0].contains(" ")) {
-                            String[] s3 = s2[0].split(" ");
-                            variableName = s3[s3.length - 1];
-                            variableClass = s3[s3.length - 2];
-                        } else {
-                            variableName = s2[0];
-                        }
-                        return new MethodInfo(variableName, variableClass, s2[1].split("\\.", 2)[0]);
-                    } else {
-                        return new MethodInfo(null, null, s.split("\\.", 2)[0]);
-                    }
-                }
-
-
-                        com.github.javaparser.ast.Node root = n;
-                        int count = 0;
-                        while (root.getParentNode().isPresent()) {
-                            if (count == 2) {
-                                break;
-                            }
-                            com.github.javaparser.ast.Node newRoot = root.getParentNode().get();
-                            String s = newRoot.toString();
-                            if (s.startsWith("{")) {
-                                break;
-                            }
-                            count++;
-                            root = newRoot;
-                        }
-                        System.err.println("found root: " + root);
-                        return new MethodInfo(null,null,null);
-
-                        com.github.javaparser.ast.Node n2 = n.getParentNode().get(); // n2 should be an Object (wanted) or start with { (no new variable)
-                        String s = n.toString();
-
-                        if (!s.startsWith("{")) {
-                            if (s.contains("=")) {
-                                String variableName = s.split("=", 2)[0];
-                                String variableClass = null;
-                                if (n2.getParentNode().isPresent()) {
-                                    String s2 = n2.getParentNode().get().toString();
-                                    variableClass = s2.split(variableName, 2)[0];
-                                }
-                                n2.accept(new VoidVisitorAdapter<Void>() {
-                                    @Override
-                                    public void visit(ClassOrInterfaceType n, Void arg) {
-                                        System.err.println(n.getNameAsString() + "\n------------------------");
-                                        //super.visit(n, arg);
-                                    }
-                                }, null);
-                                return extractVariable(variableName);
-                            }
-                            return findVariable(n.getParentNode().get());
-                        } else {
-                            //System.out.println(n.toString());
-                            return extractVariable(n.toString());
-                        }
-                    } else {
-                        //System.out.println(n);
-                        return extractVariable(n.toString());
-                    }*/
 
 }
