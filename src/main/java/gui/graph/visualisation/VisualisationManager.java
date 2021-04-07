@@ -11,6 +11,8 @@ import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import gui.graph.dag.Node;
 import gui.graph.data.GraphOperator;
 import gui.graph.data.Operator;
+import gui.spe.ParsedFlinkSPE;
+import gui.spe.ParsedLiebreSPE;
 import gui.spe.ParsedSPE;
 import javafx.util.Pair;
 
@@ -42,7 +44,19 @@ public class VisualisationManager {
             list.addAll(getClassData(file.getName(), c));
         }
 
+        list = fixList(list, parsedSPE);
+
         return list;
+    }
+
+    private static List<Pair<Node<GraphOperator>, VisInfo>> fixList(List<Pair<Node<GraphOperator>, VisInfo>> list, ParsedSPE parsedSPE) {
+        IVisualiser vis = null;
+        if (parsedSPE instanceof ParsedLiebreSPE) {
+            vis = new LiebreVisualiser();
+        } else if (parsedSPE instanceof ParsedFlinkSPE) {
+            vis = new FlinkVisualiser();
+        }
+        return vis == null ? new LinkedList<>() : vis.fixList(list);
     }
 
     @Nonnull
