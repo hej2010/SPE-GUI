@@ -11,6 +11,8 @@ import component.operator.in1.map.FlatMapFunction;
 import component.operator.in1.map.MapFunction;
 import component.operator.in2.BaseOperator2In;
 import component.operator.router.RouterOperator;
+import component.sink.Sink;
+import component.sink.SinkFunction;
 import component.source.Source;
 import query.LiebreContext;
 import query.Query;
@@ -67,22 +69,19 @@ public class LiebreTest {
             //
             return null;
         });
-        Operator<String, String> ID = query.addFilterOperator("fd", (FilterFunction<String>) s -> {
+        Operator<MyTuple, MyTuple> ID = query.addFilterOperator("fd", (FilterFunction<MyTuple>) s -> {
             //
-            return false;
+            return true;
         });
-        RouterOperator<Integer> r = query.addRouterOperator("");
+        RouterOperator<MyTuple> r = query.addRouterOperator("");
 
 
-        Source<MyTuple> sink = query.addBaseSource("O1", () -> {
-            //
-            return null;
+        Sink<MyTuple> sink = query.addBaseSink("O1", myTuple -> {
+
         });
-        Source<String> sink2 = query.addTextFileSource("fd",
-                "fdfd"
-        );
+        Source<String> source1 = query.addTextFileSource("fd", "fdfd");
 
-        //q.connect(source, multiply).connect(multiply, sink);
+        query.connect(ID, r).connect(r, sink);
 
         query.activate();
         Util.sleep(10000);

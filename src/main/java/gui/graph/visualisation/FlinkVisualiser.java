@@ -74,8 +74,8 @@ public class FlinkVisualiser extends Visualiser {
                 }
                 final VisInfo.VariableInfo i = pair == null ? new VisInfo.VariableInfo(null, null, null)
                         : new VisInfo.VariableInfo(pair.getKey(), pair.getValue(), null);
-                VisInfo info = new VisInfo(fileName, c.getName().asString(), method.getNameAsString(), i);
-                methodData.add(new Pair<>(n, info));
+                //VisInfo info = new VisInfo(fileName, c.getName().asString(), method.getNameAsString(), i);
+                //methodData.add(new Pair<>(n, info));
                 ops.clear();
             }
 

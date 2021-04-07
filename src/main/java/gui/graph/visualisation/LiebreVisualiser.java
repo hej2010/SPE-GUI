@@ -15,19 +15,59 @@ import javax.annotation.Nonnull;
 import java.util.*;
 
 public class LiebreVisualiser extends Visualiser {
-    private final Set<String> queryVariables;
-    private final Map<String, String> connected;
+    private final Set<String> queryVariables, allConnectedOperators;
+    private final Map<String, GraphOperator> operators;
+    private final Map<String, Set<String>> connected;
 
     public LiebreVisualiser() {
         queryVariables = new HashSet<>();
+        allConnectedOperators = new HashSet<>();
+        operators = new HashMap<>();
         connected = new HashMap<>();
     }
 
     @NotNull
     @Override
     public List<Pair<Node<GraphOperator>, VisInfo>> fixList(List<Pair<Node<GraphOperator>, VisInfo>> list) {
-        final List<Pair<String, List<String>>> queryConnectors = new LinkedList<>();
-        return list;
+        List<Pair<Node<GraphOperator>, VisInfo>> newList = new LinkedList<>();
+        System.out.println("connected: " + connected);
+        for (Pair<Node<GraphOperator>, VisInfo> p : list) {
+            System.out.println("p: " + p.getKey());
+            Node<GraphOperator> op = p.getKey();
+            for (String from : connected.keySet()) {
+                System.out.println("from: " + from);
+                if (from.equals(op.getItem().getIdentifier().get())) { // this node has output streams
+                    System.out.println("");
+                    newList.add(new Pair<>(new Node<>(op.getItem(), getSuccessorsFrom(from)), p.getValue()));
+                    break;
+                }
+            }
+        }
+
+        return newList;
+    }
+
+    @Nonnull
+    private List<Node<GraphOperator>> getSuccessorsFrom(String from) {
+        List<GraphOperator> successors = findSuccessorsFor(from);
+        List<Node<GraphOperator>> successorsList = new LinkedList<>();
+        successors.forEach(successor -> successorsList.add(new Node<>(successor, getSuccessorsFrom(successor.getIdentifier().get())))); // recursively find successors
+        System.out.println("successors: " + successorsList);
+        return successorsList;
+    }
+
+    @Nonnull
+    private List<GraphOperator> findSuccessorsFor(String name) {
+        List<GraphOperator> successors = new LinkedList<>();
+        for (String from : connected.keySet()) {
+            if (from.equals(name)) {
+                for (String to : connected.get(from)) {
+                    System.out.println("from: " + from + ", to: " + to + ", operators: " + operators.get(to));
+                    successors.add(operators.get(to));
+                }
+            }
+        }
+        return successors;
     }
 
     @Nonnull
@@ -43,7 +83,6 @@ public class LiebreVisualiser extends Visualiser {
              */
             @Override
             public void visit(MethodCallExpr n, Void arg) {
-                String name = n.getName().asString();
                 //System.out.println(n.getScope() + " - " + n.getName());
                 // 0. hitta X i "Query X = new Query();"
                 // 1. find all connect()ed operators (their names)
@@ -53,25 +92,20 @@ public class LiebreVisualiser extends Visualiser {
                     return; // method not of interest, not used in any connect() method call
                 }
 
-                System.out.println(name);
-
-                GraphOperator op = new Operator(name);
-
                 //super.visit(m, arg);
                 //System.out.println("---");
                 //System.out.println(m.getScope() + " - " + m.getName());
-                System.out.println("-------------------");
-
-                Node<GraphOperator> node = new Node<>(op, null);
 
                 Pair<String, String> pair = findLocalVariableInfo(n);
-                if (pair != null) {
-                    //System.out.println("Found pair: " + pair);
+                if (pair != null && pair.getKey() != null && allConnectedOperators.contains(pair.getKey())) {
+                    GraphOperator op = new Operator(pair.getKey());
+                    operators.put(pair.getKey(), op);
+                    Node<GraphOperator> node = new Node<>(op, null);
+                    final VisInfo.VariableInfo i = new VisInfo.VariableInfo(pair.getKey(), pair.getValue(), null);
+                    VisInfo info = new VisInfo(fileName, c.getName().asString(), method.getNameAsString(), i);
+                    methodData.add(new Pair<>(node, info));
                 }
-                final VisInfo.VariableInfo i = pair == null ? new VisInfo.VariableInfo(null, null, null)
-                        : new VisInfo.VariableInfo(pair.getKey(), pair.getValue(), null);
-                VisInfo info = new VisInfo(fileName, c.getName().asString(), method.getNameAsString(), i);
-                methodData.add(new Pair<>(node, info));
+                //System.out.println("-------------------");
 
                 // https://stackoverflow.com/questions/51117783/how-to-find-type-of-a-variable-while-reading-a-java-source-file
             }
@@ -81,13 +115,13 @@ public class LiebreVisualiser extends Visualiser {
                     com.github.javaparser.ast.Node parent = n.getParentNode().get();
                     String s = parent.toString();
                     if (s.startsWith("{")) { // no variable
-                        return new Pair<>(null, s.split("\\.", 2)[0]);
+                        return new Pair<>(null, s.split("\\.", 2)[0].trim());
                     } else if (s.contains("=")) { // we found a variable
                         String[] strings = s.split("=", 2);
                         if (strings[0].split(" ").length > 2) { // not correct equals sign
                             return findLocalVariableInfo(parent);
                         } else {
-                            return new Pair<>(strings[0], strings[1].split("\\.", 2)[0]);
+                            return new Pair<>(strings[0].trim(), strings[1].split("\\.", 2)[0].trim());
                         }
                     } else { // no variable yet, search from parent
                         return findLocalVariableInfo(parent);
@@ -128,13 +162,24 @@ public class LiebreVisualiser extends Visualiser {
             @Override
             public void visit(MethodCallExpr n, Void arg) {
                 final boolean isConnectMethodCall = n.getArguments().size() == 2 && n.getNameAsString().equals("connect");
-                //System.out.println(n.getScope() + " - " + n.getName() + ", " + isConnectMethodCall);
+                System.out.println(n.getScope() + " - " + n.getName() + ", " + isConnectMethodCall);
                 // 0. hitta X i "Query X = new Query();"
                 // 1. find all connect()ed operators (their names)
                 // 2. search for all their names and get their type/definition
                 if (isConnectMethodCall) {
                     System.out.println("connected: " + n.getArguments());
-                    connected.put(n.getArguments().get(0).toString(), n.getArguments().get(1).toString());
+                    String from = n.getArguments().get(0).toString();
+                    String to = n.getArguments().get(1).toString();
+                    if (connected.containsKey(from)) {
+                        connected.get(from).add(to);
+                    } else {
+                        Set<String> s = new HashSet<>();
+                        s.add(to);
+                        connected.put(from, s);
+                        allConnectedOperators.add(from);
+                        allConnectedOperators.add(to);
+                    }
+
                 }
             }
         };

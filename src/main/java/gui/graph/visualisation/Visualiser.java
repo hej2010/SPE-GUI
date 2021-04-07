@@ -3,8 +3,6 @@ package gui.graph.visualisation;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
-import com.github.javaparser.ast.body.VariableDeclarator;
-import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import gui.graph.dag.Node;
 import gui.graph.data.GraphOperator;
@@ -41,16 +39,15 @@ abstract class Visualiser {
 
     @Nonnull
     List<Pair<Node<GraphOperator>, VisInfo>> getClassData(String fileName, ClassOrInterfaceDeclaration c) {
-        List<Pair<Node<GraphOperator>, VisInfo>> data = new LinkedList<>();
-
+        //List<Pair<Node<GraphOperator>, VisInfo>> data = new LinkedList<>();
+        List<Pair<Node<GraphOperator>, VisInfo>> methodData = new LinkedList<>();
         for (MethodDeclaration method : c.getMethods()) {
-            List<Pair<Node<GraphOperator>, VisInfo>> methodData = new LinkedList<>();
             // Make the visitor go through everything inside the method.
             //System.out.println(method.findAll(VariableDeclarator.class));
             method.accept(methodParserInit(methodData, fileName, c, method), null);
             method.accept(methodParser(methodData, fileName, c, method), null);
 
-            BlockStmt block = method.getBody().orElse(null);
+            /*BlockStmt block = method.getBody().orElse(null); // TODO move to flink (chaining, find links)
             if (block == null) {
                 System.err.println("Block empty in " + method.getNameAsString());
             } else {
@@ -58,20 +55,20 @@ abstract class Visualiser {
                 if (!declaredVariables.isEmpty() && !methodData.isEmpty()) {
                     for (VariableDeclarator variable : declaredVariables) {
                         for (Pair<Node<GraphOperator>, VisInfo> p : methodData) {
-                            String name = variable.getNameAsString();
-                            if (name.equals(p.getValue().variableInfo.getVariableName())) {
+                            String variableName = variable.getNameAsString();
+                            if (variableName.equals(p.getValue().variableInfo.getVariableName())) {
                                 p.getValue().variableInfo.setVariableClass(variable.getType().asString());
-                                System.out.println("found match for " + name + " (" + variable.getType().asString() + ")");
+                                System.out.println("found match for " + variableName + " (" + variable.getType().asString() + ")");
                                 break;
                             }
                         }
                     }
                 }
-            }
+            }*/
 
-            data.addAll(methodData);
+            //data.addAll(methodData);
         }
 
-        return data;
+        return methodData;
     }
 }
