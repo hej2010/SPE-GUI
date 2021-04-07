@@ -80,7 +80,14 @@ public class LiebreTest {
 
         });
         Source<String> source1 = query.addTextFileSource("fd", "fdfd");
+        Operator<String, MyTuple> mapp = query.addMapOperator("dfg", new MapFunction<String, MyTuple>() {
+            @Override
+            public MyTuple apply(String s) {
+                return null;
+            }
+        });
 
+        query.connect(source1, mapp).connect(mapp, r);
         query.connect(ID, r).connect(r, sink);
 
         query.activate();

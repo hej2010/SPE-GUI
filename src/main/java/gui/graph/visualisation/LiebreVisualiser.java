@@ -110,7 +110,7 @@ public class LiebreVisualiser extends Visualiser {
                 // https://stackoverflow.com/questions/51117783/how-to-find-type-of-a-variable-while-reading-a-java-source-file
             }
 
-            private Pair<String, String> findLocalVariableInfo(com.github.javaparser.ast.Node n) {
+            private Pair<String, String> findLocalVariableInfo(com.github.javaparser.ast.Node n) { // TODO chained connect().connect() is not found (only last)
                 if (n.getParentNode().isPresent()) {
                     com.github.javaparser.ast.Node parent = n.getParentNode().get();
                     String s = parent.toString();
@@ -167,7 +167,7 @@ public class LiebreVisualiser extends Visualiser {
                 // 1. find all connect()ed operators (their names)
                 // 2. search for all their names and get their type/definition
                 if (isConnectMethodCall) {
-                    System.out.println("connected: " + n.getArguments());
+                    System.out.println("connected: " + n.getArguments()); // TODO chained connect().connect() is not found (only last)
                     String from = n.getArguments().get(0).toString();
                     String to = n.getArguments().get(1).toString();
                     if (connected.containsKey(from)) {
@@ -179,7 +179,19 @@ public class LiebreVisualiser extends Visualiser {
                         allConnectedOperators.add(from);
                         allConnectedOperators.add(to);
                     }
-
+                    String[] split = n.toString().split("\\."); // query connect(ID, r) connect(r, sink)
+                    if (split.length > 2) {
+                        for (int i = 0; i < split.length - 1; i++) { // dont include last, it was processed above
+                            String s = split[i].replace(" ", "").trim();
+                            if (split[i].startsWith("connect(")) {
+                                s = s.replace("connect(","").replace(")","");
+                                String[] split2 = s.split(",");
+                                if (split2.length == 2) {
+                                    // TODO extract duplicate connect.put() from above
+                                }
+                            }
+                        }
+                    }
                 }
             }
         };
