@@ -1,28 +1,16 @@
 package gui.testing;
 
 import org.apache.flink.api.common.functions.FilterFunction;
-import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.common.functions.MapFunction;
-import org.apache.flink.api.common.functions.ReduceFunction;
-import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.streaming.api.datastream.DataStream;
-import org.apache.flink.streaming.api.datastream.DataStreamSink;
-import org.apache.flink.streaming.api.datastream.KeyedStream;
-import org.apache.flink.streaming.api.datastream.WindowedStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.api.functions.sink.SinkFunction;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
-import org.apache.flink.streaming.api.windowing.assigners.SlidingProcessingTimeWindows;
-import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
-import org.apache.flink.streaming.api.windowing.time.Time;
-import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
-import org.apache.flink.streaming.api.windowing.windows.Window;
 
 public class FlinkTest {
-    public static void main(String[] args) {
-        final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-        DataStream<String> text = env.readTextFile("file:///path/to/file");
-        DataStream<String> sourceStream = env.addSource(new SourceFunction<String>() {
+    public static void main(String[] args) throws Exception {
+        final StreamExecutionEnvironment query = StreamExecutionEnvironment.getExecutionEnvironment();
+        //DataStream<String> text = query.readTextFile("file:///path/to/file");
+        DataStream<String> sourceStream = query.addSource(new SourceFunction<String>() {
             @Override
             public void run(SourceContext<String> ctx) throws Exception {
                 //
@@ -35,14 +23,34 @@ public class FlinkTest {
                 //
             }
         });
-        DataStreamSink<String> sink = text.addSink(new SinkFunction<String>() {
+        /*DataStreamSink<String> sink = text.addSink(new SinkFunction<String>() {
             @Override
             public void invoke(String value, Context context) throws Exception {
 
             }
+        });*/
+
+        DataStream<Integer> intStream = query.addSource(new SourceFunction<Integer>() {
+            @Override
+            public void run(SourceContext<Integer> ctx) throws Exception {
+
+            }
+
+            @Override
+            public void cancel() {
+
+            }
         });
 
-        sourceStream.filter(new FilterFunction<String>() {
+        DataStream<Double> stream = intStream
+                .map((MapFunction<Integer, Double>) value -> value * Math.PI)
+                .filter((FilterFunction<Double>) value -> value > 2);
+
+        //query.execute();
+
+        System.out.println(query.getExecutionPlan());
+
+        /*sourceStream.filter(new FilterFunction<String>() {
             @Override
             public boolean filter(String value) throws Exception {
                 return false;
@@ -73,7 +81,7 @@ public class FlinkTest {
             //
             return null;
         });
-        WindowedStream<String, String, TimeWindow> window = keyby1.window(SlidingProcessingTimeWindows.of(Time.minutes(4), Time.minutes(4)));
+        WindowedStream<String, String, TimeWindow> window = keyby1.window(SlidingProcessingTimeWindows.of(Time.minutes(4), Time.minutes(4)));*/
 
 
     }

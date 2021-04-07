@@ -33,10 +33,12 @@ public class LiebreTest {
                         .build(graphite);
         graphiteReporter.start(1, TimeUnit.SECONDS);
 
-        Query q = new Query();
+        Query query = new Query();
+        Operator<Integer, Double> mOp = query.addMapOperator("map1", integer -> integer * Math.PI);
+        Operator<Double, Double> fOp = query.addFilterOperator("filter1", integer -> integer > 2.0);
+        query.connect(mOp, fOp);
 
-
-        Operator<MyTuple, MyTuple> multiply = q.addOperator(new BaseOperator1In<>("M") {
+        Operator<MyTuple, MyTuple> multiply = query.addOperator(new BaseOperator1In<>("M") {
             @Override
             public List<MyTuple> processTupleIn1(MyTuple tuple) {
                 List<MyTuple> result = new LinkedList<MyTuple>();
@@ -44,11 +46,12 @@ public class LiebreTest {
                 return result;
             }
         });
-        q.addMapOperator("df", (MapFunction<MyTuple, MyTuple>) myTuple -> {
+
+        query.addMapOperator("df", (MapFunction<MyTuple, MyTuple>) myTuple -> {
             myTuple.key = 3434;
             return myTuple;
         });
-        q.addOperator(new BaseOperator2In<String, Float, Integer>("") {
+        query.addOperator(new BaseOperator2In<String, Float, Integer>("") {
 
             @Override
             public List<Integer> processTupleIn1(String tuple) {
@@ -60,30 +63,30 @@ public class LiebreTest {
                 return null;
             }
         });
-        q.addFlatMapOperator("df", (FlatMapFunction<String, Integer>) tuple -> {
+        query.addFlatMapOperator("df", (FlatMapFunction<String, Integer>) tuple -> {
             //
             return null;
         });
-        Operator<String, String> ID = q.addFilterOperator("fd", (FilterFunction<String>) s -> {
+        Operator<String, String> ID = query.addFilterOperator("fd", (FilterFunction<String>) s -> {
             //
             return false;
         });
-        RouterOperator<Integer> r = q.addRouterOperator("");
+        RouterOperator<Integer> r = query.addRouterOperator("");
 
 
-        Source<MyTuple> sink = q.addBaseSource("O1", () -> {
+        Source<MyTuple> sink = query.addBaseSource("O1", () -> {
             //
             return null;
         });
-        Source<String> sink2 = q.addTextFileSource("fd",
+        Source<String> sink2 = query.addTextFileSource("fd",
                 "fdfd"
         );
 
         //q.connect(source, multiply).connect(multiply, sink);
 
-        q.activate();
+        query.activate();
         Util.sleep(10000);
-        q.deActivate();
+        query.deActivate();
     }
 
     private static class MyTuple {
