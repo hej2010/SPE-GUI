@@ -61,6 +61,8 @@
                   <MenuItem fx:id="mIExport" mnemonicParsing="false" text="Export to file" />
                   <MenuItem fx:id="mIImport" mnemonicParsing="false" text="Import from file" />
                   <SeparatorMenuItem mnemonicParsing="false" />
+                  <MenuItem fx:id="mIVisFromFile" mnemonicParsing="false" text="Visualise from file" />
+                  <SeparatorMenuItem mnemonicParsing="false" />
             <MenuItem mnemonicParsing="false" text="New" />
             <MenuItem mnemonicParsing="false" text="Open…" />
             <Menu mnemonicParsing="false" text="Open Recent" />
