@@ -13,6 +13,7 @@ import gui.graph.visualisation.VisInfo;
 import gui.graph.visualisation.VisualisationManager;
 import gui.spe.*;
 import gui.utils.Files;
+import gui.utils.IOnDone;
 import gui.views.AutoCompleteTextField;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -433,12 +434,12 @@ public class GUIController {
                 List<Node<GraphOperator>> opsList = ExportManager.projectFromFile(file, parsedSPE);
                 Set<String> addedIdentifiers = new HashSet<>();
                 List<GraphOperator> addedNodes = new LinkedList<>();
-                addNewTab(file.getName());
-                //selectedTab.getGraph().clearGraph();
-                if (opsList != null) {
-                    addToGraph(opsList, null, addedIdentifiers, addedNodes);
-                }
-                Platform.runLater(() -> selectedTab.getGraphView().update());
+                addNewTab(file.getName(), () -> {
+                    if (opsList != null) {
+                        addToGraph(opsList, null, addedIdentifiers, addedNodes);
+                    }
+                    selectedTab.getGraphView().update();
+                });
             }
         });
         mIVisFromFile.setOnAction(event -> {
@@ -451,12 +452,13 @@ public class GUIController {
                 List<Pair<Node<GraphOperator>, VisInfo>> visResult = VisualisationManager.projectFromFile(file, parsedSPE);
                 Set<String> addedIdentifiers = new HashSet<>();
                 List<GraphOperator> addedNodes = new LinkedList<>();
-                addNewTab(file.getName());
-                //selectedTab.getGraph().clearGraph();
-                if (visResult != null) {
-                    addToGraph2(visResult, null, addedIdentifiers, addedNodes);
-                }
-                Platform.runLater(() -> selectedTab.getGraphView().update());
+                addNewTab(file.getName(), () -> {
+                    if (visResult != null) {
+                        addToGraph2(visResult, null, addedIdentifiers, addedNodes);
+                    }
+                    selectedTab.getGraphView().update();
+                    selectedTab.setVisResult(visResult);
+                });
             }
         });
         btnModify.setOnAction(event -> {
@@ -537,10 +539,10 @@ public class GUIController {
                 }
             }
         });
-        btnAddTab.setOnAction(event -> addNewTab("Tab " + (tabs.size() + 1)));
+        btnAddTab.setOnAction(event -> addNewTab("Tab " + (tabs.size() + 1), null));
     }
 
-    private void addNewTab(String name) {
+    private void addNewTab(String name, @Nullable IOnDone onDone) {
         Tab tab = new Tab(name);
         TabData data = new TabData();
         tabs.add(data);
@@ -556,6 +558,9 @@ public class GUIController {
                 e.printStackTrace();
             }
             initGraph();
+            if (onDone != null) {
+                onDone.onDone();
+            }
         }).start();
     }
 

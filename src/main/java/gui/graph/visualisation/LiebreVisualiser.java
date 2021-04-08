@@ -34,11 +34,9 @@ public class LiebreVisualiser extends Visualiser {
     public List<Pair<Node<GraphOperator>, VisInfo>> fixList(List<Pair<Node<GraphOperator>, VisInfo>> list) {
         List<Pair<Node<GraphOperator>, VisInfo>> newList = new LinkedList<>();
         for (Pair<Node<GraphOperator>, VisInfo> p : list) {
-            System.out.println(p.getValue());
             Node<GraphOperator> op = p.getKey();
             for (String from : connected.keySet()) {
                 if (from.equals(op.getItem().getIdentifier().get())) { // this node has output streams
-                    System.out.println("");
                     newList.add(new Pair<>(new Node<>(op.getItem(), getSuccessorsFrom(from)), p.getValue()));
                     break;
                 }
@@ -82,7 +80,7 @@ public class LiebreVisualiser extends Visualiser {
                 //System.out.println(n.getScope() + " - " + n.getName());
                 // 0. hitta X i "Query X = new Query();"
                 // 1. find all connect()ed operators (their names)
-                // 2. search for all their names and get their type/definition
+                // 2. search for all their names and get their type/definition TODO
 
                 if (n.getScope().isEmpty() || !queryVariables.contains(n.getScope().get().toString())) {
                     return; // method not of interest, not used in any connect() method call
@@ -143,13 +141,13 @@ public class LiebreVisualiser extends Visualiser {
             @Override
             public void visit(VariableDeclarator n, Void arg) {
                 //super.visit(n, arg);
-                System.out.println("decl: " + n.getType() + "-" + n.getNameAsString());
+                //System.out.println("decl: " + n.getType() + "-" + n.getNameAsString());
                 if (n.getType().asString().equals("Query")) {
-                    System.out.println("found query with name: " + n.getNameAsString());
+                    //System.out.println("found query with name: " + n.getNameAsString());
                     queryVariables.add(n.getNameAsString());
                 } else {
                     variableClasses.put(n.getNameAsString(), n.getType().asString());
-                    System.out.println("put " + n.getNameAsString() + ";" + n.getType().asString());
+                    //System.out.println("put " + n.getNameAsString() + ";" + n.getType().asString());
                 }
             }
 
@@ -162,7 +160,7 @@ public class LiebreVisualiser extends Visualiser {
             @Override
             public void visit(MethodCallExpr n, Void arg) {
                 final boolean isConnectMethodCall = n.getArguments().size() == 2 && n.getNameAsString().equals("connect");
-                System.out.println(n.getScope() + " - " + n.getName() + ", " + isConnectMethodCall);
+                //System.out.println(n.getScope() + " - " + n.getName() + ", " + isConnectMethodCall);
                 // 0. hitta X i "Query X = new Query();"
                 // 1. find all connect()ed operators (their names)
                 // 2. search for all their names and get their type/definition

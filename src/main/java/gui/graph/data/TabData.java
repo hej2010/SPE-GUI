@@ -4,16 +4,30 @@ import com.brunomnsilva.smartgraph.graph.DigraphEdgeList;
 import com.brunomnsilva.smartgraph.graph.Graph;
 import com.brunomnsilva.smartgraph.graphview.SmartCircularSortedPlacementStrategy;
 import com.brunomnsilva.smartgraph.graphview.SmartGraphPanel;
+import gui.graph.dag.Node;
+import gui.graph.visualisation.VisInfo;
+import javafx.util.Pair;
 
 import javax.annotation.Nonnull;
+import java.util.List;
 
 public class TabData {
     private SmartGraphPanel<GraphOperator, GraphStream> graphView;
     private Graph<GraphOperator, GraphStream> graph;
+    private List<Pair<Node<GraphOperator>, VisInfo>> visResult;
 
     public TabData() {
         graph = new DigraphEdgeList<>();
         graphView = new SmartGraphPanel<>(graph, new SmartCircularSortedPlacementStrategy());
+        visResult = null;
+    }
+
+    public void setVisResult(List<Pair<Node<GraphOperator>, VisInfo>> visResult) {
+        this.visResult = visResult;
+    }
+
+    public List<Pair<Node<GraphOperator>, VisInfo>> getVisResult() {
+        return visResult;
     }
 
     @Nonnull
