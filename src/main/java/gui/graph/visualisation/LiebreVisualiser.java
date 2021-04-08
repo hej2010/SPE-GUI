@@ -170,15 +170,7 @@ public class LiebreVisualiser extends Visualiser {
                     System.out.println("connected: " + n.getArguments()); // TODO chained connect().connect() is not found (only last)
                     String from = n.getArguments().get(0).toString();
                     String to = n.getArguments().get(1).toString();
-                    if (connected.containsKey(from)) {
-                        connected.get(from).add(to);
-                    } else {
-                        Set<String> s = new HashSet<>();
-                        s.add(to);
-                        connected.put(from, s);
-                        allConnectedOperators.add(from);
-                        allConnectedOperators.add(to);
-                    }
+                    addToConnected(from,to);
                     String[] split = n.toString().split("\\."); // query connect(ID, r) connect(r, sink)
                     if (split.length > 2) {
                         for (int i = 0; i < split.length - 1; i++) { // dont include last, it was processed above
@@ -187,11 +179,23 @@ public class LiebreVisualiser extends Visualiser {
                                 s = s.replace("connect(","").replace(")","");
                                 String[] split2 = s.split(",");
                                 if (split2.length == 2) {
-                                    // TODO extract duplicate connect.put() from above
+                                    addToConnected(split2[0],split2[1]);
                                 }
                             }
                         }
                     }
+                }
+            }
+
+            private void addToConnected(String from, String to) {
+                if (connected.containsKey(from)) {
+                    connected.get(from).add(to);
+                } else {
+                    Set<String> s = new HashSet<>();
+                    s.add(to);
+                    connected.put(from, s);
+                    allConnectedOperators.add(from);
+                    allConnectedOperators.add(to);
                 }
             }
         };
