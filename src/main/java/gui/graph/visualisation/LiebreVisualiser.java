@@ -30,12 +30,9 @@ public class LiebreVisualiser extends Visualiser {
     @Override
     public List<Pair<Node<GraphOperator>, VisInfo>> fixList(List<Pair<Node<GraphOperator>, VisInfo>> list) {
         List<Pair<Node<GraphOperator>, VisInfo>> newList = new LinkedList<>();
-        System.out.println("connected: " + connected);
         for (Pair<Node<GraphOperator>, VisInfo> p : list) {
-            System.out.println("p: " + p.getKey());
             Node<GraphOperator> op = p.getKey();
             for (String from : connected.keySet()) {
-                System.out.println("from: " + from);
                 if (from.equals(op.getItem().getIdentifier().get())) { // this node has output streams
                     System.out.println("");
                     newList.add(new Pair<>(new Node<>(op.getItem(), getSuccessorsFrom(from)), p.getValue()));
@@ -52,7 +49,6 @@ public class LiebreVisualiser extends Visualiser {
         List<GraphOperator> successors = findSuccessorsFor(from);
         List<Node<GraphOperator>> successorsList = new LinkedList<>();
         successors.forEach(successor -> successorsList.add(new Node<>(successor, getSuccessorsFrom(successor.getIdentifier().get())))); // recursively find successors
-        System.out.println("successors: " + successorsList);
         return successorsList;
     }
 
@@ -62,7 +58,6 @@ public class LiebreVisualiser extends Visualiser {
         for (String from : connected.keySet()) {
             if (from.equals(name)) {
                 for (String to : connected.get(from)) {
-                    System.out.println("from: " + from + ", to: " + to + ", operators: " + operators.get(to));
                     successors.add(operators.get(to));
                 }
             }
@@ -167,7 +162,7 @@ public class LiebreVisualiser extends Visualiser {
                 // 1. find all connect()ed operators (their names)
                 // 2. search for all their names and get their type/definition
                 if (isConnectMethodCall) {
-                    System.out.println("connected: " + n.getArguments()); // TODO chained connect().connect() is not found (only last)
+                    System.out.println("connected: " + n.getArguments());
                     String from = n.getArguments().get(0).toString();
                     String to = n.getArguments().get(1).toString();
                     addToConnected(from,to);
