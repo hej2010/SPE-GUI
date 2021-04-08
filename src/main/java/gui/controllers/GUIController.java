@@ -1,12 +1,7 @@
 package gui.controllers;
 
 import com.brunomnsilva.smartgraph.graph.Edge;
-import com.brunomnsilva.smartgraph.graph.Graph;
-import com.brunomnsilva.smartgraph.graph.GraphEdgeList;
 import com.brunomnsilva.smartgraph.graph.Vertex;
-import com.brunomnsilva.smartgraph.graphview.SmartCircularSortedPlacementStrategy;
-import com.brunomnsilva.smartgraph.graphview.SmartGraphPanel;
-import com.brunomnsilva.smartgraph.graphview.SmartPlacementStrategy;
 import com.brunomnsilva.smartgraph.graphview.SmartStylableNode;
 import gui.GUI;
 import gui.controllers.spe.FlinkController;
@@ -46,18 +41,18 @@ import java.util.*;
 
 public class GUIController {
     private GUI gui;
-    private SmartGraphPanel<GraphOperator, GraphStream> graphView;
-    private Graph<GraphOperator, GraphStream> graph;
     private final GraphOperator[] selectedOps = new GraphOperator[2];
     private Edge<GraphStream, GraphOperator> selectedEdge;
     private ParsedSPE parsedSPE;
     private GraphOperator singleClickedOperator;
     private File selectedDirectory;
+    private final List<TabData> tabs = new LinkedList<>();
+    private TabData selectedTab;
 
     @FXML
-    public AnchorPane aPMaster, aPGraph, aPDetails;
+    public AnchorPane aPMaster/*, aPGraph*/, aPDetails;
     @FXML
-    public Button btnAddSource, btnAddOp, btnAddSink, btnConnect, btnDisconnect, btnModify, btnSelectFile, btnGenerate;
+    public Button btnAddSource, btnAddOp, btnAddSink, btnConnect, btnDisconnect, btnModify, btnSelectFile, btnGenerate, btnAddTab;
     @FXML
     public TextField tfIdentifier;
     @FXML
@@ -69,27 +64,36 @@ public class GUIController {
     @FXML
     public MenuItem mIChangeSpe, mIExport, mIImport, mIVisFromFile;
     @FXML
-    public Label lblCurrentSPE, lblSelectedFile, lblSavedTo, lblSavedToTitle;
+    public Label lblCurrentSPE, lblSelectedFile, lblSavedTo, lblSavedToTitle, lblLeftStatus, lblRightStatus;
     @FXML
     public TextArea tACode;
+    @FXML
+    public TabPane tabPane;
 
     public void init(GUI gui, ParsedSPE parsedSPE) {
         this.gui = gui;
-        graph = new GraphEdgeList<>();
         selectedEdge = null;
         selectedOps[0] = null;
         selectedOps[1] = null;
         singleClickedOperator = null;
         this.parsedSPE = parsedSPE;
+        selectedTab = new TabData();
+        tabs.add(selectedTab);
         lblCurrentSPE.setText("Current SPE: " + parsedSPE.getName());
-
-        SmartPlacementStrategy strategy = new SmartCircularSortedPlacementStrategy();
-        graphView = new SmartGraphPanel<>(graph, strategy);
-        AnchorPane.setTopAnchor(graphView, 0.0);
-        AnchorPane.setLeftAnchor(graphView, 0.0);
-        AnchorPane.setRightAnchor(graphView, 0.0);
-        AnchorPane.setBottomAnchor(graphView, 0.0);
-        aPGraph.getChildren().add(graphView);
+        AnchorPane.setTopAnchor(tabPane, 0.0);
+        AnchorPane.setLeftAnchor(tabPane, 0.0);
+        AnchorPane.setRightAnchor(tabPane, 0.0);
+        AnchorPane.setBottomAnchor(tabPane, 0.0);
+        Tab tab = new Tab("Tab 1");
+        tabPane.getTabs().add(tab);
+        tabPane.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
+            Tab tab1 = tabPane.getTabs().get(newValue.intValue());
+            TabData data = tabs.get(newValue.intValue());
+            // TODO
+            selectedTab = data;
+        });
+        //aPGraph.getChildren().add(graphView);
+        tab.setContent(selectedTab.getGraphView());
 
         setChoiceBoxItems();
         setDetails(null);
@@ -229,17 +233,17 @@ public class GUIController {
                 String selected = choiceBox.getSelectionModel().getSelectedItem();
                 singleClickedOperator.selectOperator(selected, parsedSPE.getOperators());
                 setDetails(singleClickedOperator);
-                graphView.update();
+                selectedTab.getGraphView().update();
             }
         });
     }
 
     private void initGraph() {
         //IMPORTANT - Called after scene is displayed so we can have width and height values
-        graphView.init();
-        graphView.setAutomaticLayout(true);
-        graphView.setRepulsionForce(100);
-        graphView.setEdgeDoubleClickAction(smartGraphEdge -> {
+        selectedTab.getGraphView().init();
+        selectedTab.getGraphView().setAutomaticLayout(true);
+        selectedTab.getGraphView().setRepulsionForce(100);
+        selectedTab.getGraphView().setEdgeDoubleClickAction(smartGraphEdge -> {
             //System.out.println("Double click edge: " + smartGraphEdge.getUnderlyingEdge().element());
             Edge<GraphStream, GraphOperator> edge = smartGraphEdge.getUnderlyingEdge();
             if (selectedEdge == edge) {
@@ -251,24 +255,24 @@ public class GUIController {
                 setEdgeSelected(true, edge);
             }
             btnDisconnect.setDisable(selectedEdge == null);
-            graphView.update();
-            graph.vertices();
-            graph.edges();
+            selectedTab.getGraphView().update();
+            //graph.vertices();
+            //graph.edges();
             //
         });
-        graphView.setVertexDoubleClickAction(smartGraphVertex -> {
+        selectedTab.getGraphView().setVertexDoubleClickAction(smartGraphVertex -> {
             Vertex<GraphOperator> v = smartGraphVertex.getUnderlyingVertex();
             doOnVertexClicked(v);
             //System.out.println("Double click vertex: " + v.element());
             //
         });
-        graphView.setVertexSingleClickAction(smartGraphVertex -> {
+        selectedTab.getGraphView().setVertexSingleClickAction(smartGraphVertex -> {
             //System.out.println("Single click vertex: " + smartGraphVertex.getUnderlyingVertex().element());
             setDetails(smartGraphVertex.getUnderlyingVertex().element());
             //
         });
 
-        graphView.setEdgeSingleClickAction(smartGraphEdge -> {
+        selectedTab.getGraphView().setEdgeSingleClickAction(smartGraphEdge -> {
             //System.out.println("Single click edge: " + smartGraphEdge.getUnderlyingEdge().element());
             //
         });
@@ -276,7 +280,7 @@ public class GUIController {
 
     private void setEdgeSelected(boolean selected, Edge<GraphStream, GraphOperator> edge) {
         if (edge != null) {
-            SmartStylableNode node = graphView.getStylableEdge(edge);
+            SmartStylableNode node = selectedTab.getGraphView().getStylableEdge(edge);
             if (node != null) {
                 node.setStyleClass(selected ? "edge-selected" : "edge");
             }
@@ -285,7 +289,7 @@ public class GUIController {
 
     private void setVertexSelectedStyle(boolean selected, GraphOperator vertex) {
         if (vertex != null) {
-            SmartStylableNode node = graphView.getStylableVertex(vertex);
+            SmartStylableNode node = selectedTab.getGraphView().getStylableVertex(vertex);
             if (node != null) {
                 node.setStyleClass(selected ? "vertex-selected" : "vertex");
             }
@@ -338,7 +342,7 @@ public class GUIController {
             }
             setVertexSelectedStyle(!deselected, op);
             updateButtons();
-            graphView.update();
+            selectedTab.getGraphView().update();
         }
     }
 
@@ -348,65 +352,55 @@ public class GUIController {
 
     private void initButtonListeners(GUI gui) {
         btnAddOp.setOnAction(event -> {
-            if (graph != null) {
-                graph.insertVertex(new Operator());
-                update();
-            }
+            selectedTab.getGraph().insertVertex(new Operator());
+            update();
         });
         btnAddSource.setOnAction(event -> {
-            if (graph != null) {
-                graph.insertVertex(new SourceOperator());
-                update();
-            }
+            selectedTab.getGraph().insertVertex(new SourceOperator());
+            update();
         });
         btnAddSink.setOnAction(event -> {
-            if (graph != null) {
-                graph.insertVertex(new SinkOperator());
-                update();
-            }
+            selectedTab.getGraph().insertVertex(new SinkOperator());
+            update();
         });
         btnConnect.setOnAction(event -> {
-            if (graph != null) {
-                synchronized (selectedOps) {
-                    GraphOperator from = selectedOps[0];
-                    GraphOperator to = selectedOps[1];
-                    assert from != null && to != null;
-                    if (from instanceof SinkOperator || to instanceof SourceOperator) { // wrong stream direction
-                        return;
-                    }
-                    // TODO cancel if creates a cycle
-                    graph.insertEdge(from, to, new Stream()); // add an edge between them
-                    from.setSelectedIndex(-1);
-                    to.setSelectedIndex(-1);
-                    setVertexSelectedStyle(false, from);
-                    setVertexSelectedStyle(false, to);
-                    selectedOps[0] = null;
-                    selectedOps[1] = null;
-                    graphView.update();
-                    btnConnect.setDisable(true);
-                    if (parsedSPE instanceof ParsedFlinkSPE) { // update identifiers
-                        FlinkController.updateGraphOnConnect(from, to, graph);
-                        if (singleClickedOperator != null) {
-                            setCodeDetails(singleClickedOperator);
-                        }
-                    }
-                    //DirectedGraph d = DirectedGraph.fromGraphView(graph);
-                    //System.out.println(d.toString());
+            synchronized (selectedOps) {
+                GraphOperator from = selectedOps[0];
+                GraphOperator to = selectedOps[1];
+                assert from != null && to != null;
+                if (from instanceof SinkOperator || to instanceof SourceOperator) { // wrong stream direction
+                    return;
                 }
+                // TODO cancel if creates a cycle
+                selectedTab.getGraph().insertEdge(from, to, new Stream()); // add an edge between them
+                from.setSelectedIndex(-1);
+                to.setSelectedIndex(-1);
+                setVertexSelectedStyle(false, from);
+                setVertexSelectedStyle(false, to);
+                selectedOps[0] = null;
+                selectedOps[1] = null;
+                selectedTab.getGraphView().update();
+                btnConnect.setDisable(true);
+                if (parsedSPE instanceof ParsedFlinkSPE) { // update identifiers
+                    FlinkController.updateGraphOnConnect(from, to, selectedTab.getGraph());
+                    if (singleClickedOperator != null) {
+                        setCodeDetails(singleClickedOperator);
+                    }
+                }
+                //DirectedGraph d = DirectedGraph.fromGraphView(graph);
+                //System.out.println(d.toString());
             }
         });
         btnDisconnect.setOnAction(event -> {
-            if (graph != null) {
-                synchronized (this) {
-                    assert selectedEdge != null;
-                    if (parsedSPE instanceof ParsedFlinkSPE) { // update identifiers
-                        selectedEdge.vertices()[1].element().setPrevIdentifier(null);
-                    }
-                    graph.removeEdge(selectedEdge);
-                    selectedEdge = null;
-                    graphView.update();
-                    btnDisconnect.setDisable(true);
+            synchronized (this) {
+                assert selectedEdge != null;
+                if (parsedSPE instanceof ParsedFlinkSPE) { // update identifiers
+                    selectedEdge.vertices()[1].element().setPrevIdentifier(null);
                 }
+                selectedTab.getGraph().removeEdge(selectedEdge);
+                selectedEdge = null;
+                selectedTab.getGraphView().update();
+                btnDisconnect.setDisable(true);
             }
         });
         mIChangeSpe.setOnAction(event -> {
@@ -417,7 +411,7 @@ public class GUIController {
             }
         });
         mIExport.setOnAction(event -> {
-            JSONObject o = ExportManager.projectToJson(DirectedGraph.fromGraphView(graph), parsedSPE);
+            JSONObject o = ExportManager.projectToJson(DirectedGraph.fromGraphView(selectedTab.getGraph()), parsedSPE);
             DirectoryChooser directoryChooser = new DirectoryChooser();
             String path = Paths.get(".").toAbsolutePath().normalize().toString() + "/src/main/java/gui";
             directoryChooser.setInitialDirectory(new File(path));
@@ -439,11 +433,12 @@ public class GUIController {
                 List<Node<GraphOperator>> opsList = ExportManager.projectFromFile(file, parsedSPE);
                 Set<String> addedIdentifiers = new HashSet<>();
                 List<GraphOperator> addedNodes = new LinkedList<>();
-                graph.clearGraph();
+                addNewTab(file.getName());
+                //selectedTab.getGraph().clearGraph();
                 if (opsList != null) {
                     addToGraph(opsList, null, addedIdentifiers, addedNodes);
                 }
-                graphView.update();
+                Platform.runLater(() -> selectedTab.getGraphView().update());
             }
         });
         mIVisFromFile.setOnAction(event -> {
@@ -456,11 +451,12 @@ public class GUIController {
                 List<Pair<Node<GraphOperator>, VisInfo>> visResult = VisualisationManager.projectFromFile(file, parsedSPE);
                 Set<String> addedIdentifiers = new HashSet<>();
                 List<GraphOperator> addedNodes = new LinkedList<>();
-                graph.clearGraph();
+                addNewTab(file.getName());
+                //selectedTab.getGraph().clearGraph();
                 if (visResult != null) {
                     addToGraph2(visResult, null, addedIdentifiers, addedNodes);
                 }
-                graphView.update();
+                Platform.runLater(() -> selectedTab.getGraphView().update());
             }
         });
         btnModify.setOnAction(event -> {
@@ -523,7 +519,7 @@ public class GUIController {
         });
         btnGenerate.setOnAction(event -> {
             if (selectedDirectory != null) {
-                DirectedGraph d = DirectedGraph.fromGraphView(graph);
+                DirectedGraph d = DirectedGraph.fromGraphView(selectedTab.getGraph());
                 String fileName = parsedSPE.getFileName() + System.currentTimeMillis();
                 String fileNameWithSuffix = fileName + ".java";
                 File file = new File(selectedDirectory, fileNameWithSuffix);
@@ -541,13 +537,33 @@ public class GUIController {
                 }
             }
         });
+        btnAddTab.setOnAction(event -> addNewTab("Tab " + (tabs.size() + 1)));
+    }
+
+    private void addNewTab(String name) {
+        Tab tab = new Tab(name);
+        TabData data = new TabData();
+        tabs.add(data);
+        tab.setContent(data.getGraphView());
+        tabPane.getTabs().add(tab);
+        tabPane.getSelectionModel().selectLast();
+        this.selectedTab = data;
+        setDetails(null);
+        new Thread(() -> {
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            initGraph();
+        }).start();
     }
 
     private void addToGraph(@Nonnull List<Node<GraphOperator>> opsList, @Nullable GraphOperator parent, Set<String> addedIdentifiers, List<GraphOperator> addedNodes) {
         for (Node<GraphOperator> node : opsList) {
             GraphOperator op = node.getItem();
             if (!addedIdentifiers.contains(op.getIdentifier().get())) {
-                graph.insertVertex(op);
+                selectedTab.getGraph().insertVertex(op);
                 addedIdentifiers.add(op.getIdentifier().get());
                 addedNodes.add(op);
 
@@ -565,7 +581,7 @@ public class GUIController {
             }
 
             if (parent != null) {
-                graph.insertEdge(parent, op, new Stream());
+                selectedTab.getGraph().insertEdge(parent, op, new Stream());
             }
         }
     }
@@ -607,9 +623,7 @@ public class GUIController {
     }
 
     private void update() {
-        if (graphView != null) {
-            graphView.update();
-        }
+        selectedTab.getGraphView().update();
     }
 
 }
