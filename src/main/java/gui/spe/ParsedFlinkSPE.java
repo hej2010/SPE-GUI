@@ -20,7 +20,6 @@ public class ParsedFlinkSPE extends ParsedSPE {
     @Nonnull
     @Override
     public String generateCodeFrom(@Nonnull DirectedGraph directedGraph, @Nonnull ParsedSPE parsedSPE, @Nonnull String fileName) {
-        System.out.println("in flink; " + parsedSPE.getFileName());
         StringBuilder sb = new StringBuilder();
         Set<String> addedNodes = new HashSet<>();
 

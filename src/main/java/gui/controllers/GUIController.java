@@ -521,11 +521,11 @@ public class GUIController {
         });
         btnGenerate.setOnAction(event -> {
             if (selectedDirectory != null) {
-                DirectedGraph d = DirectedGraph.fromGraphView(selectedTab.getGraph());
+                DirectedGraph directedGraph = DirectedGraph.fromGraphView(selectedTab.getGraph());
                 String fileName = parsedSPE.getFileName() + System.currentTimeMillis();
                 String fileNameWithSuffix = fileName + ".java";
                 File file = new File(selectedDirectory, fileNameWithSuffix);
-                String code = parsedSPE.generateCodeFrom(d, parsedSPE, fileName);
+                String code = parsedSPE.generateCodeFrom(directedGraph, parsedSPE, fileName);
                 String errorMessage = Files.writeFile(file, code);
                 lblSavedToTitle.setVisible(true);
                 if (errorMessage == null) {

@@ -70,7 +70,7 @@ public class FlinkVisualiser extends Visualiser {
             if (n != null) {
                 Pair<String, String> pair = findLocalVariableInfo(m);
                 if (pair != null) {
-                    System.out.println("Found pair: " + pair);
+                    //System.out.println("Found pair: " + pair);
                 }
                 final VisInfo.VariableInfo i = pair == null ? new VisInfo.VariableInfo(null, null, null)
                         : new VisInfo.VariableInfo(pair.getKey(), pair.getValue(), null);

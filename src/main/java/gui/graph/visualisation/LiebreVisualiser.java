@@ -97,7 +97,7 @@ public class LiebreVisualiser extends Visualiser {
             }
 
             @Nullable
-            private VisInfo.VariableInfo findLocalVariableInfo(com.github.javaparser.ast.Node n) { // TODO chained connect().connect() is not found (only last)
+            private VisInfo.VariableInfo findLocalVariableInfo(com.github.javaparser.ast.Node n) {
                 if (n.getParentNode().isPresent()) {
                     com.github.javaparser.ast.Node parent = n.getParentNode().get();
                     String s = parent.toString();
