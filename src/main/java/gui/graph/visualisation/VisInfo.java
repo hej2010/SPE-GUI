@@ -53,6 +53,17 @@ public class VisInfo {
         public void setVariableClass(@Nullable String variableClass) {
             this.variableClass = variableClass == null ? null : variableClass.trim();
         }
+
+        @Override
+        public String toString() {
+            return "VariableInfo{" +
+                    "calledWithVariableName='" + calledWithVariableName + '\'' +
+                    ", variableName='" + variableName + '\'' +
+                    ", variableClass='" + variableClass + '\'' +
+                    ", savedInExistingVariable=" + savedInExistingVariable +
+                    ", savedInNewVariable=" + savedInNewVariable +
+                    '}';
+        }
     }
 
     @Nonnull
@@ -68,5 +79,15 @@ public class VisInfo {
     @Nonnull
     public String getMethodName() {
         return methodName;
+    }
+
+    @Override
+    public String toString() {
+        return "VisInfo{" +
+                "fileName='" + fileName + '\'' +
+                ", className='" + className + '\'' +
+                ", methodName='" + methodName + '\'' +
+                ", variableInfo=" + variableInfo +
+                '}';
     }
 }
