@@ -26,7 +26,6 @@ public class DirectedGraph {
 
     private int countNodes(Node<GraphOperator> n) {
         int count = 1;
-        n.getSuccessors();
         for (Node<GraphOperator> n2 : n.getSuccessors()) {
             count += countNodes(n2);
         }
