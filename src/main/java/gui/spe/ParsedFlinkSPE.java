@@ -3,6 +3,7 @@ package gui.spe;
 import gui.graph.dag.DirectedGraph;
 import gui.graph.dag.Node;
 import gui.graph.data.GraphOperator;
+import javafx.util.Pair;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
@@ -13,8 +14,9 @@ import java.util.Set;
 
 public class ParsedFlinkSPE extends ParsedSPE {
 
-    ParsedFlinkSPE(@NotNull String name, @NotNull List<ParsedOperator> operators, @NotNull List<String> baseImports, @NotNull List<String> baseDefinition, @NotNull Map<String, List<String>> operatorImportsMap) {
-        super(name, operators, baseImports, baseDefinition, operatorImportsMap);
+    ParsedFlinkSPE(@NotNull String name, @NotNull List<ParsedOperator> operators, @NotNull List<String> baseImports, @NotNull List<String> baseDefinition,
+                   @NotNull Map<String, List<String>> operatorImportsMap, Map<String, Pair<Class<? extends GraphOperator>, String>> codeToOpMap) {
+        super(name, operators, baseImports, baseDefinition, operatorImportsMap, codeToOpMap);
     }
 
     @Nonnull

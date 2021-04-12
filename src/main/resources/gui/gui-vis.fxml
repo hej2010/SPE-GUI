@@ -99,7 +99,7 @@
         </Menu>
       </menus>
     </MenuBar>
-    <SplitPane dividerPositions="0.21158129175946547, 0.7594654788418709" focusTraversable="true" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
+    <SplitPane dividerPositions="0.21158129175946547, 0.7249443207126949" focusTraversable="true" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
       <items>
         <AnchorPane fx:id="aPMaster">
           <children>
@@ -237,6 +237,31 @@
                         </Label>
                         <TextArea fx:id="tACode" editable="false" prefHeight="97.0" prefWidth="203.0" promptText="Operator code" />
                         <Button fx:id="btnModify" mnemonicParsing="false" prefHeight="25.0" prefWidth="282.0" text="Modify" />
+                     </children>
+                  </VBox>
+                  <VBox fx:id="vBDetailsVis" layoutX="-31.0" layoutY="45.0" prefHeight="506.0" prefWidth="244.0" spacing="8.0" visible="false" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="45.0">
+                     <padding>
+                        <Insets left="5.0" right="5.0" />
+                     </padding>
+                     <children>
+                        <Label fx:id="lblVisInfo" prefHeight="54.0" prefWidth="234.0" text="File: &#10;Class: &#10;Method: " />
+                        <Label fx:id="lblVisType" text="Type: " textAlignment="CENTER">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </Label>
+                        <Label fx:id="lblVisOperator" text="Operator:" textAlignment="CENTER">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </Label>
+                        <Label text="Code" textAlignment="CENTER">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                        </Label>
+                        <TextArea fx:id="tACodeVis" editable="false" prefHeight="97.0" prefWidth="203.0" promptText="Operator code" />
+                        <Button fx:id="btnModifyVis" mnemonicParsing="false" prefHeight="25.0" prefWidth="282.0" text="Modify" />
                      </children>
                   </VBox>
           </children>

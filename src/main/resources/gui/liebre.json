@@ -20,6 +20,15 @@
       "Join"
     ]
   },
+  "links": {
+    "addMapOperator": "op:Map",
+    "addFilterOperator": "op:Filter",
+    "addOperator": "op:BaseOperator1In",
+    "addOperator2n": "op:BaseOperator2In",
+    "addRouterOperator": "op:Router",
+    "addTextFileSource": "source:TextFileSource",
+    "addBaseSink": "sink:BaseSink"
+  },
   "imports": {
     "base": [
       "query.Query",

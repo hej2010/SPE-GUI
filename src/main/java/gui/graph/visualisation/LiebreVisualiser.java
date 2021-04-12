@@ -35,14 +35,18 @@ public class LiebreVisualiser extends Visualiser {
         List<Pair<Node<GraphOperator>, VisInfo>> newList = new LinkedList<>();
         for (Pair<Node<GraphOperator>, VisInfo> p : list) {
             Node<GraphOperator> op = p.getKey();
+            boolean isParent = false;
             for (String from : connected.keySet()) {
                 if (from.equals(op.getItem().getIdentifier().get())) { // this node has output streams
                     newList.add(new Pair<>(new Node<>(op.getItem(), getSuccessorsFrom(from)), p.getValue()));
+                    isParent = true;
                     break;
                 }
             }
+            if (!isParent) {
+                newList.add(new Pair<>(new Node<>(op.getItem(), new LinkedList<>()), p.getValue()));
+            }
         }
-
         return newList;
     }
 
@@ -102,7 +106,8 @@ public class LiebreVisualiser extends Visualiser {
                     com.github.javaparser.ast.Node parent = n.getParentNode().get();
                     String s = parent.toString();
                     if (s.startsWith("{")) { // no variable
-                        return new VisInfo.VariableInfo(null, s.split("\\.", 2)[0].trim(), null);
+                        //System.out.println("parent1 = " + parent);
+                        return new VisInfo.VariableInfo(null, s.split("\\.", 2)[0].trim(), null, null, Operator.class, null);
                     } else if (s.contains("=")) { // we found a variable
                         String[] strings = s.split("=", 2);
                         if (strings[0].split(" ").length > 2) { // not correct equals sign
@@ -111,7 +116,8 @@ public class LiebreVisualiser extends Visualiser {
                             String variableName = strings[0].trim();
                             String calledWithVar = strings[1].split("\\.", 2)[0].trim();
                             String varClass = getTypeFor(variableName);
-                            return new VisInfo.VariableInfo(variableName, calledWithVar, varClass);
+                            //System.out.println("parent2 = " + parent);
+                            return new VisInfo.VariableInfo(variableName, calledWithVar, varClass, null, Operator.class, null); // TODO
                         }
                     } else { // no variable yet, search from parent
                         return findLocalVariableInfo(parent);

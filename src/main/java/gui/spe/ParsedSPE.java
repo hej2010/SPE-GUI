@@ -5,6 +5,7 @@ import com.google.googlejavaformat.java.FormatterException;
 import gui.graph.dag.DirectedGraph;
 import gui.graph.dag.Node;
 import gui.graph.data.GraphOperator;
+import javafx.util.Pair;
 
 import javax.annotation.Nonnull;
 import java.util.LinkedList;
@@ -17,14 +18,16 @@ public abstract class ParsedSPE {
     private final List<ParsedOperator> operators;
     private final List<String> baseImports, baseDefinition;
     private final Map<String, List<String>> operatorImportsMap;
+    private final Map<String, Pair<Class<? extends GraphOperator>, String>> codeToOpMap;
 
-    ParsedSPE(@Nonnull String name, @Nonnull List<ParsedOperator> operators, @Nonnull List<String> baseImports,
-              @Nonnull List<String> baseDefinition, @Nonnull Map<String, List<String>> operatorImportsMap) {
+    ParsedSPE(@Nonnull String name, @Nonnull List<ParsedOperator> operators, @Nonnull List<String> baseImports, @Nonnull List<String> baseDefinition,
+              @Nonnull Map<String, List<String>> operatorImportsMap, @Nonnull Map<String, Pair<Class<? extends GraphOperator>, String>> codeToOpMap) {
         this.name = name;
         this.operators = operators;
         this.baseImports = baseImports;
         this.baseDefinition = baseDefinition;
         this.operatorImportsMap = operatorImportsMap;
+        this.codeToOpMap = codeToOpMap;
     }
 
     @Nonnull
@@ -51,6 +54,11 @@ public abstract class ParsedSPE {
             }
         }
         return name;
+    }
+
+    @Nonnull
+    public Map<String, Pair<Class<? extends GraphOperator>, String>> getCodeToOpMap() {
+        return codeToOpMap;
     }
 
     @Nonnull

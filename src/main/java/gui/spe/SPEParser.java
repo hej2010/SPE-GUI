@@ -1,7 +1,12 @@
 package gui.spe;
 
+import gui.graph.data.GraphOperator;
+import gui.graph.data.Operator;
+import gui.graph.data.SinkOperator;
+import gui.graph.data.SourceOperator;
 import gui.utils.Files;
 import gui.utils.SPE;
+import javafx.util.Pair;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -33,6 +38,10 @@ public class SPEParser {
     private static final String OUTPUT = "output";
     private static final String IDENTIFIER = "identifier";
     private static final String PREV_IDENTIFIER = "prev_identifier";
+    private static final String LINKS = "links";
+    private static final String OP = "op";
+    private static final String SOURCE = "source";
+    private static final String SINK = "sink";
 
     public static ParsedSPE parseSPE(@Nonnull SPE spe) throws IOException, URISyntaxException {
         URL url = SPEParser.class.getClassLoader().getResource("gui");
@@ -56,20 +65,40 @@ public class SPEParser {
         final Map<String, List<String>> operatorImportsMap = new HashMap<>();
 
         List<ParsedOperator> parsedOperators = new LinkedList<>();
-        addToList(parsedOperators, opsSources, ParsedOperator.TYPE_SOURCE_OPERATOR, objImports, operatorImportsMap, objDefs, spe);
-        addToList(parsedOperators, opsRegular, ParsedOperator.TYPE_REGULAR_OPERATOR, objImports, operatorImportsMap, objDefs, spe);
-        addToList(parsedOperators, opsSinks, ParsedOperator.TYPE_SINK_OPERATOR, objImports, operatorImportsMap, objDefs, spe);
+        addParsedOperatorToList(parsedOperators, opsSources, ParsedOperator.TYPE_SOURCE_OPERATOR, objImports, operatorImportsMap, objDefs, spe);
+        addParsedOperatorToList(parsedOperators, opsRegular, ParsedOperator.TYPE_REGULAR_OPERATOR, objImports, operatorImportsMap, objDefs, spe);
+        addParsedOperatorToList(parsedOperators, opsSinks, ParsedOperator.TYPE_SINK_OPERATOR, objImports, operatorImportsMap, objDefs, spe);
+        Map<String, Pair<Class<? extends GraphOperator>, String>> codeToOpMap = getCodeToOpMap(fileObj.getJSONObject(LINKS));
 
         if (spe == SPE.FLINK) {
-            return new ParsedFlinkSPE(name, parsedOperators, baseImports, baseDefinition, operatorImportsMap);
+            return new ParsedFlinkSPE(name, parsedOperators, baseImports, baseDefinition, operatorImportsMap, codeToOpMap);
         } else if (spe == SPE.LIEBRE) {
-            return new ParsedLiebreSPE(name, parsedOperators, baseImports, baseDefinition, operatorImportsMap);
+            return new ParsedLiebreSPE(name, parsedOperators, baseImports, baseDefinition, operatorImportsMap, codeToOpMap);
         }
 
         throw new RuntimeException();
     }
 
-    private static void addToList(List<ParsedOperator> parsedOperators, List<String> list, int type, JSONObject objImports, Map<String, List<String>> operatorImportsMap, JSONObject objDefs, SPE spe) {
+    private static Map<String, Pair<Class<? extends GraphOperator>, String>> getCodeToOpMap(JSONObject links) {
+        Map<String, Pair<Class<? extends GraphOperator>, String>> map = new HashMap<>();
+        for (String key : links.keySet()) {
+            String[] s = links.getString(key).split(":");
+            String type = s[0];
+            String op = s[1];
+            Class<? extends GraphOperator> c;
+            if (type.equals(OP)) {
+                c = Operator.class;
+            } else if (type.equals(SOURCE)) {
+                c = SourceOperator.class;
+            } else {
+                c = SinkOperator.class;
+            }
+            map.put(key, new Pair<>(c, op));
+        }
+        return map;
+    }
+
+    private static void addParsedOperatorToList(List<ParsedOperator> parsedOperators, List<String> list, int type, JSONObject objImports, Map<String, List<String>> operatorImportsMap, JSONObject objDefs, SPE spe) {
         for (String s : list) {
             if (objImports.has(s)) {
                 operatorImportsMap.put(s, getStringListFromArr(objImports.getJSONArray(s)));

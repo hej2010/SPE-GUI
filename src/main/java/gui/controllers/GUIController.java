@@ -53,7 +53,7 @@ public class GUIController {
     @FXML
     public AnchorPane aPMaster/*, aPGraph*/, aPDetails;
     @FXML
-    public Button btnAddSource, btnAddOp, btnAddSink, btnConnect, btnDisconnect, btnModify, btnSelectFile, btnGenerate, btnAddTab;
+    public Button btnAddSource, btnAddOp, btnAddSink, btnConnect, btnDisconnect, btnModify, btnSelectFile, btnGenerate, btnAddTab, btnModifyVis;
     @FXML
     public TextField tfIdentifier;
     @FXML
@@ -61,13 +61,13 @@ public class GUIController {
     @FXML
     public ChoiceBox<String> cBTypeSource, cBTypeRegular, cBTypeSink;
     @FXML
-    public VBox vBDetails, vBInputs, vBOutputs;
+    public VBox vBDetails, vBInputs, vBOutputs, vBDetailsVis;
     @FXML
     public MenuItem mIChangeSpe, mIExport, mIImport, mIVisFromFile;
     @FXML
-    public Label lblCurrentSPE, lblSelectedFile, lblSavedTo, lblSavedToTitle, lblLeftStatus, lblRightStatus;
+    public Label lblCurrentSPE, lblSelectedFile, lblSavedTo, lblSavedToTitle, lblLeftStatus, lblRightStatus, lblVisInfo, lblVisType, lblVisOperator;
     @FXML
-    public TextArea tACode;
+    public TextArea tACode, tACodeVis;
     @FXML
     public TabPane tabPane;
 
@@ -92,6 +92,7 @@ public class GUIController {
             TabData data = tabs.get(newValue.intValue());
             // TODO
             selectedTab = data;
+            updateDetailsView(selectedTab.isVisualisedQuery());
         });
         //aPGraph.getChildren().add(graphView);
         tab.setContent(selectedTab.getGraphView());
@@ -133,18 +134,62 @@ public class GUIController {
         });
     }
 
-    private void setDetails(@Nullable GraphOperator selectedOperator) {
-        this.singleClickedOperator = selectedOperator;
-        if (selectedOperator == null) {
+    private void updateDetailsView(boolean isVisualisedQuery) {
+        if (isVisualisedQuery) {
             vBDetails.setVisible(false);
-            vBDetails.setDisable(true);
+            vBDetailsVis.setVisible(true);
         } else {
             vBDetails.setVisible(true);
-            vBDetails.setDisable(false);
-            tfIdentifier.setText(selectedOperator.getIdentifier().get());
-            ParsedOperator po = selectedOperator.getCurrentOperator();
-            setSelectedType(po, singleClickedOperator);
-            setCodeDetails(selectedOperator);
+            vBDetailsVis.setVisible(false);
+        }
+    }
+
+    private void setDetails(@Nullable GraphOperator selectedOperator) {
+        this.singleClickedOperator = selectedOperator;
+        if (selectedTab.isVisualisedQuery()) {
+            updateDetailsView(true);
+            if (selectedOperator == null) {
+                String fileName = "-";
+                List<Pair<Node<GraphOperator>, VisInfo>> res = selectedTab.getVisResult();
+                if (res != null && !res.isEmpty()) {
+                    fileName = res.get(0).getValue().getFileName();
+                }
+                lblVisInfo.setText("File: " + fileName);
+                lblVisType.setText("Type: -");
+                lblVisOperator.setText("Operator: -");
+                tACodeVis.setText("");
+                btnModifyVis.setDisable(true);
+            } else {
+                VisInfo visInfo = selectedOperator.getVisInfo();
+                if (visInfo != null) {
+                    lblVisInfo.setText("File: " + visInfo.getFileName() + "\n"
+                            + "Class: " + visInfo.getClassName() + "\n"
+                            + "Method: " + visInfo.getMethodName());
+                    lblVisType.setText("Type: " + visInfo.variableInfo.getOperatorType().getName());
+                    lblVisOperator.setText("Operator: " + visInfo.variableInfo.getOperator());
+                    tACodeVis.setText(visInfo.variableInfo.getVariableData());
+                } else {
+                    lblVisInfo.setText("File: -");
+                    lblVisType.setText("Type: -");
+                    lblVisOperator.setText("Operator: -");
+                    tACodeVis.setText("");
+                    btnModifyVis.setDisable(true);
+                }
+                btnModifyVis.setDisable(false);
+            }
+        } else {
+            updateDetailsView(false);
+            if (selectedOperator == null) {
+                vBDetails.setVisible(false);
+                vBDetails.setDisable(true);
+            } else {
+                vBDetails.setVisible(true);
+                vBDetails.setDisable(false);
+                tfIdentifier.setText(selectedOperator.getIdentifier().get());
+                ParsedOperator po = selectedOperator.getCurrentOperator();
+                setSelectedType(po, singleClickedOperator);
+                setCodeDetails(selectedOperator);
+            }
         }
     }
 
@@ -438,6 +483,7 @@ public class GUIController {
                     if (opsList != null) {
                         addToGraph(opsList, null, addedIdentifiers, addedNodes);
                     }
+                    updateDetailsView(false);
                     selectedTab.getGraphView().update();
                 });
             }
@@ -454,10 +500,11 @@ public class GUIController {
                 List<GraphOperator> addedNodes = new LinkedList<>();
                 addNewTab(file.getName(), () -> {
                     if (visResult != null) {
-                        addToGraph2(visResult, null, addedIdentifiers, addedNodes);
+                        addToGraph2(visResult, addedIdentifiers, addedNodes);
                     }
-                    selectedTab.getGraphView().update();
                     selectedTab.setVisResult(visResult);
+                    updateDetailsView(true);
+                    selectedTab.getGraphView().update();
                 });
             }
         });
@@ -551,6 +598,9 @@ public class GUIController {
         tabPane.getSelectionModel().selectLast();
         this.selectedTab = data;
         setDetails(null);
+        if (selectedTab.isVisualisedQuery()) {
+            updateDetailsView(true);
+        }
         new Thread(() -> {
             try {
                 Thread.sleep(100);
@@ -591,12 +641,13 @@ public class GUIController {
         }
     }
 
-    private void addToGraph2(@Nonnull List<Pair<Node<GraphOperator>, VisInfo>> opsList, @Nullable GraphOperator parent, Set<String> addedIdentifiers, List<GraphOperator> addedNodes) {
+    private void addToGraph2(@Nonnull List<Pair<Node<GraphOperator>, VisInfo>> opsList, Set<String> addedIdentifiers, List<GraphOperator> addedNodes) {
         List<Node<GraphOperator>> l = new LinkedList<>();
         for (Pair<Node<GraphOperator>, VisInfo> p : opsList) {
+            p.getKey().getItem().setVisInfo(p.getValue());
             l.add(p.getKey());
         }
-        addToGraph(l, parent, addedIdentifiers, addedNodes);
+        addToGraph(l, null, addedIdentifiers, addedNodes);
     }
 
     @Nullable

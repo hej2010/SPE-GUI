@@ -2,6 +2,7 @@ package gui.graph.data;
 
 import gui.graph.export.ExportManager;
 import gui.graph.export.JsonExported;
+import gui.graph.visualisation.VisInfo;
 import gui.spe.ParsedOperator;
 import gui.spe.ParsedSPE;
 import org.json.JSONObject;
@@ -19,6 +20,7 @@ public abstract class GraphOperator extends GraphObject implements JsonExported 
     private OnSelectionChangedListener listener;
     private final Map<String, ParsedOperator> operatorsMap;
     private ParsedOperator currentOperator;
+    private VisInfo visInfo;
 
     protected GraphOperator(String identifier, boolean addIdToIdentifier) {
         super();
@@ -26,6 +28,15 @@ public abstract class GraphOperator extends GraphObject implements JsonExported 
         this.prevIdentifier = null;
         this.selectionIndex = -1;
         this.operatorsMap = new HashMap<>();
+        this.visInfo = null;
+    }
+
+    public void setVisInfo(VisInfo visInfo) {
+        this.visInfo = visInfo;
+    }
+
+    public VisInfo getVisInfo() {
+        return visInfo;
     }
 
     public boolean isSelected() {

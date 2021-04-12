@@ -1,5 +1,8 @@
 package gui.graph.visualisation;
 
+import gui.graph.data.GraphOperator;
+import gui.graph.data.Operator;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -13,22 +16,58 @@ public class VisInfo {
         this.fileName = fileName;
         this.className = className;
         this.methodName = methodName;
-        this.variableInfo = new VariableInfo(variableInfo.variableName, variableInfo.calledWithVariableName, variableInfo.variableClass);
+        this.variableInfo = new VariableInfo(variableInfo.variableName, variableInfo.calledWithVariableName, variableInfo.variableClass, variableInfo.variableData, variableInfo.operatorType, variableInfo.operator);
     }
 
     public static class VariableInfo {
         @Nullable
         private final String calledWithVariableName;
         @Nullable
-        private String variableName, variableClass;
+        private String variableName, variableClass, variableData, operator;
         public final boolean savedInExistingVariable, savedInNewVariable;
+        private Class<? extends GraphOperator> operatorType;
 
-        VariableInfo(@Nullable String variableName, @Nullable String calledWithVariableName, @Nullable String variableClass) {
+        VariableInfo(@Nullable String variableName, @Nullable String calledWithVariableName, @Nullable String variableClass, @Nullable String variableData,
+                     @Nonnull Class<? extends GraphOperator> operatorType, @Nullable String operator) {
             this.variableName = variableName == null ? null : variableName.trim();
             this.calledWithVariableName = calledWithVariableName == null ? null : calledWithVariableName.trim();
             this.variableClass = variableClass == null ? null : variableClass.trim();
-            this.savedInExistingVariable = variableClass == null;
-            this.savedInNewVariable = !savedInExistingVariable;
+            boolean saved = variableName != null;
+            this.savedInExistingVariable = saved && variableClass == null;
+            this.savedInNewVariable = saved && variableClass != null;
+            this.operatorType = operatorType;
+            this.variableData = variableData;
+            this.operator = operator;
+        }
+
+        VariableInfo(@Nullable String variableName, @Nullable String calledWithVariableName, @Nullable String variableClass, @Nullable String variableData, @Nullable String operator) {
+            this(variableName, calledWithVariableName, variableClass, variableData, Operator.class, operator);
+        }
+
+        @Nullable
+        public String getVariableData() {
+            return variableData;
+        }
+
+        public void setVariableData(@Nullable String variableData) {
+            this.variableData = variableData;
+        }
+
+        @Nullable
+        public String getOperator() {
+            return operator;
+        }
+
+        public void setOperator(@Nullable String operator) {
+            this.operator = operator;
+        }
+
+        public Class<? extends GraphOperator> getOperatorType() {
+            return operatorType;
+        }
+
+        public void setOperatorType(@Nonnull Class<? extends GraphOperator> operatorType) {
+            this.operatorType = operatorType;
         }
 
         @Nullable
