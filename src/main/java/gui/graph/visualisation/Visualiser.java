@@ -10,14 +10,22 @@ import gui.spe.ParsedSPE;
 import javafx.util.Pair;
 
 import javax.annotation.Nonnull;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 abstract class Visualiser {
     final ParsedSPE parsedSPE;
+    final Map<String, Set<String>> connected;
+    final Set<String> queryVariables, allConnectedOperators;
+    final Map<String, GraphOperator> operators;
+    final Map<String, String> variableClasses;
 
     protected Visualiser(@Nonnull ParsedSPE parsedSPE) {
         this.parsedSPE = parsedSPE;
+        queryVariables = new HashSet<>();
+        allConnectedOperators = new HashSet<>();
+        operators = new HashMap<>();
+        connected = new HashMap<>();
+        variableClasses = new HashMap<>();
     }
 
     @Nonnull
@@ -77,5 +85,17 @@ abstract class Visualiser {
         }
 
         return methodData;
+    }
+
+    void addToConnected(String from, String to) {
+        if (connected.containsKey(from)) {
+            connected.get(from).add(to);
+        } else {
+            Set<String> s = new HashSet<>();
+            s.add(to);
+            connected.put(from, s);
+            allConnectedOperators.add(from);
+            allConnectedOperators.add(to);
+        }
     }
 }

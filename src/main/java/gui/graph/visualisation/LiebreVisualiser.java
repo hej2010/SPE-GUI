@@ -14,21 +14,14 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 public class LiebreVisualiser extends Visualiser {
-    private final Set<String> queryVariables, allConnectedOperators;
-    private final Map<String, GraphOperator> operators;
-    private final Map<String, Set<String>> connected;
-    private final Map<String, String> variableClasses;
 
     public LiebreVisualiser(@Nonnull ParsedSPE parsedSPE) {
         super(parsedSPE);
-        queryVariables = new HashSet<>();
-        allConnectedOperators = new HashSet<>();
-        operators = new HashMap<>();
-        connected = new HashMap<>();
-        variableClasses = new HashMap<>();
     }
 
     @NotNull
@@ -86,7 +79,7 @@ public class LiebreVisualiser extends Visualiser {
                 //System.out.println(n.getScope() + " - " + n.getName());
                 // 0. hitta X i "Query X = new Query();"
                 // 1. find all connect()ed operators (their names)
-                // 2. search for all their names and get their type/definition TODO
+                // 2. search for all their names and get their type/definition
 
                 if (n.getScope().isEmpty() || !queryVariables.contains(n.getScope().get().toString())) {
                     return; // method not of interest, not used in any connect() method call
@@ -205,18 +198,6 @@ public class LiebreVisualiser extends Visualiser {
                             }
                         }
                     }
-                }
-            }
-
-            private void addToConnected(String from, String to) {
-                if (connected.containsKey(from)) {
-                    connected.get(from).add(to);
-                } else {
-                    Set<String> s = new HashSet<>();
-                    s.add(to);
-                    connected.put(from, s);
-                    allConnectedOperators.add(from);
-                    allConnectedOperators.add(to);
                 }
             }
         };

@@ -32,6 +32,11 @@
       "CoFlatMap"
     ]
   },
+  "links": {
+    "addSource": "source:SourceFunction",
+    "map": "op:Map",
+    "filter": "op:Filter"
+  },
   "imports": {
     "base": [
       "org.apache.flink.streaming.api.environment.StreamExecutionEnvironment",
