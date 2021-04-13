@@ -7,6 +7,7 @@ import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import gui.graph.dag.Node;
 import gui.graph.data.GraphOperator;
 import gui.graph.data.Operator;
+import gui.spe.ParsedSPE;
 import javafx.util.Pair;
 import org.jetbrains.annotations.NotNull;
 
@@ -15,6 +16,10 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class FlinkVisualiser extends Visualiser {
+    public FlinkVisualiser(@Nonnull ParsedSPE parsedSPE) {
+        super(parsedSPE);
+    }
+
     @Nonnull
     @Override
     List<Pair<Node<GraphOperator>, VisInfo>> fixList(List<Pair<Node<GraphOperator>, VisInfo>> list) {

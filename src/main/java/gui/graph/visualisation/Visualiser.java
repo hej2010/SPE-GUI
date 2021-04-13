@@ -6,6 +6,7 @@ import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import gui.graph.dag.Node;
 import gui.graph.data.GraphOperator;
+import gui.spe.ParsedSPE;
 import javafx.util.Pair;
 
 import javax.annotation.Nonnull;
@@ -13,6 +14,12 @@ import java.util.LinkedList;
 import java.util.List;
 
 abstract class Visualiser {
+    final ParsedSPE parsedSPE;
+
+    protected Visualiser(@Nonnull ParsedSPE parsedSPE) {
+        this.parsedSPE = parsedSPE;
+    }
+
     @Nonnull
     abstract List<Pair<Node<GraphOperator>, VisInfo>> fixList(List<Pair<Node<GraphOperator>, VisInfo>> list);
 

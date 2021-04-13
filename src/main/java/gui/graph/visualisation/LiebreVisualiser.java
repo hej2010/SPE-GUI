@@ -8,6 +8,7 @@ import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import gui.graph.dag.Node;
 import gui.graph.data.GraphOperator;
 import gui.graph.data.Operator;
+import gui.spe.ParsedSPE;
 import javafx.util.Pair;
 import org.jetbrains.annotations.NotNull;
 
@@ -21,7 +22,8 @@ public class LiebreVisualiser extends Visualiser {
     private final Map<String, Set<String>> connected;
     private final Map<String, String> variableClasses;
 
-    public LiebreVisualiser() {
+    public LiebreVisualiser(@Nonnull ParsedSPE parsedSPE) {
+        super(parsedSPE);
         queryVariables = new HashSet<>();
         allConnectedOperators = new HashSet<>();
         operators = new HashMap<>();
@@ -107,23 +109,38 @@ public class LiebreVisualiser extends Visualiser {
                     String s = parent.toString();
                     if (s.startsWith("{")) { // no variable
                         //System.out.println("parent1 = " + parent);
-                        return new VisInfo.VariableInfo(null, s.split("\\.", 2)[0].trim(), null, null, Operator.class, null);
+                        return new VisInfo.VariableInfo(null, n.toString().split("\\.", 2)[0].trim(), null, null, Operator.class, null);
                     } else if (s.contains("=")) { // we found a variable
                         String[] strings = s.split("=", 2);
                         if (strings[0].split(" ").length > 2) { // not correct equals sign
                             return findLocalVariableInfo(parent);
                         } else {
-                            String variableName = strings[0].trim();
-                            String calledWithVar = strings[1].split("\\.", 2)[0].trim();
-                            String varClass = getTypeFor(variableName);
+                            final String variableName = strings[0].trim();
+                            final String varData = strings[1].trim();
+                            final String[] varDataDot = varData.split("\\.", 2);
+                            final String calledWithVar = varDataDot[0].trim();
+                            final String varClass = getTypeFor(variableName);
+                            final Pair<Class<? extends GraphOperator>, String> operator = findOperator(varDataDot[1]);
                             //System.out.println("parent2 = " + parent);
-                            return new VisInfo.VariableInfo(variableName, calledWithVar, varClass, null, Operator.class, null); // TODO
+                            return new VisInfo.VariableInfo(variableName, calledWithVar, varClass, strings[1].trim(), operator.getKey(), operator.getValue()); // TODO
                         }
                     } else { // no variable yet, search from parent
                         return findLocalVariableInfo(parent);
                     }
                 }
                 return null;
+            }
+
+            @Nonnull
+            private Pair<Class<? extends GraphOperator>, String> findOperator(String afterDot) {
+                afterDot = afterDot.toLowerCase();
+                Map<String, Pair<Class<? extends GraphOperator>, String>> codeToOpMap = parsedSPE.getCodeToOpMap();
+                for (String key : codeToOpMap.keySet()) {
+                    if (afterDot.startsWith(key.toLowerCase())) {
+                        return codeToOpMap.get(key);
+                    }
+                }
+                return new Pair<>(Operator.class, null);
             }
 
             @Nullable

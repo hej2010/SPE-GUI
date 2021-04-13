@@ -22,9 +22,9 @@ public class VisualisationManager {
 
         Visualiser vis = null;
         if (parsedSPE instanceof ParsedLiebreSPE) {
-            vis = new LiebreVisualiser();
+            vis = new LiebreVisualiser(parsedSPE);
         } else if (parsedSPE instanceof ParsedFlinkSPE) {
-            vis = new FlinkVisualiser();
+            vis = new FlinkVisualiser(parsedSPE);
         }
         if (vis == null) {
             throw new IllegalStateException("Not implemented");
