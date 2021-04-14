@@ -588,8 +588,51 @@ public class GUIController {
         });
         btnAddTab.setOnAction(event -> addNewTab("Tab " + (tabs.size() + 1), null));
         btnCheck.setOnAction(event -> {
-
+            DirectedGraph directedGraph = DirectedGraph.fromGraphView(selectedTab.getGraph());
+            StringBuilder sb = new StringBuilder();
+            Set<GraphOperator> names = new HashSet<>(), nonUniqueNames = new HashSet<>(), nullOperators = new HashSet<>();
+            List<Pair<GraphOperator, InvalidInputStream>> invalidInputStreams = new LinkedList<>();
+            for (Node<GraphOperator> n : directedGraph.getGraph()) {
+                checkNode(null, n, names, nonUniqueNames, nullOperators, invalidInputStreams);
+            }
+            System.out.println(sb);
         });
+    }
+
+    private void checkNode(GraphOperator parent, Node<GraphOperator> n, Set<GraphOperator> names, Set<GraphOperator> nonUniqueNames, Set<GraphOperator> nullOperators, List<Pair<GraphOperator, InvalidInputStream>> invalidInputStreams) {
+        final GraphOperator op = n.getItem();
+        if (!names.add(op)) {
+            nonUniqueNames.add(op);
+        }
+        String output1 = null, output2 = null;
+        final ParsedOperator parsedOp = op.getCurrentOperator();
+        if (parsedOp == null) {
+            nullOperators.add(op);
+        } else {
+            final ParsedOperator.Definition def = parsedOp.getDefinition();
+            if (parent != null) {
+                final ParsedOperator parsedOpParent = parent.getCurrentOperator();
+                if (parsedOpParent != null) {
+                    ParsedOperator.Definition defParent = parsedOpParent.getDefinition();
+                    List<String> parentOutputs = defParent.getOutputPlaceholders();
+                    String parentOutput = parentOutputs.isEmpty() ? null : parentOutputs.get(0);
+                    List<String> inputs = def.getInputPlaceholders();
+                    System.out.println("parent outputs: " + parentOutput + ", this inputs: " + inputs);
+                }
+            }
+        }
+        for (Node<GraphOperator>)
+    }
+
+    private static class InvalidInputStream {
+        private final String expectedIn1, expectedIn2, acutalIn1, actualIn2;
+
+        private InvalidInputStream(String expectedIn1, String expectedIn2, String acutalIn1, String actualIn2) {
+            this.expectedIn1 = expectedIn1;
+            this.expectedIn2 = expectedIn2;
+            this.acutalIn1 = acutalIn1;
+            this.actualIn2 = actualIn2;
+        }
     }
 
     private void addNewTab(String name, @Nullable IOnDone onDone) {
