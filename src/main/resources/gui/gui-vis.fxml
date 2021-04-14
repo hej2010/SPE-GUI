@@ -147,6 +147,7 @@
                               <Font name="System Italic" size="10.0" />
                            </font>
                         </Label>
+                        <Button fx:id="btnCheck" mnemonicParsing="false" text="Check graph" />
                         <Button fx:id="btnGenerate" defaultButton="true" disable="true" mnemonicParsing="false" text="Generate" />
                         <Label fx:id="lblSavedToTitle" text="Saved to:" visible="false" />
                         <Label fx:id="lblSavedTo" prefHeight="37.0" prefWidth="177.0" wrapText="true">

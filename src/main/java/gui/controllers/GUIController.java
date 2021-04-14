@@ -53,7 +53,7 @@ public class GUIController {
     @FXML
     public AnchorPane aPMaster/*, aPGraph*/, aPDetails;
     @FXML
-    public Button btnAddSource, btnAddOp, btnAddSink, btnConnect, btnDisconnect, btnModify, btnSelectFile, btnGenerate, btnAddTab, btnModifyVis;
+    public Button btnAddSource, btnAddOp, btnAddSink, btnConnect, btnDisconnect, btnModify, btnSelectFile, btnGenerate, btnAddTab, btnModifyVis, btnCheck;
     @FXML
     public TextField tfIdentifier;
     @FXML
@@ -587,6 +587,9 @@ public class GUIController {
             }
         });
         btnAddTab.setOnAction(event -> addNewTab("Tab " + (tabs.size() + 1), null));
+        btnCheck.setOnAction(event -> {
+
+        });
     }
 
     private void addNewTab(String name, @Nullable IOnDone onDone) {
