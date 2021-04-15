@@ -553,6 +553,7 @@ public class GUIController {
                 ParsedOperator.Definition def = op.getDefinition();
                 tACode.setText(def.getCode(singleClickedOperator));
             }
+            selectedTab.getGraphView().update();
         });
         btnSelectFile.setOnAction(event -> {
             DirectoryChooser directoryChooser = new DirectoryChooser();
@@ -590,21 +591,58 @@ public class GUIController {
         btnCheck.setOnAction(event -> {
             DirectedGraph directedGraph = DirectedGraph.fromGraphView(selectedTab.getGraph());
             StringBuilder sb = new StringBuilder();
-            Set<GraphOperator> names = new HashSet<>(), nonUniqueNames = new HashSet<>(), nullOperators = new HashSet<>();
+            Set<GraphOperator> nonUniqueNames = new HashSet<>(), nullOperators = new HashSet<>();
+            Map<String, List<Integer>> names = new HashMap<>();
             List<Pair<GraphOperator, InvalidInputStream>> invalidInputStreams = new LinkedList<>();
             for (Node<GraphOperator> n : directedGraph.getGraph()) {
                 checkNode(null, n, names, nonUniqueNames, nullOperators, invalidInputStreams);
             }
+            for (GraphOperator op : nonUniqueNames) {
+                sb.append("Warn: Found non-unique identifier: ").append(op.getIdentifier().get()).append("\n");
+            }
+            for (GraphOperator op : nullOperators) {
+                sb.append("Warn: Found operator with no type: ").append(op.getIdentifier().get()).append("\n");
+            }
+            for (Pair<GraphOperator, InvalidInputStream> p : invalidInputStreams) {
+                sb.append("Warn: Operator ").append(p.getKey().getIdentifier().get()).append(" expects ").append(p.getValue().expectedIn)
+                        .append(" but receives ").append(p.getValue().acutalIn).append(" from ").append(p.getValue().parentName).append("\n");
+            }
             System.out.println(sb);
+            if (sb.toString().isEmpty()) {
+                showDialog(Alert.AlertType.INFORMATION, "No warnings found", "No warnings", "The graph looks OK!");
+            } else {
+                showDialog(Alert.AlertType.WARNING, "Warnings found", "Warning", sb.toString());
+            }
         });
     }
 
-    private void checkNode(GraphOperator parent, Node<GraphOperator> n, Set<GraphOperator> names, Set<GraphOperator> nonUniqueNames, Set<GraphOperator> nullOperators, List<Pair<GraphOperator, InvalidInputStream>> invalidInputStreams) {
+    private void showDialog(Alert.AlertType alertType, String title, String header, String content) {
+        Alert alert = new Alert(alertType);
+        alert.setTitle(title);
+        alert.setHeaderText(header);
+        alert.setContentText(content);
+        alert.setResizable(true);
+        alert.initModality(Modality.NONE);
+
+        alert.show();
+    }
+
+    private void checkNode(GraphOperator parent, Node<GraphOperator> n, Map<String, List<Integer>> names, Set<GraphOperator> nonUniqueNames, Set<GraphOperator> nullOperators, List<Pair<GraphOperator, InvalidInputStream>> invalidInputStreams) {
         final GraphOperator op = n.getItem();
-        if (!names.add(op)) {
-            nonUniqueNames.add(op);
+        List<Integer> idList;
+        String identifier = op.getIdentifier().get();
+        if (names.containsKey(identifier)) {
+            idList = names.get(identifier);
+        } else {
+            idList = new LinkedList<>();
         }
-        String output1 = null, output2 = null;
+        for (Integer i : idList) {
+            if (i != op.getId()) {
+                nonUniqueNames.add(op);
+            }
+        }
+        idList.add(op.getId());
+        names.put(identifier, idList);
         final ParsedOperator parsedOp = op.getCurrentOperator();
         if (parsedOp == null) {
             nullOperators.add(op);
@@ -617,21 +655,28 @@ public class GUIController {
                     List<String> parentOutputs = defParent.getOutputPlaceholders();
                     String parentOutput = parentOutputs.isEmpty() ? null : parentOutputs.get(0);
                     List<String> inputs = def.getInputPlaceholders();
-                    System.out.println("parent outputs: " + parentOutput + ", this inputs: " + inputs);
+                    if (inputs.isEmpty()) {
+                        inputs = def.getOutputPlaceholders();
+                    }
+                    String input = inputs.isEmpty() ? null : inputs.get(0);
+                    if (parentOutput != null && !parentOutput.equals(input)) {
+                        invalidInputStreams.add(new Pair<>(op, new InvalidInputStream(input, parentOutput, parent.getIdentifier().get())));
+                    }
                 }
             }
         }
-        for (Node<GraphOperator>)
+        for (Node<GraphOperator> child : n.getSuccessors()) {
+            checkNode(op, child, names, nonUniqueNames, nullOperators, invalidInputStreams);
+        }
     }
 
     private static class InvalidInputStream {
-        private final String expectedIn1, expectedIn2, acutalIn1, actualIn2;
+        private final String expectedIn, acutalIn, parentName;
 
-        private InvalidInputStream(String expectedIn1, String expectedIn2, String acutalIn1, String actualIn2) {
-            this.expectedIn1 = expectedIn1;
-            this.expectedIn2 = expectedIn2;
-            this.acutalIn1 = acutalIn1;
-            this.actualIn2 = actualIn2;
+        private InvalidInputStream(String expectedIn, String acutalIn, String parentName) {
+            this.expectedIn = expectedIn;
+            this.acutalIn = acutalIn;
+            this.parentName = parentName;
         }
     }
 
