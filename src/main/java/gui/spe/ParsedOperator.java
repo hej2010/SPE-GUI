@@ -66,7 +66,7 @@ public class ParsedOperator implements Cloneable, JsonExported {
         }
 
         @Override
-        protected Object clone() {
+        public Object clone() {
             return new Definition(codeBefore, codeMiddle, codeAfter, new LinkedList<>(inputPlaceholders),
                     new LinkedList<>(outputPlaceholders), identifierPlaceholder, prevIdentifierPlaceholder);
         }

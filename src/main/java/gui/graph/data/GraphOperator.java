@@ -157,11 +157,10 @@ public abstract class GraphOperator extends GraphObject implements JsonExported 
         for (String operatorName : ops.keySet()) {
             for (ParsedOperator op : parsedSPE.getOperators()) {
                 if (operatorName.equals(op.getOperatorName())) {
-                    operatorsMap.put(operatorName, ParsedOperator.fromJsonObject(ops.getJSONObject(operatorName), op.getDefinition()));
+                    operatorsMap.put(operatorName, ParsedOperator.fromJsonObject(ops.getJSONObject(operatorName), (ParsedOperator.Definition) op.getDefinition().clone()));
                     selectOperator(operatorName, parsedSPE.getOperators());
                 }
             }
-
         }
         return this;
     }
