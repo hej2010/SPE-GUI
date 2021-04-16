@@ -3,6 +3,7 @@ package gui.controllers;
 import com.brunomnsilva.smartgraph.graph.Edge;
 import com.brunomnsilva.smartgraph.graph.Vertex;
 import com.brunomnsilva.smartgraph.graphview.SmartStylableNode;
+import com.sun.management.OperatingSystemMXBean;
 import gui.GUI;
 import gui.controllers.spe.FlinkController;
 import gui.graph.dag.DirectedGraph;
@@ -15,6 +16,8 @@ import gui.spe.*;
 import gui.utils.Files;
 import gui.utils.IOnDone;
 import gui.views.AutoCompleteTextField;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.event.Event;
@@ -29,6 +32,7 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import javafx.util.Pair;
 import org.json.JSONObject;
 
@@ -36,8 +40,10 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
+import java.text.DecimalFormat;
 import java.util.*;
 
 public class GUIController {
@@ -108,6 +114,17 @@ public class GUIController {
                 e.printStackTrace();
             }
         }).start();
+        startMetricsTimer();
+    }
+
+    private void startMetricsTimer() {
+        Timeline fiveSecondsWonder = new Timeline(new KeyFrame(Duration.seconds(2), event -> {
+            double usage = getCPUUsagePercentage();
+            DecimalFormat df = new DecimalFormat("#.00");
+            lblLeftStatus.setText("CPU: " + df.format(usage) + "%");
+        }));
+        fiveSecondsWonder.setCycleCount(Timeline.INDEFINITE);
+        fiveSecondsWonder.play();
     }
 
     private void initAutoCompletion() throws URISyntaxException, IOException {
@@ -128,7 +145,6 @@ public class GUIController {
             {
                 if (tFInput1.getLastSelectedObject() != null) {
                     tFInput1.setText(tFInput1.getLastSelectedObject());
-                    System.out.println(tFInput1.getLastSelectedObject());
                 }
             });
         });
@@ -359,7 +375,6 @@ public class GUIController {
                     } else {
                         selectedOps[1] = null;
                     }
-                    System.out.println("deselected " + op.toString());
                     op.setSelectedIndex(-1);
                     deselected = true;
                 }
@@ -467,7 +482,6 @@ public class GUIController {
                 File file = new File(dir, "export-" + parsedSPE.getName() + "-" + System.currentTimeMillis() + ".json");
                 Files.writeFile(file, o.toString());
             }
-            System.out.println(o);
         });
         mIImport.setOnAction(event -> {
             FileChooser fileChooser = new FileChooser();
@@ -564,7 +578,6 @@ public class GUIController {
             if (selectedDirectory != null) {
                 lblSelectedFile.setText(selectedDirectory.getPath());
                 btnGenerate.setDisable(false);
-                System.out.println("Selected: " + selectedDirectory.getPath());
             }
         });
         btnGenerate.setOnAction(event -> {
@@ -614,6 +627,15 @@ public class GUIController {
                 showDialog(Alert.AlertType.WARNING, "Warnings found", "Warning", sb.toString());
             }
         });
+    }
+
+    private Double getCPUUsagePercentage() {
+        OperatingSystemMXBean osBean = ManagementFactory.getPlatformMXBean(OperatingSystemMXBean.class);
+        // What % CPU load this current JVM is taking, from 0.0-1.0
+        //System.out.println(osBean.getProcessCpuLoad());
+
+
+        return osBean.getProcessCpuLoad() * 100;
     }
 
     private void showDialog(Alert.AlertType alertType, String title, String header, String content) {

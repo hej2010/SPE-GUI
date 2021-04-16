@@ -21,7 +21,7 @@ public class DirectedGraph {
             count += countNodes(n);
         }
         nodeCount = count;
-        System.out.println("Nodes: " + nodeCount);
+        //System.out.println("Nodes: " + nodeCount);
     }
 
     private int countNodes(Node<GraphOperator> n) {

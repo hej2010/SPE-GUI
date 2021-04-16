@@ -150,9 +150,6 @@ public class LiebreVisualiser extends Visualiser {
 
             /**
              * Finds all query variables and their types
-             *
-             * @param n
-             * @param arg
              */
             @Override
             public void visit(VariableDeclarator n, Void arg) {
@@ -169,9 +166,6 @@ public class LiebreVisualiser extends Visualiser {
 
             /**
              * Finds all connected methods
-             *
-             * @param n
-             * @param arg
              */
             @Override
             public void visit(MethodCallExpr n, Void arg) {
