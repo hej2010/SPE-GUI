@@ -29,7 +29,6 @@ public class VisualisationManager {
         if (vis == null) {
             throw new IllegalStateException("Not implemented");
         }
-        //return vis == null ? new LinkedList<>() : vis.fixList(list);
 
         JavaParser javaParser = new JavaParser();
         javaParser.getParserConfiguration().setAttributeComments(false); // ignore all comments
