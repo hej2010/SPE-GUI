@@ -27,6 +27,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
@@ -59,7 +60,7 @@ public class GUIController {
     @FXML
     public AnchorPane aPMaster/*, aPGraph*/, aPDetails;
     @FXML
-    public Button btnAddSource, btnAddOp, btnAddSink, btnConnect, btnDisconnect, btnModify, btnSelectFile, btnGenerate, btnAddTab, btnModifyVis, btnCheck;
+    public Button btnAddSource, btnAddOp, btnAddSink, btnConnect, btnDisconnect, btnModify, btnSelectFile, btnGenerate, btnAddTab, btnModifyVis, btnCheck, btnMetrics;
     @FXML
     public TextField tfIdentifier;
     @FXML
@@ -96,6 +97,7 @@ public class GUIController {
         tabPane.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
             Tab tab1 = tabPane.getTabs().get(newValue.intValue());
             TabData data = tabs.get(newValue.intValue());
+
             // TODO
             selectedTab = data;
             updateDetailsView(selectedTab.isVisualisedQuery());
@@ -152,9 +154,11 @@ public class GUIController {
 
     private void updateDetailsView(boolean isVisualisedQuery) {
         if (isVisualisedQuery) {
+            btnMetrics.setDisable(false);
             vBDetails.setVisible(false);
             vBDetailsVis.setVisible(true);
         } else {
+            btnMetrics.setDisable(true);
             vBDetails.setVisible(true);
             vBDetailsVis.setVisible(false);
         }
@@ -625,6 +629,26 @@ public class GUIController {
                 showDialog(Alert.AlertType.INFORMATION, "No warnings found", "No warnings", "The graph looks OK!");
             } else {
                 showDialog(Alert.AlertType.WARNING, "Warnings found", "Warning", sb.toString());
+            }
+        });
+        btnMetrics.setOnAction(event -> {
+            try {
+                FXMLLoader fxmlLoader = new FXMLLoader(GUI.class.getResource(GUI.FXML_METRICS));
+                Pane main = fxmlLoader.load();
+                Scene scene = new Scene(main, 900, 600);
+
+                MetricsController controller = fxmlLoader.getController();
+
+                Stage stage = new Stage();
+                stage.setTitle("Metrics");
+                stage.setScene(scene);
+                stage.show();
+                controller.setStage(stage);
+
+                assert selectedTab.getVisResult() != null;
+                controller.init(parsedSPE, selectedTab.getVisResult());
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         });
     }

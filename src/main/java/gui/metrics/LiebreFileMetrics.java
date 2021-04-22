@@ -5,6 +5,7 @@ import gui.graph.data.GraphOperator;
 import gui.graph.data.GraphStream;
 import gui.utils.Files;
 import javafx.util.Pair;
+import org.apache.commons.io.input.Tailer;
 
 import javax.annotation.Nonnull;
 import java.io.File;
@@ -80,6 +81,7 @@ public class LiebreFileMetrics {
             for (String s : filesToRead) {
                 result.add(new FileData(extractData(Files.readFile(dir.getPath() + File.separator + s), afterDate), s));
             }
+
             return result;
         };
     }
