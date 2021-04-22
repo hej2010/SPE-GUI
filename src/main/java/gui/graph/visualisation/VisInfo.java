@@ -2,6 +2,7 @@ package gui.graph.visualisation;
 
 import gui.graph.data.GraphOperator;
 import gui.graph.data.Operator;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -146,5 +147,17 @@ public class VisInfo {
                 ", methodName='" + methodName + '\'' +
                 ", variableInfo=" + variableInfo +
                 '}';
+    }
+    public static class VisInfo2 extends VisInfo {
+        private final boolean firstInChain;
+
+        VisInfo2(@NotNull String fileName, @NotNull String className, @NotNull String methodName, @NotNull VariableInfo variableInfo, boolean firstInChain) {
+            super(fileName, className, methodName, variableInfo);
+            this.firstInChain = firstInChain;
+        }
+
+        public boolean isFirstInChain() {
+            return firstInChain;
+        }
     }
 }

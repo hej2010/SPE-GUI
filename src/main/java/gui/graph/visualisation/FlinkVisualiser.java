@@ -93,7 +93,13 @@ public class FlinkVisualiser extends Visualiser {
                     String calledWith = otherP.getValue().variableInfo.getCalledWithVariableName();
                     System.out.println(otherP.getKey().getItem().getIdentifier().get() + " is called with " + calledWith + "? " + savedInVariable);
                     if (savedInVariable.equals(calledWith)) { // Someone calls a method from this variable = connected
-                        connectedList.add(otherP.getKey().getItem().getIdentifier().get());
+                        if (otherP.getValue() instanceof VisInfo.VisInfo2) {
+                            if (((VisInfo.VisInfo2) otherP.getValue()).isFirstInChain()) {
+                                connectedList.add(otherP.getKey().getItem().getIdentifier().get());
+                            }
+                        } else {
+                            connectedList.add(otherP.getKey().getItem().getIdentifier().get());
+                        }
                     }
                 }
             }
@@ -150,6 +156,7 @@ public class FlinkVisualiser extends Visualiser {
                 //System.out.println("after fix: " + fixedVarInfo);
 
                 Set<String> used = new HashSet<>();
+                boolean firstInChain = true;
                 for (VisInfo.VariableInfo v : fixedVarInfo) {
                     for (String s : allConnectedOperators) {
                         if (used.contains(s)) {
@@ -158,10 +165,11 @@ public class FlinkVisualiser extends Visualiser {
                         String[] sp = s.split("\\?");
                         if (name.contains("?" + sp[1] + "?") && v.getOperatorName() != null && s.startsWith(v.getOperatorName())) {
                             Operator operator = new Operator(s);
-                            //System.out.println("add " + s + ", " + v);
+                            System.out.println("add " + s + ", " + v);
                             used.add(s);
-                            methodData.add(new Pair<>(new Node<>(operator, null), // TODO, how to set name?
-                                    new VisInfo(fileName, c.getName().asString(), method.getNameAsString(), v)));
+                            methodData.add(new Pair<>(new Node<>(operator, null),
+                                    new VisInfo.VisInfo2(fileName, c.getName().asString(), method.getNameAsString(), v, firstInChain)));
+                            firstInChain = false;
                             break;
                         }
                     }
