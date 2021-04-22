@@ -24,52 +24,17 @@ public class FlinkVisualiser extends Visualiser {
         super(parsedSPE);
     }
 
-    @Nonnull
+    @NotNull
     @Override
-    List<Pair<Node<GraphOperator>, VisInfo>> fixList(List<Pair<Node<GraphOperator>, VisInfo>> list) {
-        List<Pair<Node<GraphOperator>, VisInfo>> newList = new LinkedList<>();
-        for (Pair<Node<GraphOperator>, VisInfo> p : list) {
-            Node<GraphOperator> op = p.getKey();
-            boolean isParent = false;
-            for (String from : connected.keySet()) {
-                if (from.equals(op.getItem().getIdentifier().get())) { // this node has output streams
-                    newList.add(new Pair<>(new Node<>(op.getItem(), getSuccessorsFrom(from)), p.getValue()));
-                    isParent = true;
-                    break;
-                }
-            }
-            if (!isParent) {
-                newList.add(new Pair<>(new Node<>(op.getItem(), new LinkedList<>()), p.getValue()));
-            }
-        }
-        return newList;
-    }
-
-
-    @Nonnull
-    private List<Node<GraphOperator>> getSuccessorsFrom(String from) {
-        List<GraphOperator> successors = findSuccessorsFor(from);
-        List<Node<GraphOperator>> successorsList = new LinkedList<>();
-        successors.forEach(successor -> successorsList.add(new Node<>(successor, getSuccessorsFrom(successor.getIdentifier().get())))); // recursively find successors
-        return successorsList;
-    }
-
-    @Nonnull
-    private List<GraphOperator> findSuccessorsFor(String name) {
-        List<GraphOperator> successors = new LinkedList<>();
-        for (String from : connected.keySet()) {
-            if (from.equals(name)) {
-                for (String to : connected.get(from)) {
-                    successors.add(operators.get(to));
-                }
-            }
-        }
-        return successors;
+    public List<Pair<Node<GraphOperator>, VisInfo>> fixList(List<Pair<Node<GraphOperator>, VisInfo>> list) {
+        return list;
     }
 
     @Nonnull
     @Override
     VoidVisitorAdapter<Void> methodParser(List<Pair<Node<GraphOperator>, VisInfo>> methodData, String fileName, ClassOrInterfaceDeclaration c, MethodDeclaration method) {
+        final int[] counter = {0};
+        final List<Pair<GraphOperator, VisInfo.VariableInfo>> ops = new LinkedList<>();
         return new VoidVisitorAdapter<>() {
 
             /**
@@ -85,18 +50,75 @@ public class FlinkVisualiser extends Visualiser {
                 }
 
                 //System.out.println("queryVariables: " + queryVariables);
-
-                final VisInfo.VariableInfo variableInfo = findLocalVariableInfo(n);
-                final List<VisInfo.VariableInfo> fixedVarInfo = fixVarInfo(variableInfo);
-                for (VisInfo.VariableInfo v : fixedVarInfo) {
-                    System.out.println("allConnectedOperators = " + allConnectedOperators);
-                    if (v.getOperatorName() != null) {
-                        GraphOperator op = new Operator(v.getOperatorName());
-                        operators.put(v.getOperatorName(), op);
-                        methodData.add(new Pair<>(new Node<>(op, null),
-                                new VisInfo(fileName, c.getName().asString(), method.getNameAsString(), v))); // TODO, save the fixed vars, knows order/connections
+                boolean found = false;
+                for (String s : allConnectedOperators) {
+                    if (n.getNameAsString().startsWith(s.split("\\?", 2)[0])) {
+                        found = true;
                     }
                 }
+                if (!found) {
+                    return;
+                }
+                final VisInfo.VariableInfo variableInfo = findLocalVariableInfo(n);
+                final List<VisInfo.VariableInfo> fixedVarInfo = fixVarInfo(variableInfo);
+                for (String s : allConnectedOperators) {
+                    if (variableInfo != null && fixedVarInfo.size() > 0) {
+                        String operatorName = fixedVarInfo.get(0).getOperatorName();
+                        //System.out.println("op: " + op);
+                        if (operatorName != null && s.startsWith(operatorName)) {
+                            //System.out.println("Found " + s);
+                            String[] sp = s.split("\\?");
+                            if (sp[1].equals(String.valueOf(counter[0]))) {
+                                List<String> connectedList = new LinkedList<>();
+                                for (String o : allConnectedOperators) {
+                                    if (o.contains("?" + sp[1] + "?")) {
+                                        connectedList.add(o);
+                                    }
+                                }
+                                System.out.println("found: " + connectedList);
+                                counter[0]++;
+                                for (VisInfo.VariableInfo v : fixedVarInfo) {
+                                    // TODO allConnectedOperators = [intStream?3?0, map?3?0, addSource?1?0, map?3?1, addSource?2?0, query?1?0, StreamExecutionEnvironment?0?0, filter?3?1, query?2?0, getExecutionEnvironment?0?0]
+                                    //System.out.println("allConnectedOperators = " + allConnectedOperators);
+                                    final String opName = v.getOperatorName();
+                                    if (opName != null) {
+                                        System.out.println("v.getOperatorName() = " + opName);
+                                        for (String conn : connectedList) {
+                                            if (conn.startsWith(opName)) {
+                                                System.out.println("conn " + conn + " starts with " + opName);
+                                                Operator operator = new Operator(conn);
+                                                ops.add(new Pair<>(operator, v));
+                                            }
+                                        }
+                                        //operators.put(v.getOperatorName(), operator);
+                                        //methodData.add(new Pair<>(new Node<>(operator, null),
+                                        //        new VisInfo(fileName, c.getName().asString(), method.getNameAsString(), v)));
+                                    }
+                                }
+                                //ops.clear();
+                                // TODO add called with as connected
+                            }
+                        }
+                    }
+                }
+
+                for (Pair<GraphOperator, VisInfo.VariableInfo> p : ops) {
+                    methodData.add(new Pair<>(new Node<>(p.getKey(), getSuccessorsFrom(p.getKey().getIdentifier().get(), ops)),
+                            new VisInfo(fileName, c.getName().asString(), method.getNameAsString(), p.getValue())));
+                }
+
+            }
+
+            private List<Node<GraphOperator>> getSuccessorsFrom(String name, List<Pair<GraphOperator, VisInfo.VariableInfo>> ops) {
+                String[] sp = name.split("\\?");
+                List<String> connectedList = new LinkedList<>();
+                for (String o : allConnectedOperators) {
+                    if (o.contains("?" + sp[1] + "?")) {
+                        connectedList.add(o);
+                    }
+                }
+                System.out.println(name + " is connected with " + connectedList);
+                return null;
             }
 
             @Nonnull
@@ -108,7 +130,7 @@ public class FlinkVisualiser extends Visualiser {
                     for (Pair<String, String> p : methods) {
                         l.add(new VisInfo.VariableInfo(variableInfo.getVariableName(), variableInfo.getCalledWithVariableName(), variableInfo.getVariableClass(), p.getValue(), findOperator(p.getKey()).getKey(), p.getKey()));
                     }
-                    System.out.println("data, " + data);
+                    //System.out.println("data, " + data);
                 }
                 return l;
             }
@@ -137,7 +159,6 @@ public class FlinkVisualiser extends Visualiser {
                         String part = data.substring(start, i + 1);
                         int namePos = data.substring(0, start).lastIndexOf(".");
                         String name = data.substring(namePos + 1, start);
-                        System.out.println("found " + name + part);
 
                         s.add(new Pair<>(name, "." + name + part));
                         foundAny = false;
@@ -184,7 +205,7 @@ public class FlinkVisualiser extends Visualiser {
                     //System.out.println("found query with name: " + n.getNameAsString());
                     queryVariables.add(n.getNameAsString());
                 } else {
-                    queryVariables.add(n.getNameAsString());
+                    //queryVariables.add(n.getNameAsString());
                     variableClasses.put(n.getNameAsString(), n.getType().asString());
                     //System.out.println("put " + n.getNameAsString() + ";" + n.getType().asString());
                 }
@@ -200,37 +221,52 @@ public class FlinkVisualiser extends Visualiser {
                 //System.out.println("n2: " + n.getNameAsString()); // save these (compare with json first), all before "------" are connected
                 connected2.add(0, n.getNameAsString()); // add at first pos as the last chained call is found first
                 super.visit(n, arg);
-
-                for (int i = 0; i < connected2.size() - 1; i++) {
-                    String from = connected2.get(i);
-                    String to = null;
-                    for (int j = i + 1; j < connected2.size(); j++) {
-                        String t = connected2.get(j);
-                        if (codeToOpMap.containsKey(t)) {
-                            to = t;
-                            break;
+                //System.out.println("n1: " + n.getNameAsString());
+                //System.out.println("connected2 = " + connected2);
+                if (connected2.size() > 1) {
+                    for (int i = 0; i < connected2.size() - 1; i++) {
+                        String from = connected2.get(i);
+                        String to = null;
+                        for (int j = i + 1; j < connected2.size(); j++) {
+                            String t = connected2.get(j);
+                            if (codeToOpMap.containsKey(t)) {
+                                to = t;
+                                break;
+                            }
+                        }
+                        if (to != null) {
+                            System.out.println("connected: " + from + "->" + to);
+                            addToConnectedMap(makeUnique(from), makeUnique(to));
+                            if (!f[0]) {
+                                String[] sp = n.toString().split("\\.", 2);
+                                if (!sp[0].startsWith(from)) {
+                                    addToConnectedMap(makeUnique(sp[0]), makeUnique(from));
+                                    System.out.println("connected2: " + sp[0] + "->" + from);
+                                }
+                                f[0] = true;
+                            }
+                            counter[1]++;
                         }
                     }
-                    if (to != null) {
-                        System.out.println("connected: " + from + "->" + to);
-                        addToConnectedMap(makeUnique(from), makeUnique(to));
-                        if (!f[0]) {
-                            String[] sp = n.toString().split("\\.", 2);
-                            if (!sp[0].startsWith(from)) {
-                                addToConnectedMap(makeUnique(sp[0]), makeUnique(from));
-                                System.out.println("connected2: " + sp[0] + "->" + from);
-                            }
-                            f[0] = true; // TODO allConnectedOperators = [intStream?3?0, map?3?0, map?3?1, filter?3?1], check similar number
-                        }
+                } else if (connected2.size() == 1) {
+                    String[] sp = n.toString().split("\\.", 2);
+                    String to = connected2.get(0);
+                    if (parsedSPE.getCodeToOpMap().containsKey(to)) {
+                        System.out.println("connected3: " + sp[0] + "->" + to);
+                        addToConnectedMap(makeUnique(sp[0]), makeUnique(to));
                         counter[1]++;
+                    } else {
+                        System.out.println("Does not contain key " + to);
                     }
                 }
+
                 System.out.println("--------------------");
                 connected2.clear();
                 f[0] = false;
                 counter[0]++;
                 counter[1] = 0;
             }
+
             private String makeUnique(String s) {
                 return s + "?" + counter[0] + "?" + counter[1];
             }

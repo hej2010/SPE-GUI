@@ -98,6 +98,7 @@ abstract class Visualiser {
             s.add(to);
             connected.put(from, s);
         }
+        System.out.println("from = " + from + ", to = " + to);
         allConnectedOperators.add(from);
         allConnectedOperators.add(to);
     }
