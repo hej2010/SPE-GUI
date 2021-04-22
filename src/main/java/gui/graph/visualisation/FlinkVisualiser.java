@@ -36,7 +36,19 @@ public class FlinkVisualiser extends Visualiser {
                 }
             }
         }
+        for (Pair<Node<GraphOperator>, VisInfo> p : newList) {
+            updateIdentifier(p.getKey());
+        }
         return newList;
+    }
+
+    private void updateIdentifier(Node<GraphOperator> n) {
+        GraphOperator op = n.getItem();
+        op.setIdentifier(op.getIdentifier().get().replace("?", "-"));
+        List<Node<GraphOperator>> successors = n.getSuccessors();
+        for (Node<GraphOperator> o : successors) {
+            updateIdentifier(o);
+        }
     }
 
     @Nonnull
@@ -73,7 +85,7 @@ public class FlinkVisualiser extends Visualiser {
                 connectedList.add(o);
             }
         }
-        System.out.println(name + " is connected with " + connectedList);
+        //System.out.println(name + " is connected with " + connectedList);
         if (connectedList.size() > 2) {
             //connectedList.remove(name);
             int indexOf = connectedList.indexOf(name);
@@ -96,11 +108,18 @@ public class FlinkVisualiser extends Visualiser {
                         if (otherP.getValue() instanceof VisInfo.VisInfo2) {
                             if (((VisInfo.VisInfo2) otherP.getValue()).isFirstInChain()) {
                                 connectedList.add(otherP.getKey().getItem().getIdentifier().get());
+                                successors.add(new Pair<>(otherP.getKey().getItem(), otherP.getValue()));
+                                System.out.println("add succ 1: " + otherP.getKey().getItem().getIdentifier().get() + ", " + otherP.getValue());
                             }
                         } else {
                             connectedList.add(otherP.getKey().getItem().getIdentifier().get());
+                            successors.add(new Pair<>(otherP.getKey().getItem(), otherP.getValue()));
+                            System.out.println("add succ 2: " + otherP.getKey().getItem().getIdentifier().get() + ", " + otherP.getValue());
                         }
                     }
+                } else if (connectedList.contains(otherP.getKey().getItem().getIdentifier().get())) {
+                    successors.add(new Pair<>(otherP.getKey().getItem(), otherP.getValue()));
+                    System.out.println("add succ 3: " + otherP.getKey().getItem().getIdentifier().get() + ", " + otherP.getValue());
                 }
             }
         }
@@ -165,10 +184,12 @@ public class FlinkVisualiser extends Visualiser {
                         String[] sp = s.split("\\?");
                         if (name.contains("?" + sp[1] + "?") && v.getOperatorName() != null && s.startsWith(v.getOperatorName())) {
                             Operator operator = new Operator(s);
+
                             System.out.println("add " + s + ", " + v);
                             used.add(s);
-                            methodData.add(new Pair<>(new Node<>(operator, null),
-                                    new VisInfo.VisInfo2(fileName, c.getName().asString(), method.getNameAsString(), v, firstInChain)));
+                            VisInfo.VisInfo2 visInfo2 = new VisInfo.VisInfo2(fileName, c.getName().asString(), method.getNameAsString(), v, firstInChain);
+                            operator.setVisInfo(visInfo2);
+                            methodData.add(new Pair<>(new Node<>(operator, null), visInfo2));
                             firstInChain = false;
                             break;
                         }
