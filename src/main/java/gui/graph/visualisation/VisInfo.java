@@ -5,6 +5,7 @@ import gui.graph.data.Operator;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Objects;
 
 public class VisInfo {
     @Nonnull
@@ -99,9 +100,26 @@ public class VisInfo {
                     "calledWithVariableName='" + calledWithVariableName + '\'' +
                     ", variableName='" + variableName + '\'' +
                     ", variableClass='" + variableClass + '\'' +
+                    ", operatorName='" + operatorName + '\'' +
                     ", savedInExistingVariable=" + savedInExistingVariable +
                     ", savedInNewVariable=" + savedInNewVariable +
+                    ", operatorType=" + operatorType +
                     '}';
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof VariableInfo)) return false;
+            VariableInfo that = (VariableInfo) o;
+            return savedInExistingVariable == that.savedInExistingVariable && savedInNewVariable == that.savedInNewVariable && Objects.equals(calledWithVariableName, that.calledWithVariableName)
+                    && Objects.equals(variableName, that.variableName) && Objects.equals(variableClass, that.variableClass) && Objects.equals(variableData, that.variableData)
+                    && Objects.equals(operatorName, that.operatorName) && operatorType.equals(that.operatorType);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(calledWithVariableName, variableName, variableClass, variableData, operatorName, savedInExistingVariable, savedInNewVariable, operatorType);
         }
     }
 
