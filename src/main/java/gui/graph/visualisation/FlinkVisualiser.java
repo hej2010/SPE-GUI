@@ -14,6 +14,7 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -109,6 +110,8 @@ public class FlinkVisualiser extends Visualiser {
     @NotNull
     @Override
     VoidVisitorAdapter<Void> methodParserInit(List<Pair<Node<GraphOperator>, VisInfo>> methodData, String fileName, ClassOrInterfaceDeclaration c, MethodDeclaration method) {
+        final List<String> connected = new LinkedList<>();
+        final Map<String, Pair<Class<? extends GraphOperator>, String>> codeToOpMap = parsedSPE.getCodeToOpMap();
         return new VoidVisitorAdapter<>() {
             /**
              * Finds all query variables and their types
@@ -144,15 +147,34 @@ public class FlinkVisualiser extends Visualiser {
                 // 2. search for all their names and get their type/definition
 
                 System.out.println("n2: " + n.getNameAsString()); // save these (compare with json first), all before "------" are connected
-
+                connected.add(0, n.getNameAsString()); // add at first pos as the last chained call is found first
                 super.visit(n, arg);
-                System.out.println("--------------------");
 
-                for (String key : parsedSPE.getCodeToOpMap().keySet()) {
-                    if (n.getNameAsString().equals(key)) {
-                        addToConnected("from", "to"); // TODO find all chained ops
+                for (int i = 0; i < connected.size() - 1; i++) {
+                    String from = connected.get(i);
+                    String to = null;
+                    for (int j = i + 1; j < connected.size(); j++) {
+                        String t = connected.get(j);
+                        if (codeToOpMap.containsKey(t)) {
+                            to = t;
+                            break;
+                        }
+                    }
+                    if (to != null) {
+                        System.out.println("connected: " + from + "->" + to);
+                        addToConnected(from, to);
+                        System.out.println(n);
+                        String[] sp = n.toString().split("\\.",2);
+                        if (!sp[0].startsWith(from)) {
+                            addToConnected(sp[0], from);
+                            System.out.println("connected2: " + sp[0] + "->" + from);
+                        }
+                    } else {
+                        System.out.println("Not connected: " + from);
                     }
                 }
+
+                System.out.println("connected?: " + connected);
                 String[] split = n.toString().split("\\."); // query connect(ID, r) connect(r, sink)
                 if (split.length > 2) {
                     for (int i = 0; i < split.length - 1; i++) { // dont include last, it was processed above
@@ -166,6 +188,8 @@ public class FlinkVisualiser extends Visualiser {
                         }
                     }
                 }
+                System.out.println("--------------------");
+                connected.clear();
             }
 
 
