@@ -171,6 +171,7 @@ public class FlinkVisualiser extends Visualiser {
         final List<String> connected2 = new LinkedList<>();
         final Map<String, Pair<Class<? extends GraphOperator>, String>> codeToOpMap = parsedSPE.getCodeToOpMap();
         final boolean[] f = {false};
+        final int[] counter = {0, 0};
         return new VoidVisitorAdapter<>() {
             /**
              * Finds all query variables and their types
@@ -212,22 +213,27 @@ public class FlinkVisualiser extends Visualiser {
                     }
                     if (to != null) {
                         System.out.println("connected: " + from + "->" + to);
-                        addToConnectedMap(from, to);
+                        addToConnectedMap(makeUnique(from), makeUnique(to));
                         if (!f[0]) {
                             String[] sp = n.toString().split("\\.", 2);
                             if (!sp[0].startsWith(from)) {
-                                addToConnectedMap(sp[0], from);
+                                addToConnectedMap(makeUnique(sp[0]), makeUnique(from));
                                 System.out.println("connected2: " + sp[0] + "->" + from);
                             }
-                            f[0] = true;
+                            f[0] = true; // TODO allConnectedOperators = [intStream?3?0, map?3?0, map?3?1, filter?3?1], check similar number
                         }
+                        counter[1]++;
                     }
                 }
                 System.out.println("--------------------");
                 connected2.clear();
                 f[0] = false;
+                counter[0]++;
+                counter[1] = 0;
             }
-
+            private String makeUnique(String s) {
+                return s + "?" + counter[0] + "?" + counter[1];
+            }
         };
     }
 }
