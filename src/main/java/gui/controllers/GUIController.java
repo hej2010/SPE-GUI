@@ -433,7 +433,7 @@ public class GUIController {
                     return;
                 }
                 // TODO cancel if creates a cycle
-                selectedTab.getGraph().insertEdge(from, to, new Stream()); // add an edge between them
+                selectedTab.getGraph().insertEdge(from, to, new Stream(from, to)); // add an edge between them
                 from.setSelectedIndex(-1);
                 to.setSelectedIndex(-1);
                 setVertexSelectedStyle(false, from);
@@ -749,7 +749,7 @@ public class GUIController {
             }
 
             if (parent != null) {
-                selectedTab.getGraph().insertEdge(parent, op, new Stream());
+                selectedTab.getGraph().insertEdge(parent, op, new Stream(parent, op));
             }
         }
     }

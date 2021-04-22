@@ -14,6 +14,7 @@ import component.operator.router.RouterOperator;
 import component.sink.Sink;
 import component.sink.SinkFunction;
 import component.source.Source;
+import component.source.SourceFunction;
 import query.LiebreContext;
 import query.Query;
 
@@ -36,10 +37,10 @@ public class LiebreTest {
         graphiteReporter.start(1, TimeUnit.SECONDS);
 
         Query query = new Query();
-        Operator<Integer, Double> mOp = query.addMapOperator("map1", integer -> integer * Math.PI);
-        Operator<Double, Double> fOp = query.addFilterOperator("filter1", integer -> integer > 2.0);
+        //Operator<Integer, Double> mOp = query.addMapOperator("map1", integer -> integer * Math.PI);
+        //Operator<Double, Double> fOp = query.addFilterOperator("filter1", integer -> integer > 2.0);
 
-        Operator<MyTuple, MyTuple> multiply = query.addOperator(new BaseOperator1In<>("M") {
+        /*Operator<MyTuple, MyTuple> multiply = query.addOperator(new BaseOperator1In<>("M") {
             @Override
             public List<MyTuple> processTupleIn1(MyTuple tuple) {
                 List<MyTuple> result = new LinkedList<MyTuple>();
@@ -47,51 +48,35 @@ public class LiebreTest {
                 return result;
             }
         });
-
-        query.addMapOperator("df", (MapFunction<MyTuple, MyTuple>) myTuple -> {
-            myTuple.key = 3434;
-            return myTuple;
-        });
-        query.addOperator(new BaseOperator2In<String, Float, Integer>("") {
-
-            @Override
-            public List<Integer> processTupleIn1(String tuple) {
-                return null;
-            }
-
-            @Override
-            public List<Integer> processTupleIn2(Float tuple) {
-                return null;
-            }
-        });
-        query.addFlatMapOperator("df", (FlatMapFunction<String, Integer>) tuple -> {
-            //
-            return null;
-        });
-        Operator<MyTuple, MyTuple> ID = query.addFilterOperator("fd", (FilterFunction<MyTuple>) s -> {
+        Operator<MyTuple, MyTuple> ID = query.addFilterOperator("fd", s -> {
             //
             return true;
-        });
-        RouterOperator<MyTuple> r = query.addRouterOperator("");
+        });*/
+        //RouterOperator<MyTuple> r = query.addRouterOperator("gdfgfg");
 
 
         Sink<MyTuple> sink = query.addBaseSink("O1", myTuple -> {
 
         });
-        Source<String> source1 = query.addTextFileSource("fd", "fdfd");
-        Operator<String, MyTuple> mapp = query.addMapOperator("dfg", new MapFunction<String, MyTuple>() {
+        Source<String> source1 = query.addBaseSource("fd", new SourceFunction<String>() {
             @Override
-            public MyTuple apply(String s) {
-                return null;
+            public String get() {
+                try {
+                    Thread.sleep((long) (Math.random() * 20));
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                return "dfsf";
             }
         });
+        Operator<String, MyTuple> mapp = query.addMapOperator("dfg", s -> null);
 
-        query.connect(mOp, fOp);
-        query.connect(source1, mapp).connect(mapp, r);
-        query.connect(ID, r).connect(r, sink);
+        //query.connect(mOp, fOp);
+        query.connect(source1, mapp)/*.connect(mapp, r)*/.connect(mapp, sink);
+        //query.connect(ID, r);
 
         query.activate();
-        Util.sleep(10000);
+        Util.sleep(60000);
         query.deActivate();
     }
 

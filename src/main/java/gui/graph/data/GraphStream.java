@@ -1,9 +1,18 @@
 package gui.graph.data;
 
 public abstract class GraphStream extends GraphObject {
+    GraphOperator from, to;
 
     public GraphStream() {
         super();
+    }
+
+    public GraphOperator getFrom() {
+        return from;
+    }
+
+    public GraphOperator getTo() {
+        return to;
     }
 
     @Override

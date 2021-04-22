@@ -24,11 +24,16 @@ public class LiebreFileMetrics {
         this.graphObjects.addAll(operators);
     }
 
-    public List<FileData> getMetrics() {
+    /**
+     * Reads metrics starting after the given date
+     * @param afterDate the timestamp in seconds
+     * @return a list of file data
+     */
+    public List<FileData> getMetrics(long afterDate) {
         List<FileData> result = new LinkedList<>();
         List<Future<List<FileData>>> tasks = new LinkedList<>();
         for (GraphObject op : graphObjects) {
-            tasks.add(executorService.submit(readMetrics(op)));
+            tasks.add(executorService.submit(readMetrics(op, afterDate)));
         }
         tasks.forEach(t -> {
             try {
@@ -38,6 +43,10 @@ public class LiebreFileMetrics {
             }
         });
         return result;
+    }
+
+    public List<FileData> getMetrics() {
+        return getMetrics(-1);
     }
 
     /*
@@ -53,31 +62,37 @@ public class LiebreFileMetrics {
 
      */
 
-    private Callable<List<FileData>> readMetrics(GraphObject op) {
+    private Callable<List<FileData>> readMetrics(GraphObject op, long afterDate) {
         return () -> {
             List<FileData> result = new LinkedList<>();
             List<String> filesToRead = new LinkedList<>();
             if (op instanceof GraphStream) {
                 GraphStream stream = (GraphStream) op;
                 //filesToRead.add(stream.);
+                String file = stream.getFrom().getIdentifier().get() + "_" + stream.getTo().getIdentifier().get();
+                filesToRead.add(file + ".IN.csv");
+                filesToRead.add(file + ".OUT.csv");
             } else {
                 GraphOperator operator = (GraphOperator) op;
                 filesToRead.add(operator.getIdentifier().get() + ".EXEC.csv");
                 filesToRead.add(operator.getIdentifier().get() + ".RATE.csv");
             }
             for (String s : filesToRead) {
-                result.add(new FileData(extractData(Files.readFile(dir.getPath() + File.separator + s)), s));
+                result.add(new FileData(extractData(Files.readFile(dir.getPath() + File.separator + s), afterDate), s));
             }
             return result;
         };
     }
 
-    private List<Pair<Long, String>> extractData(String data) {
+    private List<Pair<Long, String>> extractData(String data, long afterDate) {
         List<Pair<Long, String>> values = new LinkedList<>();
         for (String line : data.split("\n")) {
             String[] d = line.split(",");
             if (d.length == 2) {
-                values.add(new Pair<>(Long.valueOf(d[0].trim()), d[1]));
+                long date = Long.parseLong(d[0].trim());
+                if (date > afterDate) {
+                    values.add(new Pair<>(date, d[1]));
+                }
             }
         }
         return values;

@@ -72,7 +72,7 @@
     "BaseOperator1In": {
       "before": "Operator<@IN1, @OUT1> @ID = new BaseOperator1In<@IN1, @OUT1>(\"@ID\") {\n@Override\npublic List<@OUT1> processTupleIn1(@IN1 tuple) {",
       "middle": "return null;",
-      "after": "}\n});",
+      "after": "}\n};",
       "placeholders": {
         "input": [
           "@IN1"
