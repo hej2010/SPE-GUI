@@ -16,19 +16,19 @@ public class VisInfo {
         this.fileName = fileName;
         this.className = className;
         this.methodName = methodName;
-        this.variableInfo = new VariableInfo(variableInfo.variableName, variableInfo.calledWithVariableName, variableInfo.variableClass, variableInfo.variableData, variableInfo.operatorType, variableInfo.operator);
+        this.variableInfo = new VariableInfo(variableInfo.variableName, variableInfo.calledWithVariableName, variableInfo.variableClass, variableInfo.variableData, variableInfo.operatorType, variableInfo.operatorName);
     }
 
     public static class VariableInfo {
         @Nullable
         private final String calledWithVariableName;
         @Nullable
-        private String variableName, variableClass, variableData, operator;
+        private String variableName, variableClass, variableData, operatorName;
         public final boolean savedInExistingVariable, savedInNewVariable;
         private Class<? extends GraphOperator> operatorType;
 
         VariableInfo(@Nullable String variableName, @Nullable String calledWithVariableName, @Nullable String variableClass, @Nullable String variableData,
-                     @Nonnull Class<? extends GraphOperator> operatorType, @Nullable String operator) {
+                     @Nonnull Class<? extends GraphOperator> operatorType, @Nullable String operatorName) {
             this.variableName = variableName == null ? null : variableName.trim();
             this.calledWithVariableName = calledWithVariableName == null ? null : calledWithVariableName.trim();
             this.variableClass = variableClass == null ? null : variableClass.trim();
@@ -37,11 +37,11 @@ public class VisInfo {
             this.savedInNewVariable = saved && variableClass != null;
             this.operatorType = operatorType;
             this.variableData = variableData;
-            this.operator = operator;
+            this.operatorName = operatorName;
         }
 
-        VariableInfo(@Nullable String variableName, @Nullable String calledWithVariableName, @Nullable String variableClass, @Nullable String variableData, @Nullable String operator) {
-            this(variableName, calledWithVariableName, variableClass, variableData, Operator.class, operator);
+        VariableInfo(@Nullable String variableName, @Nullable String calledWithVariableName, @Nullable String variableClass, @Nullable String variableData, @Nullable String operatorName) {
+            this(variableName, calledWithVariableName, variableClass, variableData, Operator.class, operatorName);
         }
 
         @Nullable
@@ -54,12 +54,12 @@ public class VisInfo {
         }
 
         @Nullable
-        public String getOperator() {
-            return operator;
+        public String getOperatorName() {
+            return operatorName;
         }
 
-        public void setOperator(@Nullable String operator) {
-            this.operator = operator;
+        public void setOperatorName(@Nullable String operatorName) {
+            this.operatorName = operatorName;
         }
 
         public Class<? extends GraphOperator> getOperatorType() {

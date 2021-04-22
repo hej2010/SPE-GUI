@@ -6,10 +6,12 @@ import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import gui.graph.dag.Node;
 import gui.graph.data.GraphOperator;
+import gui.graph.data.Operator;
 import gui.spe.ParsedSPE;
 import javafx.util.Pair;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.*;
 
 abstract class Visualiser {
@@ -33,6 +35,7 @@ abstract class Visualiser {
 
     @Nonnull
     abstract VoidVisitorAdapter<Void> methodParserInit(List<Pair<Node<GraphOperator>, VisInfo>> methodData, String fileName, ClassOrInterfaceDeclaration c, MethodDeclaration method);
+
     @Nonnull
     abstract VoidVisitorAdapter<Void> methodParser(List<Pair<Node<GraphOperator>, VisInfo>> methodData, String fileName, ClassOrInterfaceDeclaration c, MethodDeclaration method);
 
@@ -87,15 +90,62 @@ abstract class Visualiser {
         return methodData;
     }
 
-    void addToConnected(String from, String to) {
+    void addToConnectedMap(String from, String to) {
         if (connected.containsKey(from)) {
             connected.get(from).add(to);
         } else {
             Set<String> s = new HashSet<>();
             s.add(to);
             connected.put(from, s);
-            allConnectedOperators.add(from);
-            allConnectedOperators.add(to);
         }
+        allConnectedOperators.add(from);
+        allConnectedOperators.add(to);
     }
+
+    @Nullable
+    VisInfo.VariableInfo findLocalVariableInfo(com.github.javaparser.ast.Node n) {
+        if (n.getParentNode().isPresent()) {
+            com.github.javaparser.ast.Node parent = n.getParentNode().get();
+            String s = parent.toString();
+            if (s.startsWith("{")) { // no variable
+                //System.out.println("parent1 = " + parent);
+                return new VisInfo.VariableInfo(null, n.toString().split("\\.", 2)[0].trim(), null, null, Operator.class, null);
+            } else if (s.contains("=")) { // we found a variable
+                String[] strings = s.split("=", 2);
+                if (strings[0].split(" ").length > 2) { // not correct equals sign
+                    return findLocalVariableInfo(parent);
+                } else {
+                    final String variableName = strings[0].trim();
+                    final String varData = strings[1].trim();
+                    final String[] varDataDot = varData.split("\\.", 2);
+                    final String calledWithVar = varDataDot[0].trim();
+                    final String varClass = getTypeFor(variableName);
+                    final Pair<Class<? extends GraphOperator>, String> operator = findOperator(varDataDot[1]);
+                    //System.out.println("parent2 = " + parent);
+                    return new VisInfo.VariableInfo(variableName, calledWithVar, varClass, strings[1].trim(), operator.getKey(), operator.getValue());
+                }
+            } else { // no variable yet, search from parent
+                return findLocalVariableInfo(parent);
+            }
+        }
+        return null;
+    }
+
+    @Nonnull
+    Pair<Class<? extends GraphOperator>, String> findOperator(String afterDot) {
+        afterDot = afterDot.toLowerCase();
+        Map<String, Pair<Class<? extends GraphOperator>, String>> codeToOpMap = parsedSPE.getCodeToOpMap();
+        for (String key : codeToOpMap.keySet()) {
+            if (afterDot.startsWith(key.toLowerCase())) {
+                return codeToOpMap.get(key);
+            }
+        }
+        return new Pair<>(Operator.class, null);
+    }
+
+    @Nullable
+    private String getTypeFor(@Nonnull String variable) {
+        return variableClasses.get(variable.trim());
+    }
+
 }

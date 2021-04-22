@@ -186,7 +186,7 @@ public class GUIController {
                             + "Class: " + visInfo.getClassName() + "\n"
                             + "Method: " + visInfo.getMethodName());
                     lblVisType.setText("Type: " + visInfo.variableInfo.getOperatorType().getSimpleName());
-                    lblVisOperator.setText("Operator: " + visInfo.variableInfo.getOperator());
+                    lblVisOperator.setText("Operator: " + visInfo.variableInfo.getOperatorName());
                     tACodeVis.setText(visInfo.variableInfo.getVariableData());
                 } else {
                     lblVisInfo.setText("File: -");

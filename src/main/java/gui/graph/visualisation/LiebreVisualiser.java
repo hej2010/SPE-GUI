@@ -13,10 +13,10 @@ import javafx.util.Pair;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 public class LiebreVisualiser extends Visualiser {
 
@@ -94,52 +94,6 @@ public class LiebreVisualiser extends Visualiser {
                             new VisInfo(fileName, c.getName().asString(), method.getNameAsString(), variableInfo)));
                 }
             }
-
-            @Nullable
-            private VisInfo.VariableInfo findLocalVariableInfo(com.github.javaparser.ast.Node n) {
-                if (n.getParentNode().isPresent()) {
-                    com.github.javaparser.ast.Node parent = n.getParentNode().get();
-                    String s = parent.toString();
-                    if (s.startsWith("{")) { // no variable
-                        //System.out.println("parent1 = " + parent);
-                        return new VisInfo.VariableInfo(null, n.toString().split("\\.", 2)[0].trim(), null, null, Operator.class, null);
-                    } else if (s.contains("=")) { // we found a variable
-                        String[] strings = s.split("=", 2);
-                        if (strings[0].split(" ").length > 2) { // not correct equals sign
-                            return findLocalVariableInfo(parent);
-                        } else {
-                            final String variableName = strings[0].trim();
-                            final String varData = strings[1].trim();
-                            final String[] varDataDot = varData.split("\\.", 2);
-                            final String calledWithVar = varDataDot[0].trim();
-                            final String varClass = getTypeFor(variableName);
-                            final Pair<Class<? extends GraphOperator>, String> operator = findOperator(varDataDot[1]);
-                            //System.out.println("parent2 = " + parent);
-                            return new VisInfo.VariableInfo(variableName, calledWithVar, varClass, strings[1].trim(), operator.getKey(), operator.getValue()); // TODO
-                        }
-                    } else { // no variable yet, search from parent
-                        return findLocalVariableInfo(parent);
-                    }
-                }
-                return null;
-            }
-
-            @Nonnull
-            private Pair<Class<? extends GraphOperator>, String> findOperator(String afterDot) {
-                afterDot = afterDot.toLowerCase();
-                Map<String, Pair<Class<? extends GraphOperator>, String>> codeToOpMap = parsedSPE.getCodeToOpMap();
-                for (String key : codeToOpMap.keySet()) {
-                    if (afterDot.startsWith(key.toLowerCase())) {
-                        return codeToOpMap.get(key);
-                    }
-                }
-                return new Pair<>(Operator.class, null);
-            }
-
-            @Nullable
-            private String getTypeFor(@Nonnull String variable) {
-                return variableClasses.get(variable.trim());
-            }
         };
     }
 
@@ -178,7 +132,7 @@ public class LiebreVisualiser extends Visualiser {
                     System.out.println("connected: " + n.getArguments());
                     String from = n.getArguments().get(0).toString();
                     String to = n.getArguments().get(1).toString();
-                    addToConnected(from, to);
+                    addToConnectedMap(from, to);
                     String[] split = n.toString().split("\\."); // query connect(ID, r) connect(r, sink)
                     if (split.length > 2) {
                         for (int i = 0; i < split.length - 1; i++) { // dont include last, it was processed above
@@ -187,7 +141,7 @@ public class LiebreVisualiser extends Visualiser {
                                 s = s.replace("connect(", "").replace(")", "");
                                 String[] split2 = s.split(",");
                                 if (split2.length == 2) {
-                                    addToConnected(split2[0], split2[1]);
+                                    addToConnectedMap(split2[0], split2[1]);
                                 }
                             }
                         }
