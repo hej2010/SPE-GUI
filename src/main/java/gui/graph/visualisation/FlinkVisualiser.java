@@ -108,7 +108,6 @@ public class FlinkVisualiser extends Visualiser {
     @Nonnull
     @Override
     VoidVisitorAdapter<Void> methodParser(List<Pair<Node<GraphOperator>, VisInfo>> methodData, String fileName, ClassOrInterfaceDeclaration c, MethodDeclaration method) {
-        final int[] counter = {0};
         final Map<String, Integer> nameToCount = new HashMap<>();
         return new VoidVisitorAdapter<>() {
 
@@ -130,30 +129,42 @@ public class FlinkVisualiser extends Visualiser {
                     String[] sp = s.split("\\?");
                     int i = Integer.parseInt(sp[1]);
                     int old = nameToCount.getOrDefault(sp[0], -1);
-                    System.out.println("parsed " + i + ":" + old + " for " + s);
+                    //System.out.println("parsed " + i + ":" + old + " for " + s);
                     if (i <= old) {
                         continue;
                     }
                     if (n.getNameAsString().startsWith(sp[0])) {
-                        System.out.println("found " + s + " in loop");
+                        //System.out.println("found " + s + " in loop");
                         name = s;
                         nameToCount.put(sp[0], i);
                         break;
                     }
                 }
-                System.out.println("WORK WITH: " + name);
+                //System.out.println("WORK WITH: " + name);
                 if (name == null) {
                     return;
                 }
                 final VisInfo.VariableInfo variableInfo = findLocalVariableInfo(n);
-                System.out.println("got " + variableInfo);
+                //System.out.println("got " + variableInfo);
                 final List<VisInfo.VariableInfo> fixedVarInfo = fixVarInfo(variableInfo);
-                System.out.println("after fix: " + fixedVarInfo);
+                //System.out.println("after fix: " + fixedVarInfo);
 
+                Set<String> used = new HashSet<>();
                 for (VisInfo.VariableInfo v : fixedVarInfo) {
-                    Operator operator = new Operator(name);
-                    methodData.add(new Pair<>(new Node<>(operator, null), // TODO, how to set name?
-                            new VisInfo(fileName, c.getName().asString(), method.getNameAsString(), v)));
+                    for (String s : allConnectedOperators) {
+                        if (used.contains(s)) {
+                            continue;
+                        }
+                        String[] sp = s.split("\\?");
+                        if (name.contains("?" + sp[1] + "?") && v.getOperatorName() != null && s.startsWith(v.getOperatorName())) {
+                            Operator operator = new Operator(s);
+                            //System.out.println("add " + s + ", " + v);
+                            used.add(s);
+                            methodData.add(new Pair<>(new Node<>(operator, null), // TODO, how to set name?
+                                    new VisInfo(fileName, c.getName().asString(), method.getNameAsString(), v)));
+                            break;
+                        }
+                    }
                 }
 
                 //final Set<VisInfo.VariableInfo> taken = new HashSet<>();
