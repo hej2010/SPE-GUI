@@ -34,21 +34,7 @@ public class FlinkVisualiser extends Visualiser {
                 }
             }
         }
-        /*for (Pair<Node<GraphOperator>, VisInfo> p : newList) {
-            updateOperator(p.getKey());
-        }*/
         return newList;
-    }
-
-    private void updateOperator(Node<GraphOperator> n) {
-        GraphOperator op = n.getItem();
-        op.setIdentifier(op.getIdentifier().get().replace("?", "-"));
-        //VisInfo.VariableInfo var = op.getVisInfo().variableInfo;
-        //var.setVariableData(var.getCalledWithVariableName() + var.getVariableData());
-        List<Node<GraphOperator>> successors = n.getSuccessors();
-        for (Node<GraphOperator> o : successors) {
-            updateOperator(o);
-        }
     }
 
     @Nonnull
@@ -73,7 +59,7 @@ public class FlinkVisualiser extends Visualiser {
         final String savedInVariable = p.getValue().variableInfo.getVariableName();
         System.out.println("findSuccessorsFor: " + name + ", " + savedInVariable);
 
-        if (!info2.isFirstInChain() && !info2.isLastInChain()) { // a chained call, already have successors
+        if (!info2.isLastInChain()) { // a chained call, already have successors
             for (Node<GraphOperator> s : p.getKey().getSuccessors()) {
                 successors.add(new Pair<>(s, s.getItem().getVisInfo()));
             }
@@ -82,10 +68,9 @@ public class FlinkVisualiser extends Visualiser {
 
         for (Pair<Node<GraphOperator>, VisInfo> pair : list) {
             VisInfo.VisInfo2 pi2 = (VisInfo.VisInfo2) pair.getValue();
-            if (pi2.isFirstInChain()) {
-                System.out.println("First; " + pi2.getVariableName() + ". " + name);
-            } else if (pi2.isLastInChain()) {
-                System.out.println("Last; " + pi2.getVariableName() + ". " + name);
+            if (pi2.isFirstInChain() && savedInVariable != null && savedInVariable.equals(pair.getValue().variableInfo.getCalledWithVariableName())) {
+                System.out.println("First; " + pair.getKey().getItem().getIdentifier().get() + " is called from " + savedInVariable + "; " + pair.getValue().variableInfo);
+                successors.add(new Pair<>(pair.getKey(), pair.getValue()));
             }
         }
 
@@ -297,7 +282,7 @@ public class FlinkVisualiser extends Visualiser {
         final List<String> connected2 = new LinkedList<>(), found = new LinkedList<>();
         final Map<String, Pair<Class<? extends GraphOperator>, String>> codeToOpMap = parsedSPE.getCodeToOpMap();
         final int[] counter = {0};
-        System.out.println("start connected: " + queryVariables);
+        //System.out.println("start connected: " + queryVariables);
         return new VoidVisitorAdapter<>() {
             /**
              * Finds all connected methods
@@ -341,6 +326,9 @@ public class FlinkVisualiser extends Visualiser {
                     System.out.println("added " + vis.getVariableName() + " to variables");
                 }
                 List<Pair<String, String>> methods = getMethods(parent.toString());
+                if (methods.isEmpty()) {
+                    return;
+                }
 
                 System.out.println(methods);
                 //System.out.println(vis);
@@ -348,10 +336,9 @@ public class FlinkVisualiser extends Visualiser {
                 System.out.println("---------------");
 
                 List<Node<GraphOperator>> succs = new LinkedList<>();
-                for (int i = methods.size() - 1; i >= 0; i--) {
+                for (int i = methods.size() - 1; i >= 0; i--) { // TODO check if first.join(second) and connect them
                     Pair<String, String> p = methods.get(i);
-                    Operator op = new Operator(p.getKey());
-                    System.out.println("got " + p + " for " + i);
+                    Operator op = new Operator(p.getKey() + "-" + counter[0]++);
                     VisInfo.VariableInfo variableInfo = new VisInfo.VariableInfo(vis.getVariableName(), vis.getCalledWithVariableName(), vis.getVariableClass(), p.getValue(), vis.getOperatorType(), vis.getOperatorName());
                     VisInfo.VisInfo2 visInfo2 = new VisInfo.VisInfo2(fileName, c.getName().asString(), method.getNameAsString(), variableInfo, i == 0, i == methods.size() - 1, vis.getVariableName());
                     op.setVisInfo(visInfo2);

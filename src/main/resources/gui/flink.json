@@ -29,7 +29,8 @@
       "Window CoGroup",
       "Connect",
       "CoMap",
-      "CoFlatMap"
+      "CoFlatMap",
+      "Apply"
     ]
   },
   "links": {
@@ -37,7 +38,10 @@
     "readTextFile": "source:TextFileSource",
     "map": "op:Map",
     "filter": "op:Filter",
+    "window": "op:Window",
     "windowAll": "op:WindowAll",
+    "join": "op:Window Join",
+    "apply": "op:Apply",
     "addSink": "sink:SinkFunction"
   },
   "imports": {

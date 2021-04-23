@@ -17,7 +17,6 @@ import java.util.Set;
 public abstract class GraphOperator extends GraphObject implements JsonExported {
     protected StringData identifier, prevIdentifier;
     private int selectionIndex;
-    private OnSelectionChangedListener listener;
     private final Map<String, ParsedOperator> operatorsMap;
     private ParsedOperator currentOperator;
     private VisInfo visInfo;
@@ -44,19 +43,7 @@ public abstract class GraphOperator extends GraphObject implements JsonExported 
     }
 
     public void setSelectedIndex(int index) {
-        boolean old = isSelected();
         this.selectionIndex = index;
-        onChanged(old, isSelected());
-    }
-
-    private void onChanged(boolean old, boolean selected) {
-        if (listener != null) {
-            listener.onChanged(old, selected);
-        }
-    }
-
-    public void setOnSelectedChangeListener(OnSelectionChangedListener listener) {
-        this.listener = listener;
     }
 
     @Nonnull
