@@ -765,7 +765,7 @@ public class GUIController {
                 }
             } else {
                 for (GraphOperator go : addedNodes) {
-                    if (go.getIdentifier().equals(op.getIdentifier())) {
+                    if (go.getIdentifier().get().equals(op.getIdentifier().get())) {
                         op = go;
                         break;
                     }
@@ -782,6 +782,7 @@ public class GUIController {
         List<Node<GraphOperator>> l = new LinkedList<>();
         for (Pair<Node<GraphOperator>, VisInfo> p : opsList) {
             p.getKey().getItem().setVisInfo(p.getValue());
+            System.out.println("add to list " + p.getKey());
             l.add(p.getKey());
         }
         addToGraph(l, null, addedIdentifiers, addedNodes);
