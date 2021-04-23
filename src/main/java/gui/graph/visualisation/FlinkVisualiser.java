@@ -47,8 +47,6 @@ public class FlinkVisualiser extends Visualiser {
                     System.out.println(p.getKey().getItem().getIdentifier().get() + " is joined with " + joinedWith);
                     for (Pair<Node<GraphOperator>, VisInfo> p2 : newList) {
                         if (joinedWith.equals(p2.getValue().variableInfo.getVariableName())) {
-                            System.out.println("found node with variable " + joinedWith + ": " + p2.getKey().getItem().getIdentifier().get());
-                            //p2.getKey().getSuccessors().add(p.getKey());
                             for (Pair<Node<GraphOperator>, VisInfo> p3 : newList) {
                                 fixJoined(p2.getKey().getItem().getIdentifier().get(), p.getKey(), p3.getKey());
                             }
@@ -234,7 +232,7 @@ public class FlinkVisualiser extends Visualiser {
                 for (int i = methods.size() - 1; i >= 0; i--) { // TODO check if first.join(second) and connect them
                     Pair<String, String> p = methods.get(i);
                     Operator op = new Operator(p.getKey() + "-" + counter[0]++);
-                    VisInfo.VariableInfo variableInfo = new VisInfo.VariableInfo(vis.getVariableName(), vis.getCalledWithVariableName(), vis.getVariableClass(), p.getValue(), vis.getOperatorType(), vis.getOperatorName());
+                    VisInfo.VariableInfo variableInfo = new VisInfo.VariableInfo(vis.getVariableName(), vis.getCalledWithVariableName(), vis.getVariableClass(), p.getValue(), vis.getOperatorType(), parsedSPE.getCodeToOpMap().get(p.getKey()).getValue());
                     VisInfo.VisInfo2 visInfo2 = new VisInfo.VisInfo2(fileName, c.getName().asString(), method.getNameAsString(), variableInfo, i == 0, i == methods.size() - 1, vis.getVariableName());
                     op.setVisInfo(visInfo2);
                     Node<GraphOperator> node;
