@@ -69,12 +69,11 @@ public class FlinkVisualiser extends Visualiser {
 
     @Nonnull
     private List<Node<GraphOperator>> getSuccessorsFrom(@Nonnull Pair<Node<GraphOperator>, VisInfo> p, List<Pair<Node<GraphOperator>, VisInfo>> list) {
-       /*
+        /*
           1. first run is for the source nodes, called with "calledWithVariable"
           2. if they are saved to a variable they can be used later. If not it is just chaining
           3. If saved to variable, check where it has been used later
         */
-
         List<Pair<Node<GraphOperator>, VisInfo>> successors = findSuccessorsFor(p, list);
         List<Node<GraphOperator>> successorsList = new LinkedList<>();
         successors.forEach(successor -> successorsList.add(new Node<>(successor.getKey().getItem(), getSuccessorsFrom(successor, list)))); // recursively find successors
@@ -173,16 +172,13 @@ public class FlinkVisualiser extends Visualiser {
     @Override
     VoidVisitorAdapter<Void> methodParserFindConnected(List<Pair<Node<GraphOperator>, VisInfo>> methodData, String fileName, ClassOrInterfaceDeclaration c, MethodDeclaration method) {
         final List<String> connected2 = new LinkedList<>(), found = new LinkedList<>();
-        final Map<String, Pair<Class<? extends GraphOperator>, String>> codeToOpMap = parsedSPE.getCodeToOpMap();
         final int[] counter = {0};
-        //System.out.println("start connected: " + queryVariables);
         return new VoidVisitorAdapter<>() {
             /**
              * Finds all connected methods
              */
             @Override
             public void visit(MethodCallExpr n, Void arg) {
-                //System.out.println("n.getNameAsString() = " + n.getNameAsString());
                 connected2.add(n.getNameAsString());
                 super.visit(n, arg);
                 if (connected2.isEmpty()) {
@@ -196,7 +192,6 @@ public class FlinkVisualiser extends Visualiser {
                         com.github.javaparser.ast.Node p = o.get();
                         if (!p.toString().startsWith("{")) {
                             parent = o.get();
-                            //System.out.println("found parent: " + parent);
                         } else {
                             if (!found.contains(parent.toString())) {
                                 found.add(parent.toString());
@@ -216,17 +211,12 @@ public class FlinkVisualiser extends Visualiser {
                 }
                 if (queryVariables.contains(vis.getCalledWithVariableName()) && vis.getVariableName() != null) {
                     queryVariables.add(vis.getVariableName());
-                    //System.out.println("added " + vis.getVariableName() + " to variables");
                 }
                 List<Pair<String, String>> methods = getMethods(parent.toString());
                 if (methods.isEmpty()) {
                     return;
                 }
 
-                //System.out.println(methods);
-                //System.out.println(vis);
-
-                System.out.println("---------------");
 
                 List<Node<GraphOperator>> succs = new LinkedList<>();
                 for (int i = methods.size() - 1; i >= 0; i--) { // TODO check if first.join(second) and connect them
@@ -243,42 +233,9 @@ public class FlinkVisualiser extends Visualiser {
                     }
                     succs = new ArrayList<>();
                     succs.add(node);
-                    //System.out.println("added " + visInfo2.getVariableName() + "=" + node.getItem().getIdentifier().get() + ", " + node.getSuccessors());
                     methodData.add(new Pair<>(node, visInfo2));
                 }
-
-                /*connected2.add(0, n.toString().split("\\.", 2)[0]);
-
-                List<String> uniqueList = new LinkedList<>();
-                int counter2 = 0;
-                for (String s : connected2) {
-                    uniqueList.add(s + "?" + counter[0] + "?" + counter2++);
-                }
-                if (uniqueList.size() > 1) {
-                    for (int i = 0; i < uniqueList.size() - 1; i++) {
-                        String from = uniqueList.get(i);
-                        String to = null;
-                        for (int j = i + 1; j < uniqueList.size(); j++) {
-                            String t = uniqueList.get(j);
-                            if (codeToOpMap.containsKey(deUnique(t))) {
-                                to = t;
-                                break;
-                            }
-                        }
-                        if (to != null) {
-                            System.out.println("connected: " + from + "->" + to);
-                            addToConnectedMap(from, to);
-                        }
-                    }
-                    System.out.println("--------------------");
-                    connected2.clear();
-                    counter[0]++;
-                }*/
                 connected2.clear();
-            }
-
-            private String deUnique(String s) {
-                return s.split("\\?", 2)[0];
             }
         };
     }

@@ -782,7 +782,6 @@ public class GUIController {
         List<Node<GraphOperator>> l = new LinkedList<>();
         for (Pair<Node<GraphOperator>, VisInfo> p : opsList) {
             p.getKey().getItem().setVisInfo(p.getValue());
-            System.out.println("add to list " + p.getKey());
             l.add(p.getKey());
         }
         addToGraph(l, null, addedIdentifiers, addedNodes);
