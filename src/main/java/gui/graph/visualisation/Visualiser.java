@@ -58,34 +58,11 @@ abstract class Visualiser {
 
     @Nonnull
     List<Pair<Node<GraphOperator>, VisInfo>> getClassData(String fileName, ClassOrInterfaceDeclaration c) {
-        //List<Pair<Node<GraphOperator>, VisInfo>> data = new LinkedList<>();
         List<Pair<Node<GraphOperator>, VisInfo>> methodData = new LinkedList<>();
         for (MethodDeclaration method : c.getMethods()) {
             // Make the visitor go through everything inside the method.
-            //System.out.println(method.findAll(VariableDeclarator.class));
             method.accept(methodParserInit(methodData, fileName, c, method), null);
             method.accept(methodParser(methodData, fileName, c, method), null);
-
-            /*BlockStmt block = method.getBody().orElse(null); // TODO move to flink (chaining, find links)
-            if (block == null) {
-                System.err.println("Block empty in " + method.getNameAsString());
-            } else {
-                List<VariableDeclarator> declaredVariables = block.findAll(VariableDeclarator.class);
-                if (!declaredVariables.isEmpty() && !methodData.isEmpty()) {
-                    for (VariableDeclarator variable : declaredVariables) {
-                        for (Pair<Node<GraphOperator>, VisInfo> p : methodData) {
-                            String variableName = variable.getNameAsString();
-                            if (variableName.equals(p.getValue().variableInfo.getVariableName())) {
-                                p.getValue().variableInfo.setVariableClass(variable.getType().asString());
-                                System.out.println("found match for " + variableName + " (" + variable.getType().asString() + ")");
-                                break;
-                            }
-                        }
-                    }
-                }
-            }*/
-
-            //data.addAll(methodData);
         }
 
         return methodData;

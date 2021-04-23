@@ -34,8 +34,10 @@
   },
   "links": {
     "addSource": "source:SourceFunction",
+    "readTextFile": "source:TextFileSource",
     "map": "op:Map",
     "filter": "op:Filter",
+    "windowAll": "op:WindowAll",
     "addSink": "sink:SinkFunction"
   },
   "imports": {

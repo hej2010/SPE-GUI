@@ -87,7 +87,7 @@ public class FlinkVisualiser extends Visualiser {
         }
 
         if (connectedList.size() > 2) { // chained
-            connectedList.sort((o1, o2) -> {
+            connectedList.sort((o1, o2) -> { // Sort the list as we expect _?_?x to be sorted in ascending order
                 int f1 = Integer.parseInt(o1.split("\\?")[2]);
                 int f2 = Integer.parseInt(o2.split("\\?")[2]);
                 return Integer.compare(f1, f2);
@@ -290,12 +290,9 @@ public class FlinkVisualiser extends Visualiser {
                 connected2.add(0, n.toString().split("\\.", 2)[0]);
 
                 List<String> uniqueList = new LinkedList<>();
-                //Map<String, Integer> map = new HashMap<>();
                 int counter2 = 0;
                 for (String s : connected2) {
-                    //int count = map.getOrDefault(s, -1) + 1;
                     uniqueList.add(s + "?" + counter[0] + "?" + counter2++);
-                    //map.put(s, count);
                 }
                 if (uniqueList.size() > 1) {
                     for (int i = 0; i < uniqueList.size() - 1; i++) {
