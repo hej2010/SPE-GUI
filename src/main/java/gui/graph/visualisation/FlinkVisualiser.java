@@ -26,7 +26,6 @@ public class FlinkVisualiser extends Visualiser {
     @Override
     public List<Pair<Node<GraphOperator>, VisInfo>> fixList(List<Pair<Node<GraphOperator>, VisInfo>> list) {
         List<Pair<Node<GraphOperator>, VisInfo>> newList = new LinkedList<>();
-        System.out.println("allConnectedOperators = " + allConnectedOperators);
         for (Pair<Node<GraphOperator>, VisInfo> p : list) {
             for (String queryVariable : queryVariables) {
                 if (queryVariable.equals(p.getValue().variableInfo.getCalledWithVariableName())) {
@@ -87,7 +86,13 @@ public class FlinkVisualiser extends Visualiser {
             }
         }
 
-        if (connectedList.size() > 2) {
+        if (connectedList.size() > 2) { // chained
+            connectedList.sort((o1, o2) -> {
+                int f1 = Integer.parseInt(o1.split("\\?")[2]);
+                int f2 = Integer.parseInt(o2.split("\\?")[2]);
+                return Integer.compare(f1, f2);
+            });
+            System.out.println("Connected:" + connectedList + ". " + name);
             int indexOf = connectedList.indexOf(name);
             if (indexOf + 1 < connectedList.size() && indexOf != -1) {
                 String cc = connectedList.get(indexOf + 1);
@@ -109,8 +114,8 @@ public class FlinkVisualiser extends Visualiser {
                     String calledWith = otherP.getValue().variableInfo.getCalledWithVariableName();
                     //System.out.println(otherIdent + " is called with " + calledWith + "? " + savedInVariable);
                     if (savedInVariable.equals(calledWith)) { // Someone calls a method from this variable = connected
-                        if (otherP.getValue() instanceof VisInfo.VisInfo2) {
-                            if (((VisInfo.VisInfo2) otherP.getValue()).isFirstInChain()) {
+                        if (otherP.getValue() instanceof VisInfo.VisInfo2 && p.getValue() instanceof VisInfo.VisInfo2) {
+                            if (((VisInfo.VisInfo2) otherP.getValue()).isFirstInChain() && ((VisInfo.VisInfo2) p.getValue()).isLastInChain()) {
                                 connectedList.add(otherIdent);
                                 successors.add(new Pair<>(otherOp, otherP.getValue()));
                                 System.out.println("add successor 1: " + otherIdent);
@@ -174,6 +179,7 @@ public class FlinkVisualiser extends Visualiser {
                 System.out.println("fixed for " + name + ": " + fixedVarInfo);
 
                 Set<String> used = new HashSet<>();
+                VisInfo.VisInfo2 last = null;
                 boolean firstInChain = true;
                 for (VisInfo.VariableInfo v : fixedVarInfo) {
                     for (String s : allConnectedOperators) {
@@ -185,8 +191,12 @@ public class FlinkVisualiser extends Visualiser {
                             Operator operator = new Operator(s);
 
                             used.add(s);
-                            VisInfo.VisInfo2 visInfo2 = new VisInfo.VisInfo2(fileName, c.getName().asString(), method.getNameAsString(), v, firstInChain);
+                            if (last != null) {
+                                last.setLastInChain(false);
+                            }
+                            VisInfo.VisInfo2 visInfo2 = new VisInfo.VisInfo2(fileName, c.getName().asString(), method.getNameAsString(), v, firstInChain, true);
                             operator.setVisInfo(visInfo2);
+                            last = visInfo2;
                             methodData.add(new Pair<>(new Node<>(operator, null), visInfo2));
                             firstInChain = false;
                             break;
@@ -240,7 +250,7 @@ public class FlinkVisualiser extends Visualiser {
                     }
                 }
                 return s;
-            } // TODO it does not find operators without the result stored in a variable
+            }
         };
     }
 
@@ -249,8 +259,7 @@ public class FlinkVisualiser extends Visualiser {
     VoidVisitorAdapter<Void> methodParserInit(List<Pair<Node<GraphOperator>, VisInfo>> methodData, String fileName, ClassOrInterfaceDeclaration c, MethodDeclaration method) {
         final List<String> connected2 = new LinkedList<>();
         final Map<String, Pair<Class<? extends GraphOperator>, String>> codeToOpMap = parsedSPE.getCodeToOpMap();
-        final boolean[] f = {false};
-        final int[] counter = {0, 0};
+        final int[] counter = {0};
         return new VoidVisitorAdapter<>() {
             /**
              * Finds all query variables and their types
@@ -274,49 +283,44 @@ public class FlinkVisualiser extends Visualiser {
                 connected2.add(0, n.getNameAsString()); // add at first pos as the last chained call is found first
                 super.visit(n, arg);
 
-                if (connected2.size() > 1) {
-                    for (int i = 0; i < connected2.size() - 1; i++) {
-                        String from = connected2.get(i);
+                if (connected2.isEmpty()) {
+                    return;
+                }
+
+                connected2.add(0, n.toString().split("\\.", 2)[0]);
+
+                List<String> uniqueList = new LinkedList<>();
+                //Map<String, Integer> map = new HashMap<>();
+                int counter2 = 0;
+                for (String s : connected2) {
+                    //int count = map.getOrDefault(s, -1) + 1;
+                    uniqueList.add(s + "?" + counter[0] + "?" + counter2++);
+                    //map.put(s, count);
+                }
+                if (uniqueList.size() > 1) {
+                    for (int i = 0; i < uniqueList.size() - 1; i++) {
+                        String from = uniqueList.get(i);
                         String to = null;
-                        for (int j = i + 1; j < connected2.size(); j++) {
-                            String t = connected2.get(j);
-                            if (codeToOpMap.containsKey(t)) {
+                        for (int j = i + 1; j < uniqueList.size(); j++) {
+                            String t = uniqueList.get(j);
+                            if (codeToOpMap.containsKey(deUnique(t))) {
                                 to = t;
                                 break;
                             }
                         }
                         if (to != null) {
                             System.out.println("connected: " + from + "->" + to);
-                            addToConnectedMap(makeUnique(from), makeUnique(to));
-                            if (!f[0]) {
-                                String[] sp = n.toString().split("\\.", 2);
-                                if (!sp[0].startsWith(from)) {
-                                    addToConnectedMap(makeUnique(sp[0]), makeUnique(from));
-                                    System.out.println("connected2: " + sp[0] + "->" + from);
-                                }
-                                f[0] = true;
-                            }
-                            counter[1]++;
+                            addToConnectedMap(from, to);
                         }
                     }
-                    counter[0]++;
-                } else if (connected2.size() == 1) {
-                    String[] sp = n.toString().split("\\.", 2);
-                    String to = connected2.get(0);
-                    System.out.println("connected3: " + sp[0] + "->" + to);
-                    addToConnectedMap(makeUnique(sp[0]), makeUnique(to));
+                    System.out.println("--------------------");
+                    connected2.clear();
                     counter[0]++;
                 }
-
-                System.out.println("--------------------");
-                connected2.clear();
-                f[0] = false;
-                //counter[0]++;
-                counter[1] = 0;
             }
 
-            private String makeUnique(String s) {
-                return s + "?" + counter[0] + "?" + counter[1];
+            private String deUnique(String s) {
+                return s.split("\\?", 2)[0];
             }
         };
     }

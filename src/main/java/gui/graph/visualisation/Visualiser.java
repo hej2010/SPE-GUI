@@ -17,14 +17,15 @@ import java.util.*;
 abstract class Visualiser {
     final ParsedSPE parsedSPE;
     final Map<String, Set<String>> connected;
-    final Set<String> queryVariables, allConnectedOperators;
+    final Set<String> queryVariables;
+    final List<String> allConnectedOperators;
     final Map<String, GraphOperator> operators;
     final Map<String, String> variableClasses;
 
     protected Visualiser(@Nonnull ParsedSPE parsedSPE) {
         this.parsedSPE = parsedSPE;
         queryVariables = new HashSet<>();
-        allConnectedOperators = new HashSet<>();
+        allConnectedOperators = new LinkedList<>();
         operators = new HashMap<>();
         connected = new HashMap<>();
         variableClasses = new HashMap<>();
@@ -99,8 +100,12 @@ abstract class Visualiser {
             connected.put(from, s);
         }
         System.out.println("from = " + from + ", to = " + to);
-        allConnectedOperators.add(from);
-        allConnectedOperators.add(to);
+        if (!allConnectedOperators.contains(from)) {
+            allConnectedOperators.add(from);
+        }
+        if (!allConnectedOperators.contains(to)) {
+            allConnectedOperators.add(to);
+        }
     }
 
     @Nullable

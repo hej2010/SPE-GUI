@@ -3,6 +3,8 @@ package gui.testing;
 import org.apache.flink.api.common.functions.FilterFunction;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.streaming.api.datastream.DataStreamSink;
+import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.sink.SinkFunction;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
@@ -43,17 +45,23 @@ public class FlinkTest {
             }
         });
 
-        DataStream<Double> stream = intStream
+        SingleOutputStreamOperator<Double> stream = intStream
                 .map((MapFunction<Integer, Double>) value -> value * Math.PI)
                 .map((MapFunction<Double, Double>) value -> value * Math.PI)
-                .filter((FilterFunction<Double>) value -> value > 2);
+                .filter((FilterFunction<Double>) value -> value > 2)
+                /*.addSink(new SinkFunction<Double>() {
+                    @Override
+                    public void invoke(Double value, Context context) throws Exception {
 
-        /*stream.addSink(new SinkFunction<Double>() {
-            @Override
-            public void invoke(Double value, Context context) throws Exception {
+                    }
+                })*/;
 
-            }
-        });*/
+                stream.addSink(new SinkFunction<Double>() {
+                    @Override
+                    public void invoke(Double value, Context context) throws Exception {
+                        SinkFunction.super.invoke(value, context);
+                    }
+                });
 
         sourceStream.addSink(new SinkFunction<>() {
             @Override

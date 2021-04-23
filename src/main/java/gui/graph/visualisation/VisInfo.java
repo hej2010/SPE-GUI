@@ -150,14 +150,24 @@ public class VisInfo {
     }
     public static class VisInfo2 extends VisInfo {
         private final boolean firstInChain;
+        private boolean lastInChain;
 
-        VisInfo2(@NotNull String fileName, @NotNull String className, @NotNull String methodName, @NotNull VariableInfo variableInfo, boolean firstInChain) {
+        VisInfo2(@NotNull String fileName, @NotNull String className, @NotNull String methodName, @NotNull VariableInfo variableInfo, boolean firstInChain, boolean lastInChain) {
             super(fileName, className, methodName, variableInfo);
             this.firstInChain = firstInChain;
+            this.lastInChain = lastInChain;
         }
 
         public boolean isFirstInChain() {
             return firstInChain;
+        }
+
+        public boolean isLastInChain() {
+            return lastInChain;
+        }
+
+        public void setLastInChain(boolean lastInChain) {
+            this.lastInChain = lastInChain;
         }
     }
 }
