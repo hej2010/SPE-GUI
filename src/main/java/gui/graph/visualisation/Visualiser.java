@@ -38,9 +38,6 @@ abstract class Visualiser {
     abstract VoidVisitorAdapter<Void> methodParserFindVariables(List<Pair<Node<GraphOperator>, VisInfo>> methodData, String fileName, ClassOrInterfaceDeclaration c, MethodDeclaration method);
 
     @Nonnull
-    abstract VoidVisitorAdapter<Void> methodParserFindConnected(List<Pair<Node<GraphOperator>, VisInfo>> methodData, String fileName, ClassOrInterfaceDeclaration c, MethodDeclaration method);
-
-    @Nonnull
     abstract VoidVisitorAdapter<Void> methodParserFindDefinitions(List<Pair<Node<GraphOperator>, VisInfo>> methodData, String fileName, ClassOrInterfaceDeclaration c, MethodDeclaration method);
 
     @Nonnull
@@ -65,7 +62,6 @@ abstract class Visualiser {
         for (MethodDeclaration method : c.getMethods()) {
             // Make the visitor go through everything inside the method.
             method.accept(methodParserFindVariables(methodData, fileName, c, method), null);
-            method.accept(methodParserFindConnected(methodData, fileName, c, method), null);
             method.accept(methodParserFindDefinitions(methodData, fileName, c, method), null);
         }
 

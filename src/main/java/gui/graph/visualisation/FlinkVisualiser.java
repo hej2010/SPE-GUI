@@ -104,13 +104,6 @@ public class FlinkVisualiser extends Visualiser {
     }
 
     @Nonnull
-    @Override
-    VoidVisitorAdapter<Void> methodParserFindDefinitions(List<Pair<Node<GraphOperator>, VisInfo>> methodData, String fileName, ClassOrInterfaceDeclaration c, MethodDeclaration method) {
-        return new VoidVisitorAdapter<>() {
-        };
-    }
-
-    @Nonnull
     private List<Pair<String, String>> getMethods(String data) {
         List<Pair<String, String>> s = new LinkedList<>();
         if (data == null) {
@@ -170,7 +163,7 @@ public class FlinkVisualiser extends Visualiser {
 
     @NotNull
     @Override
-    VoidVisitorAdapter<Void> methodParserFindConnected(List<Pair<Node<GraphOperator>, VisInfo>> methodData, String fileName, ClassOrInterfaceDeclaration c, MethodDeclaration method) {
+    VoidVisitorAdapter<Void> methodParserFindDefinitions(List<Pair<Node<GraphOperator>, VisInfo>> methodData, String fileName, ClassOrInterfaceDeclaration c, MethodDeclaration method) {
         final List<String> connected2 = new LinkedList<>(), found = new LinkedList<>();
         final int[] counter = {0};
         return new VoidVisitorAdapter<>() {
@@ -219,7 +212,7 @@ public class FlinkVisualiser extends Visualiser {
 
 
                 List<Node<GraphOperator>> succs = new LinkedList<>();
-                for (int i = methods.size() - 1; i >= 0; i--) { // TODO check if first.join(second) and connect them
+                for (int i = methods.size() - 1; i >= 0; i--) {
                     Pair<String, String> p = methods.get(i);
                     Operator op = new Operator(p.getKey() + "-" + counter[0]++);
                     VisInfo.VariableInfo variableInfo = new VisInfo.VariableInfo(vis.getVariableName(), vis.getCalledWithVariableName(), vis.getVariableClass(), p.getValue(), vis.getOperatorType(), parsedSPE.getCodeToOpMap().get(p.getKey()).getValue());

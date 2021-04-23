@@ -116,13 +116,7 @@ public class LiebreVisualiser extends Visualiser {
                     //System.out.println("put " + n.getNameAsString() + ";" + n.getType().asString());
                 }
             }
-        };
-    }
 
-    @Nonnull
-    @Override
-    VoidVisitorAdapter<Void> methodParserFindConnected(List<Pair<Node<GraphOperator>, VisInfo>> methodData, String fileName, ClassOrInterfaceDeclaration c, MethodDeclaration method) {
-        return new VoidVisitorAdapter<>() {
             /**
              * Finds all connected methods
              */
@@ -155,4 +149,5 @@ public class LiebreVisualiser extends Visualiser {
             }
         };
     }
+
 }
