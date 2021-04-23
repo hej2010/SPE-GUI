@@ -68,7 +68,7 @@ public class LiebreVisualiser extends Visualiser {
 
     @Nonnull
     @Override
-    VoidVisitorAdapter<Void> methodParser(List<Pair<Node<GraphOperator>, VisInfo>> methodData, String fileName, ClassOrInterfaceDeclaration c, MethodDeclaration method) {
+    VoidVisitorAdapter<Void> methodParserFindDefinitions(List<Pair<Node<GraphOperator>, VisInfo>> methodData, String fileName, ClassOrInterfaceDeclaration c, MethodDeclaration method) {
         return new VoidVisitorAdapter<>() {
 
             /**
@@ -99,9 +99,8 @@ public class LiebreVisualiser extends Visualiser {
 
     @Nonnull
     @Override
-    VoidVisitorAdapter<Void> methodParserInit(List<Pair<Node<GraphOperator>, VisInfo>> methodData, String fileName, ClassOrInterfaceDeclaration c, MethodDeclaration method) {
+    VoidVisitorAdapter<Void> methodParserFindVariables(List<Pair<Node<GraphOperator>, VisInfo>> methodData, String fileName, ClassOrInterfaceDeclaration c, MethodDeclaration method) {
         return new VoidVisitorAdapter<>() {
-
             /**
              * Finds all query variables and their types
              */
@@ -117,7 +116,13 @@ public class LiebreVisualiser extends Visualiser {
                     //System.out.println("put " + n.getNameAsString() + ";" + n.getType().asString());
                 }
             }
+        };
+    }
 
+    @Nonnull
+    @Override
+    VoidVisitorAdapter<Void> methodParserFindConnected(List<Pair<Node<GraphOperator>, VisInfo>> methodData, String fileName, ClassOrInterfaceDeclaration c, MethodDeclaration method) {
+        return new VoidVisitorAdapter<>() {
             /**
              * Finds all connected methods
              */

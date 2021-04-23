@@ -141,7 +141,7 @@ public class FlinkVisualiser extends Visualiser {
 
     @Nonnull
     @Override
-    VoidVisitorAdapter<Void> methodParser(List<Pair<Node<GraphOperator>, VisInfo>> methodData, String fileName, ClassOrInterfaceDeclaration c, MethodDeclaration method) {
+    VoidVisitorAdapter<Void> methodParserFindDefinitions(List<Pair<Node<GraphOperator>, VisInfo>> methodData, String fileName, ClassOrInterfaceDeclaration c, MethodDeclaration method) {
         //final Map<String, Integer> nameToCount = new HashMap<>();
         final Set<String> used = new HashSet<>();
         return new VoidVisitorAdapter<>() {
@@ -256,10 +256,7 @@ public class FlinkVisualiser extends Visualiser {
 
     @NotNull
     @Override
-    VoidVisitorAdapter<Void> methodParserInit(List<Pair<Node<GraphOperator>, VisInfo>> methodData, String fileName, ClassOrInterfaceDeclaration c, MethodDeclaration method) {
-        final List<String> connected2 = new LinkedList<>();
-        final Map<String, Pair<Class<? extends GraphOperator>, String>> codeToOpMap = parsedSPE.getCodeToOpMap();
-        final int[] counter = {0};
+    VoidVisitorAdapter<Void> methodParserFindVariables(List<Pair<Node<GraphOperator>, VisInfo>> methodData, String fileName, ClassOrInterfaceDeclaration c, MethodDeclaration method) { ;
         return new VoidVisitorAdapter<>() {
             /**
              * Finds all query variables and their types
@@ -273,7 +270,16 @@ public class FlinkVisualiser extends Visualiser {
                     variableClasses.put(n.getNameAsString(), n.getType().asString());
                 }
             }
+        };
+    }
 
+    @NotNull
+    @Override
+    VoidVisitorAdapter<Void> methodParserFindConnected(List<Pair<Node<GraphOperator>, VisInfo>> methodData, String fileName, ClassOrInterfaceDeclaration c, MethodDeclaration method) {
+        final List<String> connected2 = new LinkedList<>();
+        final Map<String, Pair<Class<? extends GraphOperator>, String>> codeToOpMap = parsedSPE.getCodeToOpMap();
+        final int[] counter = {0};
+        return new VoidVisitorAdapter<>() {
             /**
              * Finds all connected methods
              */
@@ -282,7 +288,6 @@ public class FlinkVisualiser extends Visualiser {
                 System.out.println("n.getNameAsString() = " + n.getNameAsString());
                 connected2.add(0, n.getNameAsString()); // add at first pos as the last chained call is found first
                 super.visit(n, arg);
-
                 if (connected2.isEmpty()) {
                     return;
                 }
