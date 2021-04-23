@@ -109,8 +109,8 @@ abstract class Visualiser {
             com.github.javaparser.ast.Node parent = n.getParentNode().get();
             String s = parent.toString();
             if (s.startsWith("{")) { // no variable
-                //System.out.println("parent1 = " + parent);
-                return new VisInfo.VariableInfo(null, n.toString().split("\\.", 2)[0].trim(), null, null, Operator.class, null);
+                String[] sp = n.toString().split("\\.", 2);
+                return new VisInfo.VariableInfo(null, sp[0], null, sp[1], Operator.class, null);
             } else if (s.contains("=")) { // we found a variable
                 String[] strings = s.split("=", 2);
                 if (strings[0].split(" ").length > 2) { // not correct equals sign
@@ -132,8 +132,7 @@ abstract class Visualiser {
         return null;
     }
 
-    @Nonnull
-    Pair<Class<? extends GraphOperator>, String> findOperator(String afterDot) {
+    Pair<Class<? extends GraphOperator>, String> getClassStringPair(String afterDot) {
         afterDot = afterDot.toLowerCase();
         Map<String, Pair<Class<? extends GraphOperator>, String>> codeToOpMap = parsedSPE.getCodeToOpMap();
         for (String key : codeToOpMap.keySet()) {
@@ -142,6 +141,11 @@ abstract class Visualiser {
             }
         }
         return new Pair<>(Operator.class, null);
+    }
+
+    @Nonnull
+    Pair<Class<? extends GraphOperator>, String> findOperator(String afterDot) {
+        return getClassStringPair(afterDot);
     }
 
     @Nullable

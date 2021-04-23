@@ -35,7 +35,8 @@
   "links": {
     "addSource": "source:SourceFunction",
     "map": "op:Map",
-    "filter": "op:Filter"
+    "filter": "op:Filter",
+    "addSink": "sink:SinkFunction"
   },
   "imports": {
     "base": [

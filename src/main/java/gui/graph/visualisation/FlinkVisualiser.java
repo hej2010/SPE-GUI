@@ -37,28 +37,29 @@ public class FlinkVisualiser extends Visualiser {
             }
         }
         for (Pair<Node<GraphOperator>, VisInfo> p : newList) {
-            updateIdentifier(p.getKey());
+            updateOperator(p.getKey());
         }
         return newList;
     }
 
-    private void updateIdentifier(Node<GraphOperator> n) {
+    private void updateOperator(Node<GraphOperator> n) {
         GraphOperator op = n.getItem();
         op.setIdentifier(op.getIdentifier().get().replace("?", "-"));
+        //VisInfo.VariableInfo var = op.getVisInfo().variableInfo;
+        //var.setVariableData(var.getCalledWithVariableName() + var.getVariableData());
         List<Node<GraphOperator>> successors = n.getSuccessors();
         for (Node<GraphOperator> o : successors) {
-            updateIdentifier(o);
+            updateOperator(o);
         }
     }
 
     @Nonnull
     private List<Node<GraphOperator>> getSuccessorsFrom(@Nonnull Pair<GraphOperator, VisInfo> p, List<Pair<Node<GraphOperator>, VisInfo>> list) {
-                /*
-                1. first run is for the source nodes, called with "calledWithVariable"
-                2. if they are saved to a variable they can be used later. If not it is just chaining
-                3. If saved to variable, check where it has been used later
-                 */
-
+       /*
+          1. first run is for the source nodes, called with "calledWithVariable"
+          2. if they are saved to a variable they can be used later. If not it is just chaining
+          3. If saved to variable, check where it has been used later
+        */
 
         List<Pair<GraphOperator, VisInfo>> successors = findSuccessorsFor(p, list);
         List<Node<GraphOperator>> successorsList = new LinkedList<>();
@@ -73,10 +74,10 @@ public class FlinkVisualiser extends Visualiser {
         final String savedInVariable = p.getValue().variableInfo.getVariableName();
         System.out.println("findSuccessorsFor: " + name + ", " + savedInVariable);
         /*
-        Successors are either:
-        1. chained directly, found in connectedList
-        2. called from the variable name
-         */
+         Successors are either:
+         1. chained directly, found in connectedList
+         2. called from the variable name
+        */
 
         String[] sp = name.split("\\?");
         List<String> connectedList = new LinkedList<>();
@@ -85,9 +86,8 @@ public class FlinkVisualiser extends Visualiser {
                 connectedList.add(o);
             }
         }
-        //System.out.println(name + " is connected with " + connectedList);
+
         if (connectedList.size() > 2) {
-            //connectedList.remove(name);
             int indexOf = connectedList.indexOf(name);
             if (indexOf + 1 < connectedList.size() && indexOf != -1) {
                 String cc = connectedList.get(indexOf + 1);
@@ -105,7 +105,6 @@ public class FlinkVisualiser extends Visualiser {
             for (Pair<Node<GraphOperator>, VisInfo> otherP : list) { // Check if someone calls "savedInVariable.abc()"
                 final GraphOperator otherOp = otherP.getKey().getItem();
                 final String otherIdent = otherOp.getIdentifier().get();
-                System.out.println(otherIdent + " is cointained in connectedList? " + connectedList.contains(otherIdent) + ": " + connectedList);
                 if (!otherIdent.equals(name)) {
                     String calledWith = otherP.getValue().variableInfo.getCalledWithVariableName();
                     //System.out.println(otherIdent + " is called with " + calledWith + "? " + savedInVariable);
@@ -114,16 +113,16 @@ public class FlinkVisualiser extends Visualiser {
                             if (((VisInfo.VisInfo2) otherP.getValue()).isFirstInChain()) {
                                 connectedList.add(otherIdent);
                                 successors.add(new Pair<>(otherOp, otherP.getValue()));
-                                System.out.println("add succ 1: " + otherIdent + ", " + otherP.getValue());
+                                System.out.println("add successor 1: " + otherIdent);
                             }
                         } else {
                             connectedList.add(otherIdent);
                             successors.add(new Pair<>(otherOp, otherP.getValue()));
-                            System.out.println("add succ 2: " + otherIdent + ", " + otherP.getValue());
+                            System.out.println("add successor 2: " + otherIdent);
                         }
-                    }else if (connectedList.contains(otherIdent)) {
+                    } else if (connectedList.contains(otherIdent)) {
                         successors.add(new Pair<>(otherOp, otherP.getValue()));
-                        System.out.println("add succ 3: " + otherIdent + ", " + otherP.getValue());
+                        System.out.println("add successor 3: " + otherIdent);
                     }
                 }
             }
@@ -138,7 +137,8 @@ public class FlinkVisualiser extends Visualiser {
     @Nonnull
     @Override
     VoidVisitorAdapter<Void> methodParser(List<Pair<Node<GraphOperator>, VisInfo>> methodData, String fileName, ClassOrInterfaceDeclaration c, MethodDeclaration method) {
-        final Map<String, Integer> nameToCount = new HashMap<>();
+        //final Map<String, Integer> nameToCount = new HashMap<>();
+        final Set<String> used = new HashSet<>();
         return new VoidVisitorAdapter<>() {
 
             /**
@@ -148,36 +148,30 @@ public class FlinkVisualiser extends Visualiser {
             public void visit(MethodCallExpr n, Void arg) {
                 //System.out.println(n.getScope() + " - " + n.getName());
 
-                //System.out.println("method call: " + n);
                 if (n.getScope().isEmpty()) {
-                    return; // method not of interest, not used in any connect() method call
+                    return; // method not of interest
                 }
 
-                //System.out.println("queryVariables: " + queryVariables);
                 String name = null;
                 for (String s : allConnectedOperators) {
-                    String[] sp = s.split("\\?");
-                    int i = Integer.parseInt(sp[1]);
-                    int old = nameToCount.getOrDefault(sp[0], -1);
-                    //System.out.println("parsed " + i + ":" + old + " for " + s);
-                    if (i <= old) {
-                        continue;
-                    }
-                    if (n.getNameAsString().startsWith(sp[0])) {
-                        //System.out.println("found " + s + " in loop");
-                        name = s;
-                        nameToCount.put(sp[0], i);
-                        break;
+                    if (!used.contains(s)) {
+                        String[] sp = s.split("\\?", 2);
+                        //int i = Integer.parseInt(sp[1]);
+                        //int old = nameToCount.getOrDefault(sp[0], -1);
+                        if (n.getNameAsString().startsWith(sp[0])) {
+                            name = s;
+                            //nameToCount.put(sp[0], i);
+                            used.add(s);
+                            break;
+                        }
                     }
                 }
-                //System.out.println("WORK WITH: " + name);
                 if (name == null) {
                     return;
                 }
-                final VisInfo.VariableInfo variableInfo = findLocalVariableInfo(n);
-                //System.out.println("got " + variableInfo);
-                final List<VisInfo.VariableInfo> fixedVarInfo = fixVarInfo(variableInfo);
-                //System.out.println("after fix: " + fixedVarInfo);
+
+                final List<VisInfo.VariableInfo> fixedVarInfo = fixVarInfo(findLocalVariableInfo(n));
+                System.out.println("fixed for " + name + ": " + fixedVarInfo);
 
                 Set<String> used = new HashSet<>();
                 boolean firstInChain = true;
@@ -190,7 +184,6 @@ public class FlinkVisualiser extends Visualiser {
                         if (name.contains("?" + sp[1] + "?") && v.getOperatorName() != null && s.startsWith(v.getOperatorName())) {
                             Operator operator = new Operator(s);
 
-                            //System.out.println("add " + s + ", " + v);
                             used.add(s);
                             VisInfo.VisInfo2 visInfo2 = new VisInfo.VisInfo2(fileName, c.getName().asString(), method.getNameAsString(), v, firstInChain);
                             operator.setVisInfo(visInfo2);
@@ -201,44 +194,6 @@ public class FlinkVisualiser extends Visualiser {
                     }
                 }
 
-                //final Set<VisInfo.VariableInfo> taken = new HashSet<>();
-                /*for (String s : allConnectedOperators) {
-                    if (variableInfo != null && fixedVarInfo.size() > 0) {
-                        String operatorName = fixedVarInfo.get(0).getOperatorName();
-                        System.out.println("opName: " + operatorName);
-                        if (operatorName != null && s.startsWith(operatorName)) {
-                            //System.out.println("Found " + s);
-                            String[] sp = s.split("\\?");
-                            if (sp[1].equals(String.valueOf(counter[0]))) {
-                                List<String> connectedList = new LinkedList<>();
-                                for (String o : allConnectedOperators) {
-                                    if (o.contains("?" + sp[1] + "?")) {
-                                        connectedList.add(o);
-                                    }
-                                }
-                                counter[0]++;
-                                for (VisInfo.VariableInfo v : fixedVarInfo) {
-                                    //if (taken.contains(v)) {
-                                    //    continue;
-                                    //}
-                                    final String opName = v.getOperatorName();
-                                    if (opName != null) {
-                                        for (String conn : connectedList) {
-                                            if (conn.startsWith(opName)) {
-                                                System.out.println("conn " + conn + " starts with " + opName + ", " + connectedList);
-                                                Operator operator = new Operator(conn);
-                                                methodData.add(new Pair<>(new Node<>(operator, null),
-                                                        new VisInfo(fileName, c.getName().asString(), method.getNameAsString(), v)));
-                                                //System.out.println("add operator " + conn + " with " + v);
-                                                //taken.add(v);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }*/
                 System.out.println("-------------");
             }
 
@@ -251,7 +206,6 @@ public class FlinkVisualiser extends Visualiser {
                     for (Pair<String, String> p : methods) {
                         l.add(new VisInfo.VariableInfo(variableInfo.getVariableName(), variableInfo.getCalledWithVariableName(), variableInfo.getVariableClass(), p.getValue(), findOperator(p.getKey()).getKey(), p.getKey()));
                     }
-                    //System.out.println("data, " + data);
                 }
                 return l;
             }
@@ -286,24 +240,7 @@ public class FlinkVisualiser extends Visualiser {
                     }
                 }
                 return s;
-            }
-
-            @Nonnull
-            private Pair<Class<? extends GraphOperator>, String> findOperator(String afterDot) {
-                afterDot = afterDot.toLowerCase();
-                Map<String, Pair<Class<? extends GraphOperator>, String>> codeToOpMap = parsedSPE.getCodeToOpMap();
-                for (String key : codeToOpMap.keySet()) {
-                    if (afterDot.startsWith(key.toLowerCase())) {
-                        return codeToOpMap.get(key);
-                    }
-                }
-                return new Pair<>(Operator.class, null);
-            }
-
-            @Nullable
-            private String getTypeFor(@Nonnull String variable) {
-                return variableClasses.get(variable.trim());
-            }
+            } // TODO it does not find operators without the result stored in a variable
         };
     }
 
@@ -321,14 +258,10 @@ public class FlinkVisualiser extends Visualiser {
             @Override
             public void visit(VariableDeclarator n, Void arg) {
                 super.visit(n, arg);
-                //System.out.println("decl: " + n.getType() + "-" + n.getNameAsString());
                 if (n.getType().asString().equals("StreamExecutionEnvironment")) {
-                    //System.out.println("found query with name: " + n.getNameAsString());
                     queryVariables.add(n.getNameAsString());
                 } else {
-                    //queryVariables.add(n.getNameAsString());
                     variableClasses.put(n.getNameAsString(), n.getType().asString());
-                    //System.out.println("put " + n.getNameAsString() + ";" + n.getType().asString());
                 }
             }
 
@@ -337,13 +270,10 @@ public class FlinkVisualiser extends Visualiser {
              */
             @Override
             public void visit(MethodCallExpr n, Void arg) {
-                //System.out.println(n.getScope() + " - " + n.getName() + ", " + isConnectMethodCall);
-
-                //System.out.println("n2: " + n.getNameAsString()); // save these (compare with json first), all before "------" are connected
+                System.out.println("n.getNameAsString() = " + n.getNameAsString());
                 connected2.add(0, n.getNameAsString()); // add at first pos as the last chained call is found first
                 super.visit(n, arg);
-                //System.out.println("n1: " + n.getNameAsString());
-                //System.out.println("connected2 = " + connected2);
+
                 if (connected2.size() > 1) {
                     for (int i = 0; i < connected2.size() - 1; i++) {
                         String from = connected2.get(i);
@@ -369,18 +299,19 @@ public class FlinkVisualiser extends Visualiser {
                             counter[1]++;
                         }
                     }
+                    counter[0]++;
                 } else if (connected2.size() == 1) {
                     String[] sp = n.toString().split("\\.", 2);
                     String to = connected2.get(0);
                     System.out.println("connected3: " + sp[0] + "->" + to);
                     addToConnectedMap(makeUnique(sp[0]), makeUnique(to));
-                    counter[1]++;
+                    counter[0]++;
                 }
 
                 System.out.println("--------------------");
                 connected2.clear();
                 f[0] = false;
-                counter[0]++;
+                //counter[0]++;
                 counter[1] = 0;
             }
 

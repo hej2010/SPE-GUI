@@ -4,6 +4,7 @@ import org.apache.flink.api.common.functions.FilterFunction;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.functions.sink.SinkFunction;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
 
 public class FlinkTest {
@@ -46,6 +47,20 @@ public class FlinkTest {
                 .map((MapFunction<Integer, Double>) value -> value * Math.PI)
                 .map((MapFunction<Double, Double>) value -> value * Math.PI)
                 .filter((FilterFunction<Double>) value -> value > 2);
+
+        /*stream.addSink(new SinkFunction<Double>() {
+            @Override
+            public void invoke(Double value, Context context) throws Exception {
+
+            }
+        });*/
+
+        sourceStream.addSink(new SinkFunction<>() {
+            @Override
+            public void invoke(String value, Context context) throws Exception {
+
+            }
+        });
 
         //query.execute();
 
