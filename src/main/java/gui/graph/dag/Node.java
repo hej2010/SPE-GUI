@@ -27,7 +27,7 @@ public class Node<T> {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder("Node{");
-        sb.append("item=").append(item.toString()).append(", successors=");
+        sb.append("item=").append(item).append(", successors=");
         for (Node<T> n : getSuccessors()) {
             sb.append(n.toString());
         }

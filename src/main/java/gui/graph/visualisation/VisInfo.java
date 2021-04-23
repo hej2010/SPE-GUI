@@ -42,10 +42,6 @@ public class VisInfo {
             this.operatorName = operatorName;
         }
 
-        VariableInfo(@Nullable String variableName, @Nullable String calledWithVariableName, @Nullable String variableClass, @Nullable String variableData, @Nullable String operatorName) {
-            this(variableName, calledWithVariableName, variableClass, variableData, Operator.class, operatorName);
-        }
-
         @Nullable
         public String getVariableData() {
             return variableData;
@@ -101,6 +97,7 @@ public class VisInfo {
                     "calledWithVariableName='" + calledWithVariableName + '\'' +
                     ", variableName='" + variableName + '\'' +
                     ", variableClass='" + variableClass + '\'' +
+                    ", variableData='" + variableData + '\'' +
                     ", operatorName='" + operatorName + '\'' +
                     ", savedInExistingVariable=" + savedInExistingVariable +
                     ", savedInNewVariable=" + savedInNewVariable +
@@ -151,11 +148,13 @@ public class VisInfo {
     public static class VisInfo2 extends VisInfo {
         private final boolean firstInChain;
         private boolean lastInChain;
+        private final String variableName;
 
-        VisInfo2(@NotNull String fileName, @NotNull String className, @NotNull String methodName, @NotNull VariableInfo variableInfo, boolean firstInChain, boolean lastInChain) {
+        VisInfo2(@NotNull String fileName, @NotNull String className, @NotNull String methodName, @NotNull VariableInfo variableInfo, boolean firstInChain, boolean lastInChain, String variableName) {
             super(fileName, className, methodName, variableInfo);
             this.firstInChain = firstInChain;
             this.lastInChain = lastInChain;
+            this.variableName = variableName;
         }
 
         public boolean isFirstInChain() {
@@ -168,6 +167,10 @@ public class VisInfo {
 
         public void setLastInChain(boolean lastInChain) {
             this.lastInChain = lastInChain;
+        }
+
+        public String getVariableName() {
+            return variableName;
         }
     }
 }
