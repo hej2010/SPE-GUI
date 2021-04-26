@@ -513,7 +513,7 @@ public class GUIController {
 
             File file = fileChooser.showOpenDialog(gui.getPrimaryStage());
             if (file != null) {
-                List<Pair<Node<GraphOperator>, VisInfo>> visResult = VisualisationManager.projectFromFile(file, parsedSPE);
+                List<Pair<Node<GraphOperator>, VisInfo>> visResult = VisualisationManager.visualiseFromFile(file, parsedSPE);
                 Set<String> addedIdentifiers = new HashSet<>();
                 List<GraphOperator> addedNodes = new LinkedList<>();
                 addNewTab(file.getName(), () -> {

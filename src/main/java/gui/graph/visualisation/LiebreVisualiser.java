@@ -20,7 +20,7 @@ import java.util.Set;
 
 public class LiebreVisualiser extends Visualiser {
 
-    public LiebreVisualiser(@Nonnull ParsedSPE parsedSPE) {
+    LiebreVisualiser(@Nonnull ParsedSPE parsedSPE) {
         super(parsedSPE);
     }
 

@@ -17,7 +17,7 @@ import java.util.*;
 
 public class FlinkVisualiser extends Visualiser {
 
-    public FlinkVisualiser(@Nonnull ParsedSPE parsedSPE) {
+    FlinkVisualiser(@Nonnull ParsedSPE parsedSPE) {
         super(parsedSPE);
     }
 

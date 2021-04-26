@@ -17,7 +17,7 @@ import java.util.List;
 
 public class VisualisationManager {
 
-    public static List<Pair<Node<GraphOperator>, VisInfo>> projectFromFile(File file, ParsedSPE parsedSPE) {
+    public static List<Pair<Node<GraphOperator>, VisInfo>> visualiseFromFile(File file, ParsedSPE parsedSPE) {
         List<Pair<Node<GraphOperator>, VisInfo>> list = new LinkedList<>();
 
         Visualiser vis = null;
