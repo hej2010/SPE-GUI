@@ -6,6 +6,7 @@ import component.sink.Sink;
 import component.source.Source;
 import gui.graph.data.GraphOperator;
 import gui.graph.data.GraphStream;
+import gui.metrics.IOnNewMetricDataListener;
 import gui.metrics.LiebreFileMetrics;
 import query.LiebreContext;
 import query.Query;
@@ -51,13 +52,21 @@ public class LiebreTestStats {
         ops.add(op2);
         ops.add(op3);
         List<GraphStream> streams = new LinkedList<>();
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                List<LiebreFileMetrics.FileData> metrics = new LiebreFileMetrics(Path.of("").toAbsolutePath().toFile(), streams, ops).getMetrics();
-                System.out.println("Got " + metrics.size() + ": " + metrics);
-            }
-        }, 5000, 5000);
+        boolean once = false;
+        if (once) {
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    List<LiebreFileMetrics.FileData> metrics = new LiebreFileMetrics(Path.of("").toAbsolutePath().toFile(), streams, ops).runOnceSync();
+                    System.out.println("Got " + metrics.size() + ": " + metrics);
+                }
+            }, 5000, 5000);
+        } else {
+            new LiebreFileMetrics(Path.of("").toAbsolutePath().toFile(), streams, ops, fileData -> {
+                //
+                System.out.println("received " + fileData);
+            }).runAndListenAsync(false);
+        }
 
         query.connect(src, mOp).connect(mOp, sink);
 
