@@ -7,6 +7,8 @@ import cern.extjfx.chart.plugins.DataPointTooltip;
 import gui.graph.dag.Node;
 import gui.graph.data.GraphObject;
 import gui.graph.data.GraphOperator;
+import gui.graph.data.GraphStream;
+import gui.graph.data.Stream;
 import gui.graph.visualisation.VisInfo;
 import gui.metrics.LiebreFileMetrics;
 import gui.spe.ParsedSPE;
@@ -23,6 +25,7 @@ import javafx.util.Pair;
 
 import javax.annotation.Nonnull;
 import java.nio.file.Path;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -84,10 +87,25 @@ public class MetricsController {
 
     private List<GraphObject> getList() {
         List<GraphObject> ops = new LinkedList<>();
+        System.out.println("vis: " + visResult.size());
         for (Pair<Node<GraphOperator>, VisInfo> p : visResult) {
             ops.add(p.getKey().getItem());
         }
+        ops.addAll(getConnected());
         return ops;
+    }
+
+    private List<GraphStream> getConnected() {
+        List<GraphStream> list = new LinkedList<>();
+        for (Pair<Node<GraphOperator>, VisInfo> p : visResult) {
+            for (Node<GraphOperator> n : p.getKey().getSuccessors()) {
+                Stream s = new Stream(p.getKey().getItem(), n.getItem());
+                if (!list.contains(s)) {
+                    list.add(s);
+                }
+            }
+        }
+        return list;
     }
 
     private LineChart<Number, Number> getLineChart() {
