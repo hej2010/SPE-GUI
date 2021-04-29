@@ -26,6 +26,7 @@
     "addOperator": "op:BaseOperator1In",
     "addOperator2n": "op:BaseOperator2In",
     "addRouterOperator": "op:Router",
+    "addAggregateOperator": "op:Aggregate",
     "addTextFileSource": "source:TextFileSource",
     "addBaseSink": "sink:BaseSink"
   },
@@ -51,6 +52,10 @@
     ],
     "Router": [
       "component.operator.router.RouterOperator"
+    ],
+    "Aggregate": [
+      "component.operator.in1.aggregate.BaseTimeBasedSingleWindow",
+      "component.operator.in1.aggregate.TimeBasedSingleWindow"
     ],
     "BaseSource": [
       "component.source.Source"
@@ -148,6 +153,20 @@
           "@IN1"
         ],
         "output": [
+        ],
+        "identifier": "@ID"
+      }
+    },
+    "Aggregate": {
+      "before": "Operator<@IN1, @OUT1> @ID = q.addAggregateOperator(\"@ID\", ",
+      "middle": "null, // BaseTimeBasedSingleWindow\n60, // window size\n20, // window slide",
+      "after": ");",
+      "placeholders": {
+        "input": [
+          "@IN1"
+        ],
+        "output": [
+          "@OUT1"
         ],
         "identifier": "@ID"
       }

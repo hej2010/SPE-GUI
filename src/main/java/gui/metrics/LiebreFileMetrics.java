@@ -26,13 +26,13 @@ public class LiebreFileMetrics {
     private final IOnNewMetricDataListener listener;
     private final List<Tailer> tailers;
 
-    public LiebreFileMetrics(@Nonnull File dir, @Nonnull List<GraphOperator> graphObjects, @Nonnull IOnNewMetricDataListener listener) {
-        if (graphObjects.isEmpty()) {
-            throw new IllegalStateException("List is null!");
-        }
+    public LiebreFileMetrics(@Nonnull File dir, @Nonnull List<GraphObject> graphObjects, @Nonnull IOnNewMetricDataListener listener) {
         this.dir = dir;
         this.graphObjects = new LinkedList<>();
         this.graphObjects.addAll(graphObjects);
+        if (this.graphObjects.isEmpty()) {
+            throw new IllegalStateException("List is null!");
+        }
         this.executorService = Executors.newFixedThreadPool(Math.min(16, graphObjects.size() * 2));
         this.listener = listener;
         this.tailers = new LinkedList<>();

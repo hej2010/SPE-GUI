@@ -1,13 +1,9 @@
 package gui.testing;
 
-import common.metrics.Metric;
 import common.metrics.Metrics;
 import component.operator.Operator;
 import component.sink.Sink;
 import component.source.Source;
-import experimental.provenance.GenealogAggregateWindow;
-import gui.graph.data.GraphOperator;
-import gui.graph.data.GraphStream;
 import query.LiebreContext;
 import query.Query;
 
@@ -15,7 +11,8 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Random;
 
 public class LiebreTestStats {
     public static void main(String[] args) {
@@ -40,34 +37,6 @@ public class LiebreTestStats {
         Sink<Double> sink = query.addBaseSink("sadasdas3", myTuple -> {
             //System.out.println("tuple is " + myTuple);
         });
-
-        Timer timer = new Timer();
-        List<GraphOperator> ops = new LinkedList<>();
-        gui.graph.data.Operator op1 = new gui.graph.data.Operator();
-        gui.graph.data.Operator op2 = new gui.graph.data.Operator();
-        gui.graph.data.Operator op3 = new gui.graph.data.Operator();
-        op1.setIdentifier("mySource");
-        op2.setIdentifier("myMap");
-        op3.setIdentifier("sadasdas3");
-        ops.add(op1);
-        ops.add(op2);
-        ops.add(op3);
-        List<GraphStream> streams = new LinkedList<>();
-        boolean once = false;
-        /*if (once) {
-            timer.schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    List<LiebreFileMetrics.FileData> metrics = new LiebreFileMetrics(Path.of("").toAbsolutePath().toFile(), ops).runOnceSync();
-                    System.out.println("Got " + metrics.size() + ": " + metrics);
-                }
-            }, 5000, 5000);
-        } else {
-            new LiebreFileMetrics(Path.of("").toAbsolutePath().toFile(), ops, fileData -> {
-                //
-                System.out.println("received " + fileData);
-            }).runAndListenAsync(false);
-        }*/
 
         query.connect(src, mOp).connect(mOp, sink);
 

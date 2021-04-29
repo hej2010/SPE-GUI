@@ -5,6 +5,7 @@ import cern.extjfx.chart.XYChartPane;
 import cern.extjfx.chart.plugins.CrosshairIndicator;
 import cern.extjfx.chart.plugins.DataPointTooltip;
 import gui.graph.dag.Node;
+import gui.graph.data.GraphObject;
 import gui.graph.data.GraphOperator;
 import gui.graph.visualisation.VisInfo;
 import gui.metrics.LiebreFileMetrics;
@@ -81,8 +82,8 @@ public class MetricsController {
         liebreFileMetrics.runAndListenAsync(true);
     }
 
-    private List<GraphOperator> getList() {
-        List<GraphOperator> ops = new LinkedList<>();
+    private List<GraphObject> getList() {
+        List<GraphObject> ops = new LinkedList<>();
         for (Pair<Node<GraphOperator>, VisInfo> p : visResult) {
             ops.add(p.getKey().getItem());
         }
