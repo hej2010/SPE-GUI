@@ -21,6 +21,7 @@ import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -29,10 +30,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
-import javafx.stage.DirectoryChooser;
-import javafx.stage.FileChooser;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
+import javafx.stage.*;
 import javafx.util.Duration;
 import javafx.util.Pair;
 import org.json.JSONObject;
@@ -643,6 +641,7 @@ public class GUIController {
                 stage.setTitle("Metrics");
                 stage.setScene(scene);
                 stage.show();
+                stage.setOnCloseRequest(event1 -> controller.closeStage());
                 controller.setStage(stage);
 
                 assert selectedTab.getVisResult() != null;

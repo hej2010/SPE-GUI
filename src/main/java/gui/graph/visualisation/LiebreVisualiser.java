@@ -89,6 +89,9 @@ public class LiebreVisualiser extends Visualiser {
                 final String variableName = variableInfo == null ? null : variableInfo.getVariableName();
                 if (variableName != null && allConnectedOperators.contains(variableName)) {
                     GraphOperator op = new Operator(variableName);
+                    if (variableInfo.getVariableData() != null) {
+                        op.setIdentifier2(variableInfo.getVariableData().split("\"", 3)[1]);
+                    }
                     operators.put(variableName, op);
                     methodData.add(new Pair<>(new Node<>(op, null),
                             new VisInfo(fileName, c.getName().asString(), method.getNameAsString(), variableInfo)));

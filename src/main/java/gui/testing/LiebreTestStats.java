@@ -1,13 +1,13 @@
 package gui.testing;
 
+import common.metrics.Metric;
 import common.metrics.Metrics;
 import component.operator.Operator;
 import component.sink.Sink;
 import component.source.Source;
+import experimental.provenance.GenealogAggregateWindow;
 import gui.graph.data.GraphOperator;
 import gui.graph.data.GraphStream;
-import gui.metrics.IOnNewMetricDataListener;
-import gui.metrics.LiebreFileMetrics;
 import query.LiebreContext;
 import query.Query;
 
@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.nio.file.Path;
 import java.util.*;
 
 public class LiebreTestStats {
@@ -23,6 +22,8 @@ public class LiebreTestStats {
 
         LiebreContext.setOperatorMetrics(Metrics.file("."));
         LiebreContext.setStreamMetrics(Metrics.file("."));
+        //LiebreContext.setUserMetrics(Metrics.file("."));
+        //Metric m = LiebreContext.userMetrics().newAverageMetric("sadasdas3", "abc");
 
         Query query = new Query();
         Random random = new Random();
@@ -53,20 +54,20 @@ public class LiebreTestStats {
         ops.add(op3);
         List<GraphStream> streams = new LinkedList<>();
         boolean once = false;
-        if (once) {
+        /*if (once) {
             timer.schedule(new TimerTask() {
                 @Override
                 public void run() {
-                    List<LiebreFileMetrics.FileData> metrics = new LiebreFileMetrics(Path.of("").toAbsolutePath().toFile(), streams, ops).runOnceSync();
+                    List<LiebreFileMetrics.FileData> metrics = new LiebreFileMetrics(Path.of("").toAbsolutePath().toFile(), ops).runOnceSync();
                     System.out.println("Got " + metrics.size() + ": " + metrics);
                 }
             }, 5000, 5000);
         } else {
-            new LiebreFileMetrics(Path.of("").toAbsolutePath().toFile(), streams, ops, fileData -> {
+            new LiebreFileMetrics(Path.of("").toAbsolutePath().toFile(), ops, fileData -> {
                 //
                 System.out.println("received " + fileData);
             }).runAndListenAsync(false);
-        }
+        }*/
 
         query.connect(src, mOp).connect(mOp, sink);
 

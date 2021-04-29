@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.Set;
 
 public abstract class GraphOperator extends GraphObject implements JsonExported {
-    protected StringData identifier, prevIdentifier;
+    protected StringData identifier, identifier2, prevIdentifier;
     private int selectionIndex;
     private final Map<String, ParsedOperator> operatorsMap;
     private ParsedOperator currentOperator;
@@ -24,6 +24,7 @@ public abstract class GraphOperator extends GraphObject implements JsonExported 
     protected GraphOperator(String identifier, boolean addIdToIdentifier) {
         super();
         this.identifier = new StringData(identifier + (addIdToIdentifier ? getId() : ""));
+        this.identifier2 = new StringData(this.identifier.get());
         this.prevIdentifier = null;
         this.selectionIndex = -1;
         this.operatorsMap = new HashMap<>();
@@ -72,6 +73,14 @@ public abstract class GraphOperator extends GraphObject implements JsonExported 
 
     public void setPrevIdentifier(@Nullable StringData stringData) {
         this.prevIdentifier = stringData;
+    }
+
+    public StringData getIdentifier2() {
+        return identifier2;
+    }
+
+    public void setIdentifier2(String identifier2) {
+        this.identifier2 = new StringData(identifier2);
     }
 
     @Override

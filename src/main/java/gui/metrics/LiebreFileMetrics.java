@@ -4,6 +4,9 @@ import gui.graph.data.GraphObject;
 import gui.graph.data.GraphOperator;
 import gui.graph.data.GraphStream;
 import gui.utils.Files;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.scene.chart.XYChart;
 import javafx.util.Pair;
 import org.apache.commons.io.input.Tailer;
 import org.apache.commons.io.input.TailerListener;
@@ -11,6 +14,7 @@ import org.apache.commons.io.input.TailerListenerAdapter;
 
 import javax.annotation.Nonnull;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.*;
@@ -22,21 +26,22 @@ public class LiebreFileMetrics {
     private final IOnNewMetricDataListener listener;
     private final List<Tailer> tailers;
 
-    public LiebreFileMetrics(@Nonnull File dir, @Nonnull List<GraphStream> streams, @Nonnull List<GraphOperator> operators, @Nonnull IOnNewMetricDataListener listener) {
+    public LiebreFileMetrics(@Nonnull File dir, @Nonnull List<GraphOperator> graphObjects, @Nonnull IOnNewMetricDataListener listener) {
+        if (graphObjects.isEmpty()) {
+            throw new IllegalStateException("List is null!");
+        }
         this.dir = dir;
         this.graphObjects = new LinkedList<>();
-        this.graphObjects.addAll(streams);
-        this.graphObjects.addAll(operators);
+        this.graphObjects.addAll(graphObjects);
         this.executorService = Executors.newFixedThreadPool(Math.min(16, graphObjects.size() * 2));
         this.listener = listener;
         this.tailers = new LinkedList<>();
     }
 
-    public LiebreFileMetrics(@Nonnull File dir, @Nonnull List<GraphStream> streams, @Nonnull List<GraphOperator> operators) {
+    public LiebreFileMetrics(@Nonnull File dir, @Nonnull List<GraphOperator> graphObjects) {
         this.dir = dir;
         this.graphObjects = new LinkedList<>();
-        this.graphObjects.addAll(streams);
-        this.graphObjects.addAll(operators);
+        this.graphObjects.addAll(graphObjects);
         this.executorService = Executors.newFixedThreadPool(Math.min(16, graphObjects.size() * 2));
         this.listener = null;
         this.tailers = new LinkedList<>();
@@ -92,12 +97,12 @@ public class LiebreFileMetrics {
         for (GraphObject op : graphObjects) {
             if (op instanceof GraphStream) {
                 GraphStream stream = (GraphStream) op;
-                String file = stream.getFrom().getIdentifier().get() + "_" + stream.getTo().getIdentifier().get();
+                String file = stream.getFrom().getIdentifier2().get() + "_" + stream.getTo().getIdentifier2().get();
                 filesToRead.add(new File(dir, file + ".IN.csv"));
                 filesToRead.add(new File(dir, file + ".OUT.csv"));
             } else {
                 GraphOperator operator = (GraphOperator) op;
-                String file = ((GraphOperator) op).getIdentifier().get();
+                String file = operator.getIdentifier2().get();
                 filesToRead.add(new File(dir, file + ".EXEC.csv"));
                 filesToRead.add(new File(dir, file + ".RATE.csv"));
             }
@@ -126,13 +131,13 @@ public class LiebreFileMetrics {
             if (op instanceof GraphStream) {
                 GraphStream stream = (GraphStream) op;
                 //filesToRead.add(stream.);
-                String file = stream.getFrom().getIdentifier().get() + "_" + stream.getTo().getIdentifier().get();
+                String file = stream.getFrom().getIdentifier2().get() + "_" + stream.getTo().getIdentifier().get();
                 filesToRead.add(file + ".IN.csv");
                 filesToRead.add(file + ".OUT.csv");
             } else {
                 GraphOperator operator = (GraphOperator) op;
-                filesToRead.add(operator.getIdentifier().get() + ".EXEC.csv");
-                filesToRead.add(operator.getIdentifier().get() + ".RATE.csv");
+                filesToRead.add(operator.getIdentifier2().get() + ".EXEC.csv");
+                filesToRead.add(operator.getIdentifier2().get() + ".RATE.csv");
             }
             for (String s : filesToRead) {
                 result.add(new FileData(extractData(Files.readFile(dir.getPath() + File.separator + s)), s));
@@ -170,6 +175,7 @@ public class LiebreFileMetrics {
 
         @Override
         public void handle(Exception ex) {
+            System.out.println("got error " + ex);
             if (ex != null) {
                 ex.printStackTrace();
             }
@@ -200,6 +206,15 @@ public class LiebreFileMetrics {
                     ", fileName='" + fileName + '\'' +
                     '}';
         }
+    }
+
+    public static List<XYChart.Data<Number, Number>> toChartData(FileData datapoints) {
+        List<XYChart.Data<Number, Number>> list = new ArrayList<>();
+        for (Pair<Long, String> v : datapoints.getValues()) {
+            list.add(new XYChart.Data<>(v.getKey(), Double.valueOf(v.getValue())));
+            System.out.println("add " + v.getKey() + ", " + Double.valueOf(v.getValue()));
+        }
+        return list;
     }
 
 }
