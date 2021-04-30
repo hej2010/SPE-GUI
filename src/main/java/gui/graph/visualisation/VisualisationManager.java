@@ -20,13 +20,13 @@ public class VisualisationManager {
     public static List<Pair<Node<GraphOperator>, VisInfo>> visualiseFromFile(File file, ParsedSPE parsedSPE) {
         List<Pair<Node<GraphOperator>, VisInfo>> list = new LinkedList<>();
 
-        Visualiser vis = null;
+        Visualiser visualiser = null;
         if (parsedSPE instanceof ParsedLiebreSPE) {
-            vis = new LiebreVisualiser(parsedSPE);
+            visualiser = new LiebreVisualiser(parsedSPE);
         } else if (parsedSPE instanceof ParsedFlinkSPE) {
-            vis = new FlinkVisualiser(parsedSPE);
+            visualiser = new FlinkVisualiser(parsedSPE);
         }
-        if (vis == null) {
+        if (visualiser == null) {
             throw new IllegalStateException("Not implemented");
         }
 
@@ -40,13 +40,13 @@ public class VisualisationManager {
             return list;
         }
 
-        List<ClassOrInterfaceDeclaration> classes = vis.findClasses(cu);
+        List<ClassOrInterfaceDeclaration> classes = visualiser.findClasses(cu);
 
         for (ClassOrInterfaceDeclaration c : classes) {
-            list.addAll(vis.getClassData(file.getName(), c));
+            list.addAll(visualiser.getClassData(file.getName(), c));
         }
 
-        list = vis.fixList(list);
+        list = visualiser.fixList(list);
 
         return list;
     }

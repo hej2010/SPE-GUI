@@ -92,7 +92,7 @@ public class LiebreFileMetrics {
     }
 
     @Nonnull
-    private List<File> getFilesToRead() {
+    public List<File> getFilesToRead() {
         List<File> filesToRead = new LinkedList<>();
         for (GraphObject op : graphObjects) {
             if (op instanceof GraphStream) {
@@ -212,7 +212,7 @@ public class LiebreFileMetrics {
         List<XYChart.Data<Number, Number>> list = new ArrayList<>();
         for (Pair<Long, String> v : datapoints.getValues()) {
             list.add(new XYChart.Data<>(v.getKey(), Double.valueOf(v.getValue())));
-            System.out.println("add " + v.getKey() + ", " + Double.valueOf(v.getValue()));
+            //System.out.println("add " + v.getKey() + ", " + Double.valueOf(v.getValue()));
         }
         return list;
     }
