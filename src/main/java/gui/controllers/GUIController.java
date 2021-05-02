@@ -21,7 +21,6 @@ import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.event.Event;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -30,7 +29,10 @@ import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
-import javafx.stage.*;
+import javafx.stage.DirectoryChooser;
+import javafx.stage.FileChooser;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import javafx.util.Duration;
 import javafx.util.Pair;
 import org.json.JSONObject;
@@ -355,7 +357,10 @@ public class GUIController {
         if (vertex != null) {
             SmartStylableNode node = selectedTab.getGraphView().getStylableVertex(vertex);
             if (node != null) {
-                node.setStyleClass(selected ? "vertex-selected" : "vertex");
+                node.setStyleClass(selected ?
+                        "vertex-selected" : (vertex instanceof SourceOperator ?
+                        "vertex-source" : (vertex instanceof SinkOperator ?
+                        "vertex-sink" : "vertex")));
             }
         }
     }
@@ -414,18 +419,9 @@ public class GUIController {
     }
 
     private void initButtonListeners(GUI gui) {
-        btnAddOp.setOnAction(event -> {
-            selectedTab.getGraph().insertVertex(new Operator());
-            update();
-        });
-        btnAddSource.setOnAction(event -> {
-            selectedTab.getGraph().insertVertex(new SourceOperator());
-            update();
-        });
-        btnAddSink.setOnAction(event -> {
-            selectedTab.getGraph().insertVertex(new SinkOperator());
-            update();
-        });
+        btnAddOp.setOnAction(event -> insertVertexAndSetStyle(new Operator()));
+        btnAddSource.setOnAction(event -> insertVertexAndSetStyle(new SourceOperator()));
+        btnAddSink.setOnAction(event -> insertVertexAndSetStyle(new SinkOperator()));
         btnConnect.setOnAction(event -> {
             synchronized (selectedOps) {
                 GraphOperator from = selectedOps[0];
@@ -652,6 +648,12 @@ public class GUIController {
         });
     }
 
+    private void insertVertexAndSetStyle(GraphOperator operator) {
+        selectedTab.getGraph().insertVertex(operator);
+        update();
+        Platform.runLater(() -> setVertexSelectedStyle(false, operator));
+    }
+
     private Double getCPUUsagePercentage() {
         OperatingSystemMXBean osBean = ManagementFactory.getPlatformMXBean(OperatingSystemMXBean.class);
         // What % CPU load this current JVM is taking, from 0.0-1.0
@@ -754,7 +756,7 @@ public class GUIController {
         for (Node<GraphOperator> node : opsList) {
             GraphOperator op = node.getItem();
             if (!addedIdentifiers.contains(op.getIdentifier().get())) {
-                selectedTab.getGraph().insertVertex(op);
+                insertVertexAndSetStyle(op);
                 addedIdentifiers.add(op.getIdentifier().get());
                 addedNodes.add(op);
 

@@ -33,6 +33,9 @@ public class LiebreVisualiser extends Visualiser {
             boolean isParent = false;
             for (String from : connected.keySet()) {
                 if (from.equals(op.getItem().getIdentifier().get())) { // this node has output streams
+                    if (op.getItem().getCurrentOperator() != null) { // TODO find operator (sink/src/regular and set)
+                        System.out.println("op is " + op.getItem().getCurrentOperator().getType());
+                    }
                     newList.add(new Pair<>(new Node<>(op.getItem(), getSuccessorsFrom(from)), p.getValue()));
                     isParent = true;
                     break;

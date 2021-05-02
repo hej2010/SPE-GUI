@@ -7,6 +7,7 @@ public class Main {
         GUI.main(args);
         //MetricsApp.main(args);
         //SmartGraphTest.main(args);
+        //FxmlApp.main(args);
     }
 
 }

@@ -21,6 +21,7 @@
     ]
   },
   "links": {
+    "addBaseSource": "source:BaseSource",
     "addMapOperator": "op:Map",
     "addFilterOperator": "op:Filter",
     "addOperator": "op:BaseOperator1In",

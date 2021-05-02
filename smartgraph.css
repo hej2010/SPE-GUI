@@ -13,6 +13,27 @@ STYLESHEET FOR JAVAFXGRAPH VISUALIZATION
     -fx-fill: #B1DFF7;
 }
 
+.vertex-source {
+    -fx-stroke-width: 3;
+    -fx-stroke: #3cb13f;
+    -fx-stroke-type: inside; /* you should keep this if using arrows */
+    -fx-fill: #bcf7b1;
+}
+
+.vertex-sink {
+    -fx-stroke-width: 3;
+    -fx-stroke: #f17e61;
+    -fx-stroke-type: inside; /* you should keep this if using arrows */
+    -fx-fill: #f7c1b1;
+}
+
+.vertex-selected {
+    -fx-stroke-width: 3;
+    -fx-stroke: #43ac82;
+    -fx-stroke-type: inside; /* you should keep this if using arrows */
+    -fx-fill: #93d4ea;
+}
+
 .vertex-label {
     -fx-font: bold 8pt "sans-serif";
 }
@@ -21,6 +42,14 @@ STYLESHEET FOR JAVAFXGRAPH VISUALIZATION
     -fx-stroke-width: 2;
     -fx-stroke: #FF6D66;
     -fx-stroke-dash-array: 2 5 2 5; /* remove for clean edges */
+    -fx-fill: transparent; /*important for curved edges */
+    -fx-stroke-line-cap: round;
+    -fx-opacity: 0.8;
+}
+
+.edge-selected {
+    -fx-stroke-width: 4;
+    -fx-stroke: #ff443d;
     -fx-fill: transparent; /*important for curved edges */
     -fx-stroke-line-cap: round;
     -fx-opacity: 0.8;
@@ -45,17 +74,3 @@ STYLESHEET FOR JAVAFXGRAPH VISUALIZATION
     -fx-fill: yellowgreen;
 }
 
-.edge-selected {
-    -fx-stroke-width: 4;
-    -fx-stroke: #ff443d;
-    -fx-fill: transparent; /*important for curved edges */
-    -fx-stroke-line-cap: round;
-    -fx-opacity: 0.8;
-}
-
-.vertex-selected {
-    -fx-stroke-width: 3;
-    -fx-stroke: #43ac82;
-    -fx-stroke-type: inside; /* you should keep this if using arrows */
-    -fx-fill: #93d4ea;
-}

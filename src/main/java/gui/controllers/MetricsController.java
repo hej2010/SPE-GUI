@@ -179,23 +179,23 @@ public class MetricsController implements IOnNewMetricDataListener {
 
         private void onNewData(LiebreFileMetrics.FileData fileData) {
             Platform.runLater(() -> {
-                        if (!map.get(fileData.getFileName().split("\\.", 2)[0]).getKey().addAll(LiebreFileMetrics.toChartData(fileData))) {
-                            System.out.println("DID NOT CHANGE!");
-                        }
-                        for (Pair<Long, String> p : fileData.getValues()) {
-                            double v = Double.parseDouble(p.getValue());
-                            //System.out.println("parsed " + v);
-                            if (v < lowest) {
-                                lowest = v;
-                            } else if (v > highest) {
-                                highest = v;
+                        if (!map.get(fileData.getFileName().split("\\.", 2)[0]).getKey()
+                                .addAll(LiebreFileMetrics.toChartData(fileData))) { // TODO displaying the data increases CPU usage 10x ..
+                            for (Pair<Long, String> p : fileData.getValues()) {
+                                double v = Double.parseDouble(p.getValue());
+                                //System.out.println("parsed " + v);
+                                if (v < lowest) {
+                                    lowest = v;
+                                } else if (v > highest) {
+                                    highest = v;
+                                }
                             }
+                            double diff = (highest - lowest) / 10;
+                            ((NumericAxis) chartPane.getChart().getXAxis()).setUpperBound(System.currentTimeMillis() / 1000.0 + 1);
+                            ((NumericAxis) chartPane.getChart().getXAxis()).setLowerBound(start);
+                            ((NumericAxis) chartPane.getChart().getYAxis()).setLowerBound(lowest - diff);
+                            ((NumericAxis) chartPane.getChart().getYAxis()).setUpperBound(highest + diff);
                         }
-                        double diff = (highest - lowest) / 10;
-                        ((NumericAxis) chartPane.getChart().getXAxis()).setUpperBound(System.currentTimeMillis() / 1000.0 + 1);
-                        ((NumericAxis) chartPane.getChart().getXAxis()).setLowerBound(start);
-                        ((NumericAxis) chartPane.getChart().getYAxis()).setLowerBound(lowest - diff);
-                        ((NumericAxis) chartPane.getChart().getYAxis()).setUpperBound(highest + diff);
                     }
             );
         }
