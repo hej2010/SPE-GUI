@@ -28,7 +28,7 @@ public class MetricsController implements IOnNewMetricDataListener {
 
     private ParsedSPE parsedSPE;
     private List<Pair<Node<GraphOperator>, VisInfo>> visResult;
-    private LiebreFileMetrics liebreFileMetrics;
+    private LiebreMetrics liebreMetrics;
     private List<IMetricsTab> metricsTabs;
 
     public void init(@Nonnull ParsedSPE parsedSPE, @Nonnull List<Pair<Node<GraphOperator>, VisInfo>> visResult) {
@@ -37,16 +37,16 @@ public class MetricsController implements IOnNewMetricDataListener {
 
         final List<GraphObject> graphObjects = getAllGraphObjects();
 
-        this.liebreFileMetrics = new LiebreFileMetrics(Path.of("").toAbsolutePath().toFile(), graphObjects, this);
+        this.liebreMetrics = new LiebreMetrics(Path.of("").toAbsolutePath().toFile(), graphObjects, this);
 
-        final List<File> filesToRead = liebreFileMetrics.getFilesToRead();
+        final List<File> filesToRead = liebreMetrics.getFilesToRead();
         try {
             setUpTabs(filesToRead);
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        liebreFileMetrics.runAndListenAsync(true);
+        liebreMetrics.runAndListenAsync(true);
     }
 
     private void setUpTabs(List<File> filesToRead) throws IOException {
@@ -121,14 +121,14 @@ public class MetricsController implements IOnNewMetricDataListener {
      * Closes the stage of this view
      */
     public void closeStage() {
-        liebreFileMetrics.stop();
+        liebreMetrics.stop();
         if (stage != null) {
             stage.close();
         }
     }
 
     @Override
-    public void onNewData(LiebreFileMetrics.FileData fileData) {
+    public void onNewData(LiebreMetrics.FileData fileData) {
         String[] names = fileData.getFileName().split("\\.", 2);
         //System.out.println("received " + fileData);
         IMetricsTab tab = null;

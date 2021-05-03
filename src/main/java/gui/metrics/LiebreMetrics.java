@@ -4,29 +4,27 @@ import gui.graph.data.GraphObject;
 import gui.graph.data.GraphOperator;
 import gui.graph.data.GraphStream;
 import gui.utils.Files;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.scene.chart.XYChart;
-import javafx.util.Pair;
 import org.apache.commons.io.input.Tailer;
 import org.apache.commons.io.input.TailerListener;
 import org.apache.commons.io.input.TailerListenerAdapter;
 
 import javax.annotation.Nonnull;
 import java.io.File;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.*;
 
-public class LiebreFileMetrics {
+public class LiebreMetrics {
+    public static final String[] CSV_NAMES = {"count", "max", "mean", "min", "stddev", "p50", "p75", "p95", "p98", "p99", "p999"};
     private final ExecutorService executorService;
     private final File dir;
     private final List<GraphObject> graphObjects;
     private final IOnNewMetricDataListener listener;
     private final List<Tailer> tailers;
 
-    public LiebreFileMetrics(@Nonnull File dir, @Nonnull List<GraphObject> graphObjects, @Nonnull IOnNewMetricDataListener listener) {
+    public LiebreMetrics(@Nonnull File dir, @Nonnull List<GraphObject> graphObjects, @Nonnull IOnNewMetricDataListener listener) {
         this.dir = dir;
         this.graphObjects = new LinkedList<>();
         this.graphObjects.addAll(graphObjects);
@@ -38,7 +36,7 @@ public class LiebreFileMetrics {
         this.tailers = new LinkedList<>();
     }
 
-    public LiebreFileMetrics(@Nonnull File dir, @Nonnull List<GraphOperator> graphObjects) {
+    public LiebreMetrics(@Nonnull File dir, @Nonnull List<GraphOperator> graphObjects) {
         this.dir = dir;
         this.graphObjects = new LinkedList<>();
         this.graphObjects.addAll(graphObjects);
@@ -147,15 +145,29 @@ public class LiebreFileMetrics {
         };
     }
 
-    private static List<Pair<Long, String>> extractData(String data) {
-        List<Pair<Long, String>> values = new LinkedList<>();
+    private static List<MetricsData> extractData(String data) {
+        List<MetricsData> values = new LinkedList<>();
         for (String line : data.split("\n")) {
             String[] d = line.split(",");
             if (d.length == 2) {
-                values.add(new Pair<>(Long.parseLong(d[0].trim()), d[1]));
+                values.add(new MetricsDataSingle(Long.parseLong(d[0]), Integer.parseInt(d[1])));
+            } else if (d.length == 12) {
+                values.add(new MetricsDataLiebre(Long.parseLong(d[0]), getValues(d)));
             }
         }
         return values;
+    }
+
+    private static Map<String, Integer> getValues(String[] d) {
+        Map<String, Integer> map = new HashMap<>();
+        for (int i = 0; i < d.length; i++) {
+            map.put(CSV_NAMES[i], Integer.valueOf(d[i]));
+        }
+        return map;
+    }
+
+    private static int d(String[] d, int i) {
+        return Integer.parseInt(d[i]);
     }
 
     private static class MyTailListener extends TailerListenerAdapter {
@@ -183,15 +195,15 @@ public class LiebreFileMetrics {
     }
 
     public static class FileData {
-        private final List<Pair<Long, String>> values;
+        private final List<MetricsData> values;
         private final String fileName;
 
-        private FileData(List<Pair<Long, String>> values, String fileName) {
+        private FileData(List<MetricsData> values, String fileName) {
             this.values = values;
             this.fileName = fileName;
         }
 
-        public List<Pair<Long, String>> getValues() {
+        public List<MetricsData> getValues() {
             return values;
         }
 
@@ -206,15 +218,6 @@ public class LiebreFileMetrics {
                     ", fileName='" + fileName + '\'' +
                     '}';
         }
-    }
-
-    public static List<XYChart.Data<Number, Number>> toChartData(FileData datapoints) {
-        List<XYChart.Data<Number, Number>> list = new ArrayList<>();
-        for (Pair<Long, String> v : datapoints.getValues()) {
-            list.add(new XYChart.Data<>(v.getKey(), Double.valueOf(v.getValue())));
-            //System.out.println("add " + v.getKey() + ", " + Double.valueOf(v.getValue()));
-        }
-        return list;
     }
 
 }

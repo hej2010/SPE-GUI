@@ -49,11 +49,10 @@ public class LiebreMetricsCsvReporterTab implements IMetricsTab {
     }
 
     private List<String> getSeries() {
-        String[] s = {"count", "max", "mean", "min", "stddev", "p50", "p75", "p95", "p98", "p99", "p999"};
-        return Arrays.asList(s);
+        return Arrays.asList(LiebreMetrics.CSV_NAMES);
     }
 
-    public void onNewData(@Nonnull LiebreFileMetrics.FileData fileData) {
+    public void onNewData(@Nonnull LiebreMetrics.FileData fileData) {
         String name = fileData.getFileName().split("\\.", 2)[0];
         MetricsTabData data = mapToData.get(name);
         if (data != null) {

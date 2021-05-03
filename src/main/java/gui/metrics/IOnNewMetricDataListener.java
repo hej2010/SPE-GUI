@@ -1,5 +1,5 @@
 package gui.metrics;
 
 public interface IOnNewMetricDataListener {
-    void onNewData(LiebreFileMetrics.FileData fileData);
+    void onNewData(LiebreMetrics.FileData fileData);
 }

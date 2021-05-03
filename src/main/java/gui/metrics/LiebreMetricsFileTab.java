@@ -5,7 +5,6 @@ import cern.extjfx.chart.XYChartPane;
 import cern.extjfx.chart.plugins.CrosshairIndicator;
 import cern.extjfx.chart.plugins.DataPointTooltip;
 import gui.GUI;
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
@@ -51,8 +50,8 @@ public class LiebreMetricsFileTab implements IMetricsTab {
         this.highest = Double.MIN_VALUE;
     }
 
-    public void onNewData(@Nonnull LiebreFileMetrics.FileData fileData) {
-        Platform.runLater(() -> {
+    public void onNewData(@Nonnull LiebreMetrics.FileData fileData) {
+        /*Platform.runLater(() -> {
                     if (!map.get(fileData.getFileName().split("\\.", 2)[0]).getKey()
                             .addAll(LiebreFileMetrics.toChartData(fileData))) { // TODO displaying the data increases CPU usage 10x ..
                         for (Pair<Long, String> p : fileData.getValues()) {
@@ -71,7 +70,7 @@ public class LiebreMetricsFileTab implements IMetricsTab {
                         ((NumericAxis) chartPane.getChart().getYAxis()).setUpperBound(highest + diff);
                     }
                 }
-        );
+        );*/
     }
 
     private XYChartPane<Number, Number> setupChartPane(String name) {
