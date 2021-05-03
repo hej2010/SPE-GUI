@@ -1,25 +1,14 @@
 package gui.controllers;
 
-import cern.extjfx.chart.NumericAxis;
-import cern.extjfx.chart.XYChartPane;
-import cern.extjfx.chart.plugins.CrosshairIndicator;
-import cern.extjfx.chart.plugins.DataPointTooltip;
 import gui.graph.dag.Node;
 import gui.graph.data.GraphObject;
 import gui.graph.data.GraphOperator;
 import gui.graph.data.GraphStream;
 import gui.graph.data.Stream;
 import gui.graph.visualisation.VisInfo;
-import gui.metrics.IOnNewMetricDataListener;
-import gui.metrics.LiebreFileMetrics;
+import gui.metrics.*;
 import gui.spe.ParsedSPE;
-import javafx.application.Platform;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.geometry.Side;
-import javafx.scene.chart.LineChart;
-import javafx.scene.chart.XYChart;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.stage.Stage;
@@ -27,11 +16,10 @@ import javafx.util.Pair;
 
 import javax.annotation.Nonnull;
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 public class MetricsController implements IOnNewMetricDataListener {
     @FXML
@@ -52,12 +40,16 @@ public class MetricsController implements IOnNewMetricDataListener {
         this.liebreFileMetrics = new LiebreFileMetrics(Path.of("").toAbsolutePath().toFile(), graphObjects, this);
 
         final List<File> filesToRead = liebreFileMetrics.getFilesToRead();
-        setUpTabs(filesToRead);
+        try {
+            setUpTabs(filesToRead);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         liebreFileMetrics.runAndListenAsync(true);
     }
 
-    private void setUpTabs(List<File> filesToRead) {
+    private void setUpTabs(List<File> filesToRead) throws IOException {
         this.metricsTabs = new LinkedList<>();
         List<String> rates = new LinkedList<>();
         List<String> execs = new LinkedList<>();
@@ -77,20 +69,20 @@ public class MetricsController implements IOnNewMetricDataListener {
         }
 
         if (!rates.isEmpty()) {
-            metricsTabs.add(new MetricsTab("RATE", execs));
+            metricsTabs.add(new LiebreMetricsCsvReporterTab("RATE", execs)); // TODO change depending on which metrics it reports (read first line of EXEC file)
         }
         if (!execs.isEmpty()) {
-            metricsTabs.add(new MetricsTab("EXEC", execs));
+            metricsTabs.add(new LiebreMetricsCsvReporterTab("EXEC", execs));
         }
         if (!ins.isEmpty()) {
-            metricsTabs.add(new MetricsTab("IN", ins));
+            metricsTabs.add(new LiebreMetricsCsvReporterTab("IN", ins));
         }
         if (!outs.isEmpty()) {
-            metricsTabs.add(new MetricsTab("OUT", outs));
+            metricsTabs.add(new LiebreMetricsCsvReporterTab("OUT", outs));
         }
         for (MetricsTab t : metricsTabs) {
-            Tab tab = new Tab(t.name);
-            tab.setContent(t.getChartPane());
+            Tab tab = new Tab(t.getName());
+            tab.setContent(t.getContent());
             tabPane.getTabs().add(tab);
         }
     }
@@ -141,7 +133,7 @@ public class MetricsController implements IOnNewMetricDataListener {
         //System.out.println("received " + fileData);
         MetricsTab tab = null;
         for (MetricsTab t : metricsTabs) {
-            if (names[1].startsWith(t.name)) {
+            if (names[1].startsWith(t.getName())) {
                 tab = t;
                 break;
             }
@@ -153,99 +145,4 @@ public class MetricsController implements IOnNewMetricDataListener {
         tab.onNewData(fileData);
     }
 
-    private static class MetricsTab {
-        private final String name;
-        private final Map<String, Pair<ObservableList<XYChart.Data<Number, Number>>, XYChart.Series<Number, Number>>> map;
-        private final XYChartPane<Number, Number> chartPane;
-
-        private final long start;
-        private double lowest;
-        private double highest;
-
-        private MetricsTab(String name, List<String> seriesNames) {
-            this.name = name;
-            this.map = new HashMap<>();
-            this.chartPane = setupChartPane(name);
-            for (String seriesName : seriesNames) {
-                ObservableList<XYChart.Data<Number, Number>> arr = FXCollections.observableArrayList();
-                Pair<ObservableList<XYChart.Data<Number, Number>>, XYChart.Series<Number, Number>> pair = new Pair<>(arr, new XYChart.Series<>(seriesName, arr));
-                map.put(seriesName, pair);
-                chartPane.getChart().getData().add(pair.getValue());
-            }
-            this.start = System.currentTimeMillis() / 1000;
-            this.lowest = Double.MAX_VALUE;
-            this.highest = Double.MIN_VALUE;
-        }
-
-        private void onNewData(LiebreFileMetrics.FileData fileData) {
-            Platform.runLater(() -> {
-                        if (!map.get(fileData.getFileName().split("\\.", 2)[0]).getKey()
-                                .addAll(LiebreFileMetrics.toChartData(fileData))) { // TODO displaying the data increases CPU usage 10x ..
-                            for (Pair<Long, String> p : fileData.getValues()) {
-                                double v = Double.parseDouble(p.getValue());
-                                //System.out.println("parsed " + v);
-                                if (v < lowest) {
-                                    lowest = v;
-                                } else if (v > highest) {
-                                    highest = v;
-                                }
-                            }
-                            double diff = (highest - lowest) / 10;
-                            ((NumericAxis) chartPane.getChart().getXAxis()).setUpperBound(System.currentTimeMillis() / 1000.0 + 1);
-                            ((NumericAxis) chartPane.getChart().getXAxis()).setLowerBound(start);
-                            ((NumericAxis) chartPane.getChart().getYAxis()).setLowerBound(lowest - diff);
-                            ((NumericAxis) chartPane.getChart().getYAxis()).setUpperBound(highest + diff);
-                        }
-                    }
-            );
-        }
-
-        private XYChartPane<Number, Number> setupChartPane(String name) {
-            XYChartPane<Number, Number> chartPane = new XYChartPane<>(getLineChart());
-            chartPane.setTitle("Data for: " + name);
-            chartPane.setCommonYAxis(false);
-            chartPane.getPlugins().addAll(new CrosshairIndicator<>(), new DataPointTooltip<>());
-            chartPane.getStylesheets().add("gui/mixed-chart-sample.css");
-            return chartPane;
-        }
-
-        private LineChart<Number, Number> getLineChart() {
-            LineChart<Number, Number> lineChart = new LineChart<>(createXAxis(false, new Pair<>((int) (System.currentTimeMillis() / 1000 - 600), (int) (System.currentTimeMillis() / 1000))), createYAxis());
-            lineChart.getStyleClass().add("chart1");
-            lineChart.setAnimated(true);
-            lineChart.setCreateSymbols(true);
-            lineChart.getYAxis().setLabel("Value");
-            lineChart.getYAxis().setSide(Side.RIGHT);
-            lineChart.getXAxis().setLabel("Time");
-            //lineChart.getData().add(new XYChart.Series<>("Data 1", LiebreFileMetrics.toChartData()));
-            return lineChart;
-        }
-
-        private NumericAxis createYAxis() {
-            NumericAxis yAxis = new NumericAxis();
-            yAxis.setAnimated(false);
-            yAxis.setForceZeroInRange(false);
-            yAxis.setAutoRangePadding(0.1);
-            yAxis.setAutoRangeRounding(true);
-            return yAxis;
-        }
-
-        private NumericAxis createXAxis(boolean autoFit, Pair<Integer, Integer> dateRange) {
-            NumericAxis xAxis = new NumericAxis();
-            xAxis.setAnimated(false);
-            xAxis.setForceZeroInRange(false);
-            xAxis.setAutoRangePadding(0.1); // TODO set range from selection
-            xAxis.setAutoRangeRounding(autoFit);
-            if (!autoFit) {
-                xAxis.setAutoRanging(false);
-                xAxis.setUpperBound(dateRange.getValue());
-                xAxis.setLowerBound(dateRange.getKey());
-            }
-            return xAxis;
-        }
-
-        public XYChartPane<Number, Number> getChartPane() {
-            return chartPane;
-        }
-    }
 }

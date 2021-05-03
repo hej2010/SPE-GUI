@@ -1,5 +1,7 @@
 package gui.testing;
 
+import com.codahale.metrics.CsvReporter;
+import common.metrics.Metric;
 import common.metrics.Metrics;
 import component.operator.Operator;
 import component.sink.Sink;
@@ -11,16 +13,23 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 public class LiebreTestStats {
     public static void main(String[] args) {
 
-        LiebreContext.setOperatorMetrics(Metrics.file("."));
+        /*LiebreContext.setOperatorMetrics(Metrics.file("."));
         LiebreContext.setStreamMetrics(Metrics.file("."));
-        //LiebreContext.setUserMetrics(Metrics.file("."));
-        //Metric m = LiebreContext.userMetrics().newAverageMetric("sadasdas3", "abc");
+        LiebreContext.setUserMetrics(Metrics.file("."));*/
+        LiebreContext.setOperatorMetrics(Metrics.dropWizard());
+        LiebreContext.setUserMetrics(Metrics.dropWizard());
+        LiebreContext.setStreamMetrics(Metrics.dropWizard());
+        CsvReporter csvReporter = CsvReporter.forRegistry(Metrics.metricRegistry())
+                .build(Paths.get(".").toFile());
+        csvReporter.start(1, TimeUnit.SECONDS);
 
         Query query = new Query();
         Random random = new Random();
