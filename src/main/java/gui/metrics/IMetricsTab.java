@@ -4,7 +4,7 @@ import javafx.scene.layout.Pane;
 
 import javax.annotation.Nonnull;
 
-public interface MetricsTab {
+public interface IMetricsTab {
     void onNewData(@Nonnull LiebreFileMetrics.FileData fileData);
     Pane getContent();
     String getName();

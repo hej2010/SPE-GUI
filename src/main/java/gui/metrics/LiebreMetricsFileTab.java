@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class LiebreMetricsFileTab implements MetricsTab {
+public class LiebreMetricsFileTab implements IMetricsTab {
     private final String name;
     private final Map<String, Pair<ObservableList<XYChart.Data<Number, Number>>, XYChart.Series<Number, Number>>> map;
     private final XYChartPane<Number, Number> chartPane;

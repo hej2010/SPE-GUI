@@ -1,26 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.Separator?>
 <?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
-
 
 <AnchorPane xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <Pane fx:id="paneContent" layoutY="29.0" maxHeight="365.0" maxWidth="739.0" minHeight="336.0" minWidth="739.0" prefHeight="336.0" prefWidth="739.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="29.0" />
-      <Separator layoutY="38.0" prefHeight="10.0" prefWidth="739.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="24.0" />
-      <HBox minHeight="25.0" minWidth="739.0" prefHeight="25.0" prefWidth="739.0" spacing="30.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-         <children>
-            <Label fx:id="lblMin" text="Min: " HBox.hgrow="ALWAYS" />
-            <Label fx:id="lblMax" text="Max: " HBox.hgrow="ALWAYS" />
-            <Label fx:id="lblAvg" text="Average: " HBox.hgrow="ALWAYS" />
-         </children>
-         <padding>
-            <Insets left="10.0" top="5.0" />
-         </padding>
-      </HBox>
    </children>
 </AnchorPane>

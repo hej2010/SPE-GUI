@@ -29,7 +29,7 @@ public class MetricsController implements IOnNewMetricDataListener {
     private ParsedSPE parsedSPE;
     private List<Pair<Node<GraphOperator>, VisInfo>> visResult;
     private LiebreFileMetrics liebreFileMetrics;
-    private List<MetricsTab> metricsTabs;
+    private List<IMetricsTab> metricsTabs;
 
     public void init(@Nonnull ParsedSPE parsedSPE, @Nonnull List<Pair<Node<GraphOperator>, VisInfo>> visResult) {
         this.parsedSPE = parsedSPE;
@@ -69,18 +69,18 @@ public class MetricsController implements IOnNewMetricDataListener {
         }
 
         if (!rates.isEmpty()) {
-            metricsTabs.add(new LiebreMetricsCsvReporterTab("RATE", execs)); // TODO change depending on which metrics it reports (read first line of EXEC file)
+            metricsTabs.add(new LiebreMetricsFileTab("RATE", execs));
         }
         if (!execs.isEmpty()) {
-            metricsTabs.add(new LiebreMetricsCsvReporterTab("EXEC", execs));
+            metricsTabs.add(new LiebreMetricsCsvReporterTab("EXEC", execs)); // TODO change THIS ONLY depending on which metrics it reports (read first line of EXEC file)
         }
         if (!ins.isEmpty()) {
-            metricsTabs.add(new LiebreMetricsCsvReporterTab("IN", ins));
+            metricsTabs.add(new LiebreMetricsFileTab("IN", ins));
         }
         if (!outs.isEmpty()) {
-            metricsTabs.add(new LiebreMetricsCsvReporterTab("OUT", outs));
+            metricsTabs.add(new LiebreMetricsFileTab("OUT", outs));
         }
-        for (MetricsTab t : metricsTabs) {
+        for (IMetricsTab t : metricsTabs) {
             Tab tab = new Tab(t.getName());
             tab.setContent(t.getContent());
             tabPane.getTabs().add(tab);
@@ -131,8 +131,8 @@ public class MetricsController implements IOnNewMetricDataListener {
     public void onNewData(LiebreFileMetrics.FileData fileData) {
         String[] names = fileData.getFileName().split("\\.", 2);
         //System.out.println("received " + fileData);
-        MetricsTab tab = null;
-        for (MetricsTab t : metricsTabs) {
+        IMetricsTab tab = null;
+        for (IMetricsTab t : metricsTabs) {
             if (names[1].startsWith(t.getName())) {
                 tab = t;
                 break;
