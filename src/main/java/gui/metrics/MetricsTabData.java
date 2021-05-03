@@ -9,7 +9,9 @@ import javafx.scene.chart.XYChart;
 import javafx.util.Pair;
 
 import javax.annotation.Nonnull;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class MetricsTabData {
     private final Map<String, Pair<ObservableList<XYChart.Data<Number, Number>>, XYChart.Series<Number, Number>>> map;
@@ -68,18 +70,5 @@ public class MetricsTabData {
             ((NumericAxis) chartPane.getChart().getXAxis()).setUpperBound(System.currentTimeMillis() / 1000.0 + 1);
             ((NumericAxis) chartPane.getChart().getXAxis()).setLowerBound(start);
         });
-    }
-
-    private Collection<XYChart.Data<Number, Number>> toChartData(LiebreMetrics.FileData fileData, String name) {
-        List<XYChart.Data<Number, Number>> list = new ArrayList<>();
-        for (MetricsData v : fileData.getValues()) {
-            if (v instanceof MetricsDataSingle) {
-                list.add(new XYChart.Data<>(v.timestamp, (double) ((MetricsDataSingle) v).value));
-            } else if (v instanceof MetricsDataLiebre) {
-                list.add(new XYChart.Data<>(v.timestamp, ((MetricsDataLiebre) v).getValueFor(name)));
-            }
-            //System.out.println("add " + v.getKey() + ", " + Double.valueOf(v.getValue()));
-        }
-        return list;
     }
 }

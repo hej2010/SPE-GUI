@@ -10,10 +10,7 @@ import org.apache.commons.io.input.TailerListenerAdapter;
 
 import javax.annotation.Nonnull;
 import java.io.File;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.*;
 
 public class LiebreMetrics {
@@ -149,9 +146,10 @@ public class LiebreMetrics {
         List<MetricsData> values = new LinkedList<>();
         for (String line : data.split("\n")) {
             String[] d = line.split(",");
+            System.out.println("d.length; " + d.length + ", " + Arrays.toString(d));
             if (d.length == 2) {
                 values.add(new MetricsDataSingle(Long.parseLong(d[0]), Integer.parseInt(d[1])));
-            } else if (d.length == 12) {
+            } else if (d.length == 20) {
                 values.add(new MetricsDataLiebre(Long.parseLong(d[0]), getValues(d)));
             }
         }
@@ -160,8 +158,22 @@ public class LiebreMetrics {
 
     private static Map<String, Integer> getValues(String[] d) {
         Map<String, Integer> map = new HashMap<>();
-        for (int i = 0; i < d.length; i++) {
-            map.put(CSV_NAMES[i], Integer.valueOf(d[i]));
+        int[] skipThese = {9, 11, 13, 15, 17, 19};
+        int j = 0;
+        for (int i = 1; i < d.length - 1; i++) {
+            boolean skip = false;
+            for (int a : skipThese) {
+                if (a == i) {
+                    skip = true;
+                    break;
+                }
+            }
+            if (skip) {
+                continue;
+            }
+            //System.out.println("added " + j + ", " + d[i] + ", " + i );
+            map.put(CSV_NAMES[j], Integer.valueOf(d[i]));
+            j++;
         }
         return map;
     }
