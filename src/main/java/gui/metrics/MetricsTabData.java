@@ -56,7 +56,6 @@ public class MetricsTabData {
                 //((NumericAxis) chartPane.getChart().getYAxis()).setLowerBound(lowest - diff);
                 //((NumericAxis) chartPane.getChart().getYAxis()).setUpperBound(highest + diff);
             }*/
-            System.out.println("got " + fileData + ": " + fileName);
             for (MetricsData v : fileData.getValues()) {
                 if (v instanceof MetricsDataSingle) {
                     map.get(fileName).getKey().add(new XYChart.Data<>(v.timestamp, (double) ((MetricsDataSingle) v).value));

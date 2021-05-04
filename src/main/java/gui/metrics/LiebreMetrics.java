@@ -146,7 +146,6 @@ public class LiebreMetrics {
         List<MetricsData> values = new LinkedList<>();
         for (String line : data.split("\n")) {
             String[] d = line.split(",");
-            System.out.println("d.length; " + d.length + ", " + Arrays.toString(d));
             if (d.length == 2) {
                 values.add(new MetricsDataSingle(Long.parseLong(d[0]), Double.parseDouble(d[1])));
             } else if (d.length == 12) {
