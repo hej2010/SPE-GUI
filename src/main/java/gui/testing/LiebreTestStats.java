@@ -28,6 +28,7 @@ public class LiebreTestStats {
         LiebreContext.setUserMetrics(Metrics.dropWizard());
         LiebreContext.setStreamMetrics(Metrics.dropWizard());
         CsvReporter csvReporter = CsvReporter.forRegistry(Metrics.metricRegistry())
+                //.withSeparator("--")
                 .build(Paths.get(".").toFile());
         csvReporter.start(1, TimeUnit.SECONDS);
 

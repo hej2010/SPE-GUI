@@ -4,9 +4,9 @@ import java.util.Map;
 import java.util.Set;
 
 public class MetricsDataLiebre extends MetricsData {
-    private final Map<String, Integer> integerMap;
+    private final Map<String, Double> integerMap;
 
-    public MetricsDataLiebre(long timestamp, Map<String, Integer> integerMap) {
+    public MetricsDataLiebre(long timestamp, Map<String, Double> integerMap) {
         super(timestamp);
         this.integerMap = integerMap;
     }

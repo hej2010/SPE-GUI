@@ -148,38 +148,51 @@ public class LiebreMetrics {
             String[] d = line.split(",");
             System.out.println("d.length; " + d.length + ", " + Arrays.toString(d));
             if (d.length == 2) {
-                values.add(new MetricsDataSingle(Long.parseLong(d[0]), Integer.parseInt(d[1])));
-            } else if (d.length == 20) {
+                values.add(new MetricsDataSingle(Long.parseLong(d[0]), Double.parseDouble(d[1])));
+            } else if (d.length == 12) {
                 values.add(new MetricsDataLiebre(Long.parseLong(d[0]), getValues(d)));
+            } else if (d.length == 20) {
+                values.add(new MetricsDataLiebre(Long.parseLong(d[0]), getValues(fixValues(d))));
             }
         }
         return values;
     }
 
-    private static Map<String, Integer> getValues(String[] d) {
-        Map<String, Integer> map = new HashMap<>();
-        int[] skipThese = {9, 11, 13, 15, 17, 19};
+    private static Map<String, Double> getValues(String[] d) {
+        if (d.length != 12) {
+            throw new IllegalArgumentException("Not correct length of input! Expected 12 but got " + d.length);
+        }
+        Map<String, Double> map = new HashMap<>();
         int j = 0;
-        for (int i = 1; i < d.length - 1; i++) {
-            boolean skip = false;
-            for (int a : skipThese) {
-                if (a == i) {
-                    skip = true;
-                    break;
-                }
-            }
-            if (skip) {
-                continue;
-            }
-            //System.out.println("added " + j + ", " + d[i] + ", " + i );
-            map.put(CSV_NAMES[j], Integer.valueOf(d[i]));
-            j++;
+        for (int i = 1; i < 12; i++) { // Skip first (timestamp)
+            map.put(CSV_NAMES[i - 1], Double.valueOf(d[i]));
         }
         return map;
     }
 
-    private static int d(String[] d, int i) {
-        return Integer.parseInt(d[i]);
+    private static String[] fixValues(String[] d) {
+        if (d.length != 20) {
+            throw new IllegalArgumentException("Not correct length of input! Expected 20 but got " + d.length);
+        }
+        String[] res = new String[12];
+
+        // t,count,max,mean,min,stddev,p50,p75,p95,p98,p99,p999
+        // 1620058296--8--62821100--53675022,415518--50736500--3590468,664281--52888700,000000--53054400,000000--62821100,000000--62821100,000000--62821100,000000--62821100,000000
+
+        res[0] = d[0];
+        res[1] = d[1];
+        res[2] = d[2];
+        res[3] = d[3] + "." + d[4];
+        res[4] = d[5];
+        res[5] = d[6] + "." + d[7];
+        res[6] = d[8] + "." + d[9];
+        res[7] = d[10] + "." + d[11];
+        res[8] = d[12] + "." + d[13];
+        res[9] = d[14] + "." + d[15];
+        res[10] = d[16] + "." + d[17];
+        res[11] = d[18] + "." + d[19];
+
+        return res;
     }
 
     private static class MyTailListener extends TailerListenerAdapter {

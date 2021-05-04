@@ -1,9 +1,9 @@
 package gui.metrics;
 
 public class MetricsDataSingle extends MetricsData {
-    public final int value;
+    public final double value;
 
-    public MetricsDataSingle(long timestamp, int value) {
+    public MetricsDataSingle(long timestamp, double value) {
         super(timestamp);
         this.value = value;
     }
