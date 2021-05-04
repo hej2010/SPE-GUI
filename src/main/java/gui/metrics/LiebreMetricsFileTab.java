@@ -12,6 +12,7 @@ import javafx.geometry.Side;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.util.Pair;
 
 import javax.annotation.Nonnull;
@@ -36,7 +37,7 @@ public class LiebreMetricsFileTab implements IMetricsTab {
         FXMLLoader fxmlLoader = new FXMLLoader(GUI.class.getResource(GUI.FXML_METRICS_CONTENT));
         root = fxmlLoader.load();
 
-        Pane paneContent = (Pane) fxmlLoader.getNamespace().get("paneContent");
+        VBox paneContent = (VBox) fxmlLoader.getNamespace().get("paneContent");
         this.chartPane = setupChartPane(name);
         paneContent.getChildren().add(this.chartPane);
         for (String seriesName : seriesNames) {
@@ -85,7 +86,7 @@ public class LiebreMetricsFileTab implements IMetricsTab {
     private LineChart<Number, Number> getLineChart() {
         LineChart<Number, Number> lineChart = new LineChart<>(createXAxis(false, new Pair<>((int) (System.currentTimeMillis() / 1000 - 600), (int) (System.currentTimeMillis() / 1000))), createYAxis());
         lineChart.getStyleClass().add("chart1");
-        lineChart.setAnimated(true);
+        lineChart.setAnimated(false);
         lineChart.setCreateSymbols(true);
         lineChart.getYAxis().setLabel("Value");
         lineChart.getYAxis().setSide(Side.RIGHT);

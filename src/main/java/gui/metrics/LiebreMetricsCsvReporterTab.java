@@ -12,6 +12,7 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.util.Pair;
 
 import javax.annotation.Nonnull;
@@ -41,7 +42,7 @@ public class LiebreMetricsCsvReporterTab implements IMetricsTab {
             Tab t = new Tab(s);
             fxmlLoader = new FXMLLoader(GUI.class.getResource(GUI.FXML_METRICS_CONTENT));
             AnchorPane anchorPane = fxmlLoader.load();
-            Pane paneContent = (Pane) fxmlLoader.getNamespace().get("paneContent");
+            VBox paneContent = (VBox) fxmlLoader.getNamespace().get("paneContent");
             paneContent.getChildren().add(data.getChartPane());
             t.setContent(anchorPane);
             tabPane.getTabs().add(t);
@@ -72,11 +73,12 @@ public class LiebreMetricsCsvReporterTab implements IMetricsTab {
     private LineChart<Number, Number> getLineChart() {
         LineChart<Number, Number> lineChart = new LineChart<>(createXAxis(false, new Pair<>((int) (System.currentTimeMillis() / 1000 - 600), (int) (System.currentTimeMillis() / 1000))), createYAxis());
         lineChart.getStyleClass().add("chart1");
-        lineChart.setAnimated(true);
+        lineChart.setAnimated(false);
         lineChart.setCreateSymbols(true);
         lineChart.getYAxis().setLabel("Value");
         lineChart.getYAxis().setSide(Side.RIGHT);
         lineChart.getXAxis().setLabel("Time");
+        lineChart.setMaxHeight(200);
         //lineChart.getData().add(new XYChart.Series<>("Data 1", LiebreFileMetrics.toChartData()));
         return lineChart;
     }
