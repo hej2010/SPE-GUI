@@ -15,7 +15,7 @@ import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.util.List;
 
-public class LiebreMetricsFileTab implements IMetricsTab {
+public class LiebreMetricsFileTab extends MetricsTab {
     private final String name;
     private final Pane root;
     private final MetricsTabData data;
@@ -34,50 +34,6 @@ public class LiebreMetricsFileTab implements IMetricsTab {
         if (data != null) {
             data.onNewData(fileData, name);
         }
-    }
-
-    private XYChartPane<Number, Number> setupChartPane(String name) {
-        XYChartPane<Number, Number> chartPane = new XYChartPane<>(getLineChart());
-        chartPane.setTitle("Data for: " + name);
-        chartPane.setCommonYAxis(false);
-        chartPane.getPlugins().addAll(new CrosshairIndicator<>(), new DataPointTooltip<>());
-        chartPane.getStylesheets().add("gui/mixed-chart-sample.css");
-        return chartPane;
-    }
-
-    private LineChart<Number, Number> getLineChart() {
-        LineChart<Number, Number> lineChart = new LineChart<>(createXAxis(false, new Pair<>((int) (System.currentTimeMillis() / 1000 - 600), (int) (System.currentTimeMillis() / 1000))), createYAxis());
-        lineChart.getStyleClass().add("chart1");
-        lineChart.setAnimated(false);
-        lineChart.setCreateSymbols(true);
-        lineChart.getYAxis().setLabel("Value");
-        lineChart.getYAxis().setSide(Side.RIGHT);
-        lineChart.getXAxis().setLabel("Time");
-        //lineChart.getData().add(new XYChart.Series<>("Data 1", LiebreFileMetrics.toChartData()));
-        return lineChart;
-    }
-
-    private NumericAxis createYAxis() {
-        NumericAxis yAxis = new NumericAxis();
-        yAxis.setAnimated(false);
-        yAxis.setForceZeroInRange(false);
-        yAxis.setAutoRangePadding(0.1);
-        yAxis.setAutoRangeRounding(true);
-        return yAxis;
-    }
-
-    private NumericAxis createXAxis(boolean autoFit, Pair<Integer, Integer> dateRange) {
-        NumericAxis xAxis = new NumericAxis();
-        xAxis.setAnimated(false);
-        xAxis.setForceZeroInRange(false);
-        xAxis.setAutoRangePadding(0.1); // TODO set range from selection
-        xAxis.setAutoRangeRounding(autoFit);
-        if (!autoFit) {
-            xAxis.setAutoRanging(false);
-            xAxis.setUpperBound(dateRange.getValue());
-            xAxis.setLowerBound(dateRange.getKey());
-        }
-        return xAxis;
     }
 
     public Pane getContent() {

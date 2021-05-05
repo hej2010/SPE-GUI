@@ -12,8 +12,8 @@ import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-import javafx.util.Pair;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -28,7 +28,7 @@ public class MetricsTabData {
     Button btnTimeSave, btnShow, btnHide, btnHideOthers, btnShowAll;
 
     private final List<String> seriesNames;
-    private final Map<String, Pair<ObservableList<XYChart.Data<Number, Number>>, XYChart.Series<Number, Number>>> map;
+    private final Map<String, XYChart.Series<Number, Number>> map;
     private final Map<String, Boolean> visibleMap;
     private final XYChartPane<Number, Number> chartPane;
 
@@ -42,15 +42,17 @@ public class MetricsTabData {
 
         for (String seriesName : seriesNames) {
             ObservableList<XYChart.Data<Number, Number>> arr = FXCollections.observableArrayList();
-            Pair<ObservableList<XYChart.Data<Number, Number>>, XYChart.Series<Number, Number>> pair = new Pair<>(arr, new XYChart.Series<>(seriesName, arr));
-            map.put(seriesName, pair);
-            chartPane.getChart().getData().add(pair.getValue());
+            XYChart.Series<Number, Number> series = new XYChart.Series<>(seriesName, arr);
+            map.put(seriesName, series);
+            chartPane.getChart().getData().add(series);
         }
     }
 
     void init(ObservableMap<String, Object> namespace) {
         paneContent = (VBox) namespace.get("paneContent");
-        paneContent.getChildren().add(getChartPane());
+        XYChartPane<Number, Number> chartPane = getChartPane();
+        paneContent.getChildren().add(chartPane);
+        VBox.setVgrow(chartPane, Priority.ALWAYS);
 
         tFTime = (TextField) namespace.get("tFTime");
         cBTime = (ChoiceBox<String>) namespace.get("cBTime");
@@ -77,7 +79,10 @@ public class MetricsTabData {
             updateTimeRange();
             updateGraphTimeRange();
         });
-        btnShow.setOnAction(event -> updateSeriesVisibility(cBVisibility.getSelectionModel().getSelectedItem(), true));
+        btnShow.setOnAction(event -> {
+            updateSeriesVisibility(cBVisibility.getSelectionModel().getSelectedItem(), true);
+            this.chartPane.getChart().getYAxis().setAutoRanging(true);
+        });
         btnHide.setOnAction(event -> updateSeriesVisibility(cBVisibility.getSelectionModel().getSelectedItem(), false));
         btnHideOthers.setOnAction(event -> {
             String selected = cBVisibility.getSelectionModel().getSelectedItem();
@@ -90,6 +95,7 @@ public class MetricsTabData {
             }
         });
         btnShowAll.setOnAction(event -> {
+            this.chartPane.getChart().getYAxis().setAutoRanging(true);
             for (String s : map.keySet()) {
                 updateSeriesVisibility(s, true);
             }
@@ -99,9 +105,7 @@ public class MetricsTabData {
 
     private void updateSeriesVisibility(String selectedItem, boolean show) {
         visibleMap.put(selectedItem, show);
-        //map.get(selectedItem).getValue().getChart().setVisible(show);
-        for (XYChart.Series<Number, Number> s : map.get(selectedItem).getValue().getChart().getData()) {
-            System.out.println("for " + s.getName() + ": " + selectedItem);
+        for (XYChart.Series<Number, Number> s : map.get(selectedItem).getChart().getData()) {
             if (s.getName().equals(selectedItem)) {
                 s.getNode().setVisible(show); // Toggle visibility of line
                 for (XYChart.Data<Number, Number> d : s.getData()) {
@@ -161,20 +165,18 @@ public class MetricsTabData {
 
     public void onNewData(@Nonnull LiebreMetrics.FileData fileData, String fileName) {
         Platform.runLater(() -> {
-
             for (MetricsData v : fileData.getValues()) {
                 if (v instanceof MetricsDataSingle) {
                     XYChart.Data<Number, Number> chartData = new XYChart.Data<>(v.timestamp, ((MetricsDataSingle) v).value);
-                    map.get(fileName).getKey().add(chartData);
+                    map.get(fileName).getData().add(chartData);
                     updateNodeVisibility(chartData.getNode(), visibleMap.getOrDefault(fileName, true));
                 } else if (v instanceof MetricsDataLiebre) {
                     for (String s : ((MetricsDataLiebre) v).getFields()) {
                         XYChart.Data<Number, Number> chartData = new XYChart.Data<>(v.timestamp, ((MetricsDataLiebre) v).getValueFor(s));
-                        map.get(s).getKey().add(chartData);
+                        map.get(s).getData().add(chartData);
                         updateNodeVisibility(chartData.getNode(), visibleMap.getOrDefault(s, true));
                     }
                 }
-                //System.out.println("add " + v.getKey() + ", " + Double.valueOf(v.getValue()));
             }
             updateGraphTimeRange();
         });
