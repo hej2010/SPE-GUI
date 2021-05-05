@@ -8,8 +8,7 @@ import gui.GUI;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Side;
 import javafx.scene.chart.LineChart;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
+import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -19,7 +18,7 @@ import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.util.*;
 
-public class LiebreMetricsCsvReporterTab implements IMetricsTab {
+public class LiebreMetricsCsvReporterTab extends MetricsTab {
     private final String name;
     private final Pane root;
     private final Map<String, MetricsTabData> mapToData;
@@ -42,8 +41,14 @@ public class LiebreMetricsCsvReporterTab implements IMetricsTab {
             Tab t = new Tab(s);
             fxmlLoader = new FXMLLoader(GUI.class.getResource(GUI.FXML_METRICS_CONTENT));
             AnchorPane anchorPane = fxmlLoader.load();
-            VBox paneContent = (VBox) fxmlLoader.getNamespace().get("paneContent");
+            paneContent = (VBox) fxmlLoader.getNamespace().get("paneContent");
             paneContent.getChildren().add(data.getChartPane());
+
+            tFTime = (TextField) fxmlLoader.getNamespace().get("tFTime");
+            cBTime = (ChoiceBox<String>) fxmlLoader.getNamespace().get("cBTime");
+            btnTimeSave = (Button) fxmlLoader.getNamespace().get("btnTimeSave");
+            super.init();
+
             t.setContent(anchorPane);
             tabPane.getTabs().add(t);
         }
@@ -57,8 +62,14 @@ public class LiebreMetricsCsvReporterTab implements IMetricsTab {
         String name = fileData.getFileName().split("\\.", 2)[0];
         MetricsTabData data = mapToData.get(name);
         if (data != null) {
-            data.onNewData(fileData, name);
+            data.onNewData(fileData, name, super.getFromTimestampInSeconds());
         }
+    }
+
+
+    @Override
+    void updateGraphTimeRange(long from) {
+        System.out.println("from " + from);
     }
 
     private XYChartPane<Number, Number> setupChartPane(String name) {

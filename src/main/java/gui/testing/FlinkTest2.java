@@ -40,24 +40,25 @@ public class FlinkTest2 {
                 .max("temp")
                 .setParallelism(1);
 
-        DataStream<Tuple2<Long, Double>> filtered = mapStream.filter((FilterFunction<WeatherData>) value -> value.getCity().equalsIgnoreCase(CITIES[0]) && value.getTemp() >= 21)
+        DataStream<Tuple2<Long, Double>> filtered = mapStream
+                .filter((FilterFunction<WeatherData>) value -> value.getCity().equalsIgnoreCase(CITIES[0]) && value.getTemp() > 21)
                 .map(new MapFunction<WeatherData, Tuple2<Long, Double>>() {
                     @Override
-                    public Tuple2<Long, Double> map(WeatherData value) throws Exception {
+                    public Tuple2<Long, Double> map(WeatherData value) {
                         return new Tuple2<>(value.timestamp, value.temp);
                     }
                 });
 
         aggregated.addSink(new SinkFunction<>() {
             @Override
-            public void invoke(WeatherData value, Context context) {
+            public void invoke(WeatherData value, Context context) { // Max temperature reading for each city each day
                 System.out.println("Max temp for " + value.city + " at " + value.timestamp + " is " + value.temp);
             }
         });
         filtered.addSink(new SinkFunction<>() {
             @Override
-            public void invoke(Tuple2<Long, Double> value, Context context) {
-                System.out.println("Max temp for " + CITIES[0] + " at " + value.f0 + " is " + value.f1);
+            public void invoke(Tuple2<Long, Double> value, Context context) { // Temperature reading for Gothenburg above 21C
+                System.out.println("Temp for " + CITIES[0] + " at " + value.f0 + " is " + value.f1);
             }
         });
 

@@ -35,11 +35,12 @@ public class GUI extends Application {
     @Override
     public void start(Stage primaryStage) throws IOException {
         this.primaryStage = primaryStage;
+        primaryStage.setTitle("SPE-GUI");
+        //primaryStage.getIcons().add() // TODO icon
 
         FXMLLoader fxmlLoader = new FXMLLoader(GUI.class.getResource(FXML_MAIN));
         Pane main = fxmlLoader.load();
         Scene scene = new Scene(main, 900, 600);
-
         MainController controller = fxmlLoader.getController();
 
         primaryStage.setScene(scene);
