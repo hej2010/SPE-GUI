@@ -9,9 +9,9 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane prefHeight="239.0" prefWidth="442.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane prefHeight="239.0" prefWidth="555.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <VBox fx:id="paneContent" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <VBox fx:id="paneContent" spacing="5.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
             <HBox alignment="CENTER_LEFT" prefWidth="442.0" spacing="10.0">
                <children>
@@ -23,6 +23,19 @@
                <VBox.margin>
                   <Insets left="5.0" />
                </VBox.margin>
+            </HBox>
+            <HBox alignment="CENTER_LEFT" prefWidth="200.0" spacing="10.0">
+               <children>
+                  <Label text="Series visibility:" />
+                  <ChoiceBox fx:id="cBVisibility" prefWidth="150.0" />
+                  <Button fx:id="btnShow" mnemonicParsing="false" text="Show" />
+                  <Button fx:id="btnHide" mnemonicParsing="false" text="Hide" />
+                  <Button fx:id="btnHideOthers" mnemonicParsing="false" text="Hide others" />
+                  <Button fx:id="btnShowAll" mnemonicParsing="false" text="Show all" />
+               </children>
+               <padding>
+                  <Insets left="5.0" />
+               </padding>
             </HBox>
          </children></VBox>
    </children>

@@ -8,18 +8,14 @@ import gui.GUI;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Side;
 import javafx.scene.chart.LineChart;
-import javafx.scene.control.Button;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.TextField;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
 import javafx.util.Pair;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.util.List;
 
-public class LiebreMetricsFileTab extends MetricsTab {
+public class LiebreMetricsFileTab implements IMetricsTab {
     private final String name;
     private final Pane root;
     private final MetricsTabData data;
@@ -30,12 +26,7 @@ public class LiebreMetricsFileTab extends MetricsTab {
         FXMLLoader fxmlLoader = new FXMLLoader(GUI.class.getResource(GUI.FXML_METRICS_CONTENT));
         root = fxmlLoader.load();
 
-        data.paneContent = (VBox) fxmlLoader.getNamespace().get("paneContent");
-        data.paneContent.getChildren().add(data.getChartPane());
-        data.tFTime = (TextField) fxmlLoader.getNamespace().get("tFTime");
-        data.cBTime = (ChoiceBox<String>) fxmlLoader.getNamespace().get("cBTime");
-        data.btnTimeSave = (Button) fxmlLoader.getNamespace().get("btnTimeSave");
-        data.init();
+        data.init(fxmlLoader.getNamespace());
     }
 
     public void onNewData(@Nonnull LiebreMetrics.FileData fileData) {

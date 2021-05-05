@@ -29,7 +29,7 @@ public class MetricsController implements IOnNewMetricDataListener {
     private ParsedSPE parsedSPE;
     private List<Pair<Node<GraphOperator>, VisInfo>> visResult;
     private LiebreMetrics liebreMetrics;
-    private List<MetricsTab> metricsTabs;
+    private List<IMetricsTab> metricsTabs;
 
     public void init(@Nonnull ParsedSPE parsedSPE, @Nonnull List<Pair<Node<GraphOperator>, VisInfo>> visResult) {
         this.parsedSPE = parsedSPE;
@@ -80,7 +80,7 @@ public class MetricsController implements IOnNewMetricDataListener {
         if (!outs.isEmpty()) {
             metricsTabs.add(new LiebreMetricsFileTab("OUT", outs));
         }
-        for (MetricsTab t : metricsTabs) {
+        for (IMetricsTab t : metricsTabs) {
             Tab tab = new Tab(t.getName());
             tab.setContent(t.getContent());
             tabPane.getTabs().add(tab);
@@ -131,8 +131,8 @@ public class MetricsController implements IOnNewMetricDataListener {
     public void onNewData(LiebreMetrics.FileData fileData) {
         String[] names = fileData.getFileName().split("\\.", 2);
         //System.out.println("received " + fileData);
-        MetricsTab tab = null;
-        for (MetricsTab t : metricsTabs) {
+        IMetricsTab tab = null;
+        for (IMetricsTab t : metricsTabs) {
             if (names[1].startsWith(t.getName())) {
                 tab = t;
                 break;

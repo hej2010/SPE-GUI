@@ -11,14 +11,13 @@ import javafx.scene.chart.LineChart;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
 import javafx.util.Pair;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.util.*;
 
-public class LiebreMetricsCsvReporterTab extends MetricsTab {
+public class LiebreMetricsCsvReporterTab implements IMetricsTab {
     private final String name;
     private final Pane root;
     private final Map<String, MetricsTabData> mapToData;
@@ -41,13 +40,7 @@ public class LiebreMetricsCsvReporterTab extends MetricsTab {
             Tab t = new Tab(s);
             fxmlLoader = new FXMLLoader(GUI.class.getResource(GUI.FXML_METRICS_CONTENT));
             AnchorPane anchorPane = fxmlLoader.load();
-            data.paneContent = (VBox) fxmlLoader.getNamespace().get("paneContent");
-            data.paneContent.getChildren().add(data.getChartPane());
-
-            data.tFTime = (TextField) fxmlLoader.getNamespace().get("tFTime");
-            data.cBTime = (ChoiceBox<String>) fxmlLoader.getNamespace().get("cBTime");
-            data.btnTimeSave = (Button) fxmlLoader.getNamespace().get("btnTimeSave");
-            data.init();
+            data.init(fxmlLoader.getNamespace());
 
             t.setContent(anchorPane);
             tabPane.getTabs().add(t);
