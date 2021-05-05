@@ -24,38 +24,25 @@ public class LiebreMetricsFileTab extends MetricsTab {
     private final Pane root;
     private final MetricsTabData data;
 
-    //private final long start;
-    //private double lowest;
-    //private double highest;
-
     public LiebreMetricsFileTab(String name, List<String> seriesNames) throws IOException {
         this.name = name;
         data = new MetricsTabData(setupChartPane(name), seriesNames);
         FXMLLoader fxmlLoader = new FXMLLoader(GUI.class.getResource(GUI.FXML_METRICS_CONTENT));
         root = fxmlLoader.load();
 
-        paneContent = (VBox) fxmlLoader.getNamespace().get("paneContent");
-        paneContent.getChildren().add(data.getChartPane());
-        tFTime = (TextField) fxmlLoader.getNamespace().get("tFTime");
-        cBTime = (ChoiceBox<String>) fxmlLoader.getNamespace().get("cBTime");
-        btnTimeSave = (Button) fxmlLoader.getNamespace().get("btnTimeSave");
-        super.init();
-
-        //this.start = System.currentTimeMillis() / 1000;
-        //this.lowest = Double.MAX_VALUE;
-        //this.highest = Double.MIN_VALUE;
+        data.paneContent = (VBox) fxmlLoader.getNamespace().get("paneContent");
+        data.paneContent.getChildren().add(data.getChartPane());
+        data.tFTime = (TextField) fxmlLoader.getNamespace().get("tFTime");
+        data.cBTime = (ChoiceBox<String>) fxmlLoader.getNamespace().get("cBTime");
+        data.btnTimeSave = (Button) fxmlLoader.getNamespace().get("btnTimeSave");
+        data.init();
     }
 
     public void onNewData(@Nonnull LiebreMetrics.FileData fileData) {
         String name = fileData.getFileName().split("\\.", 2)[0];
         if (data != null) {
-            data.onNewData(fileData, name, super.getFromTimestampInSeconds());
+            data.onNewData(fileData, name);
         }
-    }
-
-    @Override
-    void updateGraphTimeRange(long from) {
-
     }
 
     private XYChartPane<Number, Number> setupChartPane(String name) {

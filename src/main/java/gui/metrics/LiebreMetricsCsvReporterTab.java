@@ -41,13 +41,13 @@ public class LiebreMetricsCsvReporterTab extends MetricsTab {
             Tab t = new Tab(s);
             fxmlLoader = new FXMLLoader(GUI.class.getResource(GUI.FXML_METRICS_CONTENT));
             AnchorPane anchorPane = fxmlLoader.load();
-            paneContent = (VBox) fxmlLoader.getNamespace().get("paneContent");
-            paneContent.getChildren().add(data.getChartPane());
+            data.paneContent = (VBox) fxmlLoader.getNamespace().get("paneContent");
+            data.paneContent.getChildren().add(data.getChartPane());
 
-            tFTime = (TextField) fxmlLoader.getNamespace().get("tFTime");
-            cBTime = (ChoiceBox<String>) fxmlLoader.getNamespace().get("cBTime");
-            btnTimeSave = (Button) fxmlLoader.getNamespace().get("btnTimeSave");
-            super.init();
+            data.tFTime = (TextField) fxmlLoader.getNamespace().get("tFTime");
+            data.cBTime = (ChoiceBox<String>) fxmlLoader.getNamespace().get("cBTime");
+            data.btnTimeSave = (Button) fxmlLoader.getNamespace().get("btnTimeSave");
+            data.init();
 
             t.setContent(anchorPane);
             tabPane.getTabs().add(t);
@@ -62,14 +62,8 @@ public class LiebreMetricsCsvReporterTab extends MetricsTab {
         String name = fileData.getFileName().split("\\.", 2)[0];
         MetricsTabData data = mapToData.get(name);
         if (data != null) {
-            data.onNewData(fileData, name, super.getFromTimestampInSeconds());
+            data.onNewData(fileData, name);
         }
-    }
-
-
-    @Override
-    void updateGraphTimeRange(long from) {
-        System.out.println("from " + from);
     }
 
     private XYChartPane<Number, Number> setupChartPane(String name) {

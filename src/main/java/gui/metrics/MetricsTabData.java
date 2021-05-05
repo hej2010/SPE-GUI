@@ -28,19 +28,18 @@ public class MetricsTabData {
     private final Map<String, Pair<ObservableList<XYChart.Data<Number, Number>>, XYChart.Series<Number, Number>>> map;
     private final XYChartPane<Number, Number> chartPane;
 
-    private long from, lastUpdated = 0;
+    private long from;
 
     public MetricsTabData(XYChartPane<Number, Number> chartPane, List<String> seriesNames) {
         this.map = new HashMap<>();
         this.chartPane = chartPane;
+
         for (String seriesName : seriesNames) {
             ObservableList<XYChart.Data<Number, Number>> arr = FXCollections.observableArrayList();
             Pair<ObservableList<XYChart.Data<Number, Number>>, XYChart.Series<Number, Number>> pair = new Pair<>(arr, new XYChart.Series<>(seriesName, arr));
             map.put(seriesName, pair);
             chartPane.getChart().getData().add(pair.getValue());
         }
-        //this.lowest = Double.MAX_VALUE;
-        //this.highest = Double.MIN_VALUE;
     }
 
     void init() {
@@ -53,36 +52,24 @@ public class MetricsTabData {
         cBTime.getSelectionModel().select(1);
 
         btnTimeSave.setOnAction(e -> {
-                    updateTimeRange();
-                    updateGraphTimeRange(from);
-                }
-        );
-    }
-
-    long getFromTimestampInSeconds() {
+            updateTimeRange();
+            updateGraphTimeRange();
+        });
         updateTimeRange();
-        return System.currentTimeMillis() / 1000 - from - 1;
     }
 
     private void updateTimeRange() {
-        long now = System.currentTimeMillis();
-        if (now - lastUpdated >= 1000) {
-            lastUpdated = now;
-        } else {
-            return;
-        }
         String time = tFTime.getText().trim();
         if (time.isEmpty()) {
             time = "5";
             tFTime.setText(time);
         }
-        from = -1;
+        long from = -1;
         try {
             from = Long.parseLong(time);
         } catch (NumberFormatException e) {
             e.printStackTrace();
         }
-        System.out.println("parsed " + from);
         if (from > 0) {
             switch (cBTime.getSelectionModel().getSelectedIndex()) {
                 case 1:
@@ -98,15 +85,23 @@ public class MetricsTabData {
         } else {
             from = 5;
         }
-        System.out.println("updated from to " + from);
+        this.from = from;
     }
 
     public XYChartPane<Number, Number> getChartPane() {
         return chartPane;
     }
 
-    public void onNewData(@Nonnull LiebreMetrics.FileData fileData, String fileName, long from) {
+    private void updateGraphTimeRange() {
         Platform.runLater(() -> {
+            ((NumericAxis) chartPane.getChart().getXAxis()).setUpperBound(System.currentTimeMillis() / 1000 + 1);
+            ((NumericAxis) chartPane.getChart().getXAxis()).setLowerBound(System.currentTimeMillis() / 1000 - from - 1);
+        });
+    }
+
+    public void onNewData(@Nonnull LiebreMetrics.FileData fileData, String fileName) {
+        Platform.runLater(() -> {
+
             for (MetricsData v : fileData.getValues()) {
                 if (v instanceof MetricsDataSingle) {
                     map.get(fileName).getKey().add(new XYChart.Data<>(v.timestamp, ((MetricsDataSingle) v).value));
@@ -117,8 +112,7 @@ public class MetricsTabData {
                 }
                 //System.out.println("add " + v.getKey() + ", " + Double.valueOf(v.getValue()));
             }
-            ((NumericAxis) chartPane.getChart().getXAxis()).setUpperBound(System.currentTimeMillis() / 1000.0 + 1);
-            ((NumericAxis) chartPane.getChart().getXAxis()).setLowerBound(from);
+            updateGraphTimeRange();
         });
     }
 }
