@@ -485,21 +485,21 @@ public class GUIController {
             FileChooser fileChooser = new FileChooser();
             String path = Paths.get(".").toAbsolutePath().normalize().toString() + "/src/main/java/gui";
             fileChooser.setInitialDirectory(new File(path));
+            FileChooser.ExtensionFilter extensionFilter = new FileChooser.ExtensionFilter("JSON", "*.json");
+            fileChooser.getExtensionFilters().add(extensionFilter);
 
             File file = fileChooser.showOpenDialog(gui.getPrimaryStage());
             if (file != null) {
-                if (file.getName().endsWith(".json")) {
-                    List<Node<GraphOperator>> opsList = ExportManager.projectFromFile(file, parsedSPE);
-                    Set<String> addedIdentifiers = new HashSet<>();
-                    List<GraphOperator> addedNodes = new LinkedList<>();
-                    addNewTab(file.getName(), () -> {
-                        if (opsList != null) {
-                            addToGraph(opsList, null, addedIdentifiers, addedNodes);
-                        }
-                        updateDetailsView(false);
-                        selectedTab.getGraphView().update();
-                    });
-                }
+                List<Node<GraphOperator>> opsList = ExportManager.projectFromFile(file, parsedSPE);
+                Set<String> addedIdentifiers = new HashSet<>();
+                List<GraphOperator> addedNodes = new LinkedList<>();
+                addNewTab(file.getName(), () -> {
+                    if (opsList != null) {
+                        addToGraph(opsList, null, addedIdentifiers, addedNodes);
+                    }
+                    updateDetailsView(false);
+                    selectedTab.getGraphView().update();
+                });
             }
         });
         mIVisFromFile.setOnAction(event -> {
