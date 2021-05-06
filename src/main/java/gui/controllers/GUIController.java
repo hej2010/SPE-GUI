@@ -488,16 +488,18 @@ public class GUIController {
 
             File file = fileChooser.showOpenDialog(gui.getPrimaryStage());
             if (file != null) {
-                List<Node<GraphOperator>> opsList = ExportManager.projectFromFile(file, parsedSPE);
-                Set<String> addedIdentifiers = new HashSet<>();
-                List<GraphOperator> addedNodes = new LinkedList<>();
-                addNewTab(file.getName(), () -> {
-                    if (opsList != null) {
-                        addToGraph(opsList, null, addedIdentifiers, addedNodes);
-                    }
-                    updateDetailsView(false);
-                    selectedTab.getGraphView().update();
-                });
+                if (file.getName().endsWith(".json")) {
+                    List<Node<GraphOperator>> opsList = ExportManager.projectFromFile(file, parsedSPE);
+                    Set<String> addedIdentifiers = new HashSet<>();
+                    List<GraphOperator> addedNodes = new LinkedList<>();
+                    addNewTab(file.getName(), () -> {
+                        if (opsList != null) {
+                            addToGraph(opsList, null, addedIdentifiers, addedNodes);
+                        }
+                        updateDetailsView(false);
+                        selectedTab.getGraphView().update();
+                    });
+                }
             }
         });
         mIVisFromFile.setOnAction(event -> {
