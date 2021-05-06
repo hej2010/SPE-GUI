@@ -12,11 +12,9 @@ public class FlinkController {
     public static void updateGraphOnConnect(GraphOperator from, GraphOperator to, Graph<GraphOperator, GraphStream> graph) {
         DirectedGraph dag = DirectedGraph.fromGraphView(graph);
         List<Node<GraphOperator>> list = dag.getGraph();
+        to.setPrevIdentifier(from.getIdentifier());
         if (from instanceof SourceOperator || from instanceof Operator) {
-            to.setPrevIdentifier(from.getIdentifier());
             updateSuccessors(findNode(to, list), list);
-        } else if (from instanceof SinkOperator) {
-            to.setPrevIdentifier(from.getIdentifier());
         }
     }
 

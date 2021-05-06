@@ -66,7 +66,7 @@ public class ExportManager {
             s = Files.readFile(file.getPath());
         } catch (IOException e) {
             e.printStackTrace();
-            System.err.println("Could not open file " + file.toString());
+            System.err.println("Could not open file " + file);
             return null;
         }
         JSONObject o = new JSONObject(s);

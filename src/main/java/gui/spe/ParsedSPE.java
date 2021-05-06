@@ -81,13 +81,14 @@ public abstract class ParsedSPE {
 
     @Nonnull
     protected String getFormattedCode(@Nonnull StringBuilder sb) {
-        return sb.toString();
-        /*try {
+        //return sb.toString();
+        try {
             return new Formatter().formatSourceAndFixImports(sb.toString());
         } catch (FormatterException e) {
             e.printStackTrace();
             return sb.toString();
-        }*/    }
+        }
+    }
 
     /**
      * Recursively adds all node imports
