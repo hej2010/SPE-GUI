@@ -60,7 +60,7 @@ public class GUIController {
     @FXML
     public AnchorPane aPMaster/*, aPGraph*/, aPDetails;
     @FXML
-    public Button btnAddSource, btnAddOp, btnAddSink, btnConnect, btnDisconnect, btnModify, btnSelectFile, btnGenerate, btnAddTab, btnModifyVis, btnCheck, btnMetrics;
+    public Button btnAddSource, btnAddOp, btnAddSink, btnConnect, btnDisconnect, btnModify, btnSelectFile, btnGenerate, btnAddTab, btnModifyVis, btnCheck, btnMetricsLiebre, btnMetricsGraphite;
     @FXML
     public TextField tfIdentifier;
     @FXML
@@ -154,11 +154,13 @@ public class GUIController {
 
     private void updateDetailsView(boolean isVisualisedQuery) {
         if (isVisualisedQuery) {
-            btnMetrics.setDisable(false);
+            btnMetricsLiebre.setDisable(false);
+            btnMetricsGraphite.setDisable(false);
             vBDetails.setVisible(false);
             vBDetailsVis.setVisible(true);
         } else {
-            btnMetrics.setDisable(true);
+            btnMetricsLiebre.setDisable(parsedSPE instanceof ParsedLiebreSPE);
+            btnMetricsGraphite.setDisable(true);
             vBDetails.setVisible(true);
             vBDetailsVis.setVisible(false);
         }
@@ -506,6 +508,8 @@ public class GUIController {
             FileChooser fileChooser = new FileChooser();
             String path = Paths.get(".").toAbsolutePath().normalize().toString() + "/src/main/java/gui";
             fileChooser.setInitialDirectory(new File(path));
+            FileChooser.ExtensionFilter extensionFilter = new FileChooser.ExtensionFilter("Java", "*.java");
+            fileChooser.getExtensionFilters().add(extensionFilter);
 
             File file = fileChooser.showOpenDialog(gui.getPrimaryStage());
             if (file != null) {
@@ -627,13 +631,13 @@ public class GUIController {
                 showDialog(Alert.AlertType.WARNING, "Warnings found", "Warning", sb.toString());
             }
         });
-        btnMetrics.setOnAction(event -> {
+        btnMetricsLiebre.setOnAction(event -> {
             try {
-                FXMLLoader fxmlLoader = new FXMLLoader(GUI.class.getResource(GUI.FXML_METRICS));
+                FXMLLoader fxmlLoader = new FXMLLoader(GUI.class.getResource(GUI.FXML_METRICS_LIEBRE));
                 Pane main = fxmlLoader.load();
                 Scene scene = new Scene(main, 900, 600);
 
-                MetricsController controller = fxmlLoader.getController();
+                LiebreMetricsController controller = fxmlLoader.getController();
 
                 Stage stage = new Stage();
                 stage.setTitle("Metrics");
@@ -644,6 +648,27 @@ public class GUIController {
 
                 assert selectedTab.getVisResult() != null;
                 controller.init(parsedSPE, selectedTab.getVisResult());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+        btnMetricsGraphite.setOnAction(event -> {
+            try {
+                FXMLLoader fxmlLoader = new FXMLLoader(GUI.class.getResource(GUI.FXML_METRICS_GRAPHITE));
+                Pane main = fxmlLoader.load();
+                Scene scene = new Scene(main, 900, 600);
+
+                GraphiteMetricsController controller = fxmlLoader.getController();
+
+                Stage stage = new Stage();
+                stage.setTitle("Metrics");
+                stage.setScene(scene);
+                stage.show();
+                stage.setOnCloseRequest(event1 -> controller.closeStage());
+                controller.setStage(stage);
+
+                //assert selectedTab.getVisResult() != null;
+                //controller(parsedSPE, selectedTab.getVisResult());
             } catch (IOException e) {
                 e.printStackTrace();
             }

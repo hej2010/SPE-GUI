@@ -155,7 +155,8 @@
                               <Font name="System Italic" size="10.0" />
                            </font>
                         </Label>
-                        <Button fx:id="btnMetrics" disable="true" mnemonicParsing="false" text="View metrics" />
+                        <Button fx:id="btnMetricsLiebre" disable="true" mnemonicParsing="false" text="View metrics (Liebre)" />
+                        <Button fx:id="btnMetricsGraphite" disable="true" mnemonicParsing="false" text="View metrics (Graphite)" />
                      </children>
                   </VBox>
           </children>

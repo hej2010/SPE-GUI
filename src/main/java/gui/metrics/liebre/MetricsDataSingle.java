@@ -1,4 +1,4 @@
-package gui.metrics;
+package gui.metrics.liebre;
 
 public class MetricsDataSingle extends MetricsData {
     public final double value;

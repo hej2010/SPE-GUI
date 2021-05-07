@@ -1,4 +1,4 @@
-package gui.metrics;
+package gui.metrics.liebre;
 
 import cern.extjfx.chart.NumericAxis;
 import cern.extjfx.chart.XYChartPane;

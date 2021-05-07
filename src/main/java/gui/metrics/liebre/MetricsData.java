@@ -1,4 +1,4 @@
-package gui.metrics;
+package gui.metrics.liebre;
 
 public abstract class MetricsData {
     public final long timestamp;

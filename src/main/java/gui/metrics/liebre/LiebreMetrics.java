@@ -1,4 +1,4 @@
-package gui.metrics;
+package gui.metrics.liebre;
 
 import gui.graph.data.GraphObject;
 import gui.graph.data.GraphOperator;

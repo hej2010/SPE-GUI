@@ -1,4 +1,4 @@
-package gui.metrics;
+package gui.metrics.liebre;
 
 import gui.GUI;
 import javafx.fxml.FXMLLoader;

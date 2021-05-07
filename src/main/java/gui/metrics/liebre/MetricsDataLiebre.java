@@ -1,4 +1,4 @@
-package gui.metrics;
+package gui.metrics.liebre;
 
 import java.util.Map;
 import java.util.Set;

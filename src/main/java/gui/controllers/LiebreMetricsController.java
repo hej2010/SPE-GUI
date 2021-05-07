@@ -6,8 +6,12 @@ import gui.graph.data.GraphOperator;
 import gui.graph.data.GraphStream;
 import gui.graph.data.Stream;
 import gui.graph.visualisation.VisInfo;
-import gui.metrics.*;
+import gui.metrics.liebre.IOnNewMetricDataListener;
+import gui.metrics.liebre.LiebreMetrics;
+import gui.metrics.liebre.LiebreMetricsFileTab;
+import gui.metrics.liebre.MetricsTab;
 import gui.spe.ParsedSPE;
+import gui.utils.Files;
 import javafx.fxml.FXML;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
@@ -21,7 +25,7 @@ import java.nio.file.Path;
 import java.util.LinkedList;
 import java.util.List;
 
-public class MetricsController implements IOnNewMetricDataListener {
+public class LiebreMetricsController implements IOnNewMetricDataListener, IWindowListener {
     @FXML
     private TabPane tabPane;
     private Stage stage = null;
@@ -53,6 +57,7 @@ public class MetricsController implements IOnNewMetricDataListener {
         this.metricsTabs = new LinkedList<>();
         List<String> rates = new LinkedList<>();
         List<String> execs = new LinkedList<>();
+        List<String> execsSimple = new LinkedList<>();
         List<String> ins = new LinkedList<>();
         List<String> outs = new LinkedList<>();
         for (File f : filesToRead) {
@@ -60,6 +65,13 @@ public class MetricsController implements IOnNewMetricDataListener {
             if (name[1].endsWith("RATE.csv")) {
                 rates.add(name[0]);
             } else if (name[1].endsWith("EXEC.csv")) {
+                String line = Files.readFirstLineOfFile(f);
+                System.out.println("line is " + line + " for file " + f.getName());
+                if (line.startsWith("t")) {
+                    execs.add(name[0]);
+                } else {
+                    execsSimple.add(name[0]);
+                }
                 execs.add(name[0]);
             } else if (name[1].endsWith("IN.csv")) {
                 ins.add(name[0]);
@@ -69,10 +81,13 @@ public class MetricsController implements IOnNewMetricDataListener {
         }
 
         if (!rates.isEmpty()) {
-            metricsTabs.add(new LiebreMetricsFileTab("RATE", execs));
+            metricsTabs.add(new LiebreMetricsFileTab("RATE", rates));
         }
         if (!execs.isEmpty()) {
-            metricsTabs.add(new LiebreMetricsCsvReporterTab("EXEC", execs)); // TODO change THIS ONLY depending on which metrics it reports (read first line of EXEC file)
+            //metricsTabs.add(new LiebreMetricsCsvReporterTab("EXEC", execs));
+        }
+        if (!execsSimple.isEmpty()) {
+            metricsTabs.add(new LiebreMetricsFileTab("EXEC", execsSimple));
         }
         if (!ins.isEmpty()) {
             metricsTabs.add(new LiebreMetricsFileTab("IN", ins));

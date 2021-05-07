@@ -1,15 +1,8 @@
-package gui.metrics;
+package gui.metrics.liebre;
 
-import cern.extjfx.chart.NumericAxis;
-import cern.extjfx.chart.XYChartPane;
-import cern.extjfx.chart.plugins.CrosshairIndicator;
-import cern.extjfx.chart.plugins.DataPointTooltip;
 import gui.GUI;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Side;
-import javafx.scene.chart.LineChart;
 import javafx.scene.layout.Pane;
-import javafx.util.Pair;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;

@@ -1,4 +1,4 @@
-package gui.metrics;
+package gui.controllers;
 
 import cern.extjfx.chart.NumericAxis;
 import cern.extjfx.chart.XYChartPane;
@@ -11,6 +11,7 @@ import javafx.geometry.Side;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
+import javafx.stage.Stage;
 import javafx.util.Pair;
 import gui.metrics.graphite.GraphiteRenderQuery;
 import gui.metrics.graphite.RenderDatapoint;
@@ -19,7 +20,7 @@ import gui.utils.Time;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MetricsController {
+public class GraphiteMetricsController implements IWindowListener{
 
     @FXML
     private TextField tFQuery, tFQueryFrom, tFQueryTo;
@@ -34,7 +35,9 @@ public class MetricsController {
     @FXML
     private CheckBox cBAutoFit;
 
-    public MetricsController() {
+    private Stage stage = null;
+
+    public GraphiteMetricsController() {
     }
 
     @FXML
@@ -160,4 +163,14 @@ public class MetricsController {
         return xAxis;
     }
 
+    public void closeStage() {
+        if (stage != null) {
+            stage.close();
+        }
+    }
+
+    @Override
+    public void setStage(Stage stage) {
+        this.stage = stage;
+    }
 }

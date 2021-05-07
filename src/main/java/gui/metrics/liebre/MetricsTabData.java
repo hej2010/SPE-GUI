@@ -1,4 +1,4 @@
-package gui.metrics;
+package gui.metrics.liebre;
 
 import cern.extjfx.chart.NumericAxis;
 import cern.extjfx.chart.XYChartPane;
@@ -47,9 +47,10 @@ public class MetricsTabData {
             ObservableList<XYChart.Data<Number, Number>> arr = FXCollections.observableArrayList();
             XYChart.Series<Number, Number> series = new XYChart.Series<>(seriesName, arr);
             map.put(seriesName, series);
-            chartPane.getChart().getData().add(series);
             newData.put(seriesName, new LinkedList<>());
+            chartPane.getChart().getData().add(series);
         }
+        System.out.println("newdata initialized to " + newData.keySet());
 
         exec = Executors.newSingleThreadScheduledExecutor();
         exec.scheduleAtFixedRate(this::addNewData, 2, 1, TimeUnit.SECONDS);
@@ -65,10 +66,6 @@ public class MetricsTabData {
                     }
                     newData.get(s).clear();
                 }
-        /*while (!newData.isEmpty()) {
-            Pair<XYChart.Data<Number, Number>, String> pair = newData.poll();
-            updateNodeVisibility(pair.getKey().getNode(), visibleMap.getOrDefault(pair.getValue(), true));
-        }*/
             }
         });
     }
@@ -193,9 +190,17 @@ public class MetricsTabData {
             synchronized (newData) {
                 for (MetricsData v : fileData.getValues()) {
                     if (v instanceof MetricsDataSingle) {
+                        if (newData.get(fileName) == null) {
+                            System.out.println("newData is null for " + fileName);
+                            continue;
+                        }
                         newData.get(fileName).add(new XYChart.Data<>(v.timestamp, ((MetricsDataSingle) v).value));
                     } else if (v instanceof MetricsDataLiebre) {
                         for (String s : ((MetricsDataLiebre) v).getFields()) {
+                            if (newData.get(s) == null) {
+                                System.out.println("newData s is null for " + s);
+                                continue;
+                            }
                             newData.get(s).add(new XYChart.Data<>(v.timestamp, ((MetricsDataLiebre) v).getValueFor(s)));
                         }
                     }
