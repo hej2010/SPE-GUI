@@ -4,6 +4,12 @@ import cern.extjfx.chart.NumericAxis;
 import cern.extjfx.chart.XYChartPane;
 import cern.extjfx.chart.plugins.CrosshairIndicator;
 import cern.extjfx.chart.plugins.DataPointTooltip;
+import gui.metrics.graphite.GraphiteMetricsQuery;
+import gui.metrics.graphite.GraphiteRenderQuery;
+import gui.metrics.graphite.RenderDatapoint;
+import gui.utils.Time;
+import gui.views.AutoCompleteTextField;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -13,17 +19,14 @@ import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 import javafx.util.Pair;
-import gui.metrics.graphite.GraphiteRenderQuery;
-import gui.metrics.graphite.RenderDatapoint;
-import gui.utils.Time;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
-public class GraphiteMetricsController implements IWindowListener{
-
+public class GraphiteMetricsController implements IWindowListener {
     @FXML
-    private TextField tFQuery, tFQueryFrom, tFQueryTo;
+    private AutoCompleteTextField<String> tFQuery;
+    @FXML
+    private TextField tFQueryFrom, tFQueryTo;
     @FXML
     private Button btnGo;
     @FXML
@@ -55,6 +58,19 @@ public class GraphiteMetricsController implements IWindowListener{
         cBFrom.getSelectionModel().select(2);
         cBTo.getSelectionModel().select(2);
         cBAutoFit.setSelected(true);
+        fetchMetrics();
+    }
+
+    private void fetchMetrics() {
+        new Thread(() -> {
+            List<String> list = GraphiteMetricsQuery.run();
+            System.out.println("got " + list);
+            Platform.runLater(() -> {
+                tFQuery.setEntries(new TreeSet<>(list));
+                tFQuery.setMaxEntries(20);
+                GUIController.setOnAction(tFQuery);
+            });
+        }).start();
     }
 
     private void getMetrics() {

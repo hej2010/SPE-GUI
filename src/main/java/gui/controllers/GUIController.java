@@ -142,14 +142,18 @@ public class GUIController {
         tFOutput1.setEntries(set);
         tFOutput2.setEntries(set);
 
-        tFInput1.getEntryMenu().setOnAction(e -> {
-            ((MenuItem) e.getTarget()).addEventHandler(Event.ANY, event ->
-            {
-                if (tFInput1.getLastSelectedObject() != null) {
-                    tFInput1.setText(tFInput1.getLastSelectedObject());
-                }
-            });
-        });
+        setOnAction(tFInput1);
+        setOnAction(tFInput2);
+        setOnAction(tFOutput1);
+        setOnAction(tFOutput2);
+    }
+
+    public static void setOnAction(AutoCompleteTextField<String> textField) {
+        textField.getEntryMenu().setOnAction(e -> ((MenuItem) e.getTarget()).addEventHandler(Event.ANY, event -> {
+            if (textField.getLastSelectedObject() != null) {
+                textField.setText(textField.getLastSelectedObject());
+            }
+        }));
     }
 
     private void updateDetailsView(boolean isVisualisedQuery) {
