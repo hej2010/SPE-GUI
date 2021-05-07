@@ -43,4 +43,9 @@ public class LiebreMetricsFileTab extends MetricsTab {
     public String getName() {
         return name;
     }
+
+    @Override
+    public void stop() {
+        data.stop();
+    }
 }

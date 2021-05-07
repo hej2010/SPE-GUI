@@ -64,4 +64,6 @@ public abstract class MetricsTab {
         }
         return xAxis;
     }
+
+    public abstract void stop();
 }

@@ -16,10 +16,10 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
 import javax.annotation.Nonnull;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class MetricsTabData {
     VBox paneContent;
@@ -31,21 +31,46 @@ public class MetricsTabData {
     private final Map<String, XYChart.Series<Number, Number>> map;
     private final Map<String, Boolean> visibleMap;
     private final XYChartPane<Number, Number> chartPane;
+    private final Map<String, List<XYChart.Data<Number, Number>>> newData;
 
     private long from;
+    private final ScheduledExecutorService exec;
 
     public MetricsTabData(XYChartPane<Number, Number> chartPane, List<String> seriesNames) {
         this.map = new HashMap<>();
         this.visibleMap = new HashMap<>();
         this.chartPane = chartPane;
         this.seriesNames = seriesNames;
+        this.newData = new HashMap<>();
 
         for (String seriesName : seriesNames) {
             ObservableList<XYChart.Data<Number, Number>> arr = FXCollections.observableArrayList();
             XYChart.Series<Number, Number> series = new XYChart.Series<>(seriesName, arr);
             map.put(seriesName, series);
             chartPane.getChart().getData().add(series);
+            newData.put(seriesName, new LinkedList<>());
         }
+
+        exec = Executors.newSingleThreadScheduledExecutor();
+        exec.scheduleAtFixedRate(this::addNewData, 2, 1, TimeUnit.SECONDS);
+    }
+
+    private void addNewData() {
+        Platform.runLater(() -> {
+            synchronized (newData) {
+                for (String s : newData.keySet()) {
+                    map.get(s).getData().addAll(newData.get(s));
+                    for (XYChart.Data<Number, Number> a : newData.get(s)) {
+                        updateNodeVisibility(a.getNode(), visibleMap.getOrDefault(s, true));
+                    }
+                    newData.get(s).clear();
+                }
+        /*while (!newData.isEmpty()) {
+            Pair<XYChart.Data<Number, Number>, String> pair = newData.poll();
+            updateNodeVisibility(pair.getKey().getNode(), visibleMap.getOrDefault(pair.getValue(), true));
+        }*/
+            }
+        });
     }
 
     void init(ObservableMap<String, Object> namespace) {
@@ -165,20 +190,22 @@ public class MetricsTabData {
 
     public void onNewData(@Nonnull LiebreMetrics.FileData fileData, String fileName) {
         Platform.runLater(() -> {
-            for (MetricsData v : fileData.getValues()) {
-                if (v instanceof MetricsDataSingle) {
-                    XYChart.Data<Number, Number> chartData = new XYChart.Data<>(v.timestamp, ((MetricsDataSingle) v).value);
-                    map.get(fileName).getData().add(chartData);
-                    updateNodeVisibility(chartData.getNode(), visibleMap.getOrDefault(fileName, true));
-                } else if (v instanceof MetricsDataLiebre) {
-                    for (String s : ((MetricsDataLiebre) v).getFields()) {
-                        XYChart.Data<Number, Number> chartData = new XYChart.Data<>(v.timestamp, ((MetricsDataLiebre) v).getValueFor(s));
-                        map.get(s).getData().add(chartData);
-                        updateNodeVisibility(chartData.getNode(), visibleMap.getOrDefault(s, true));
+            synchronized (newData) {
+                for (MetricsData v : fileData.getValues()) {
+                    if (v instanceof MetricsDataSingle) {
+                        newData.get(fileName).add(new XYChart.Data<>(v.timestamp, ((MetricsDataSingle) v).value));
+                    } else if (v instanceof MetricsDataLiebre) {
+                        for (String s : ((MetricsDataLiebre) v).getFields()) {
+                            newData.get(s).add(new XYChart.Data<>(v.timestamp, ((MetricsDataLiebre) v).getValueFor(s)));
+                        }
                     }
                 }
             }
             updateGraphTimeRange();
         });
+    }
+
+    public void stop() {
+        exec.shutdownNow();
     }
 }

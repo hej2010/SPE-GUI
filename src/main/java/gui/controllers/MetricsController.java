@@ -46,7 +46,7 @@ public class MetricsController implements IOnNewMetricDataListener {
             e.printStackTrace();
         }
 
-        liebreMetrics.runAndListenAsync(true);
+        liebreMetrics.runAndListenAsync(false);
     }
 
     private void setUpTabs(List<File> filesToRead) throws IOException {
@@ -122,6 +122,9 @@ public class MetricsController implements IOnNewMetricDataListener {
      */
     public void closeStage() {
         liebreMetrics.stop();
+        for (MetricsTab t : metricsTabs) {
+            t.stop();
+        }
         if (stage != null) {
             stage.close();
         }
@@ -130,7 +133,6 @@ public class MetricsController implements IOnNewMetricDataListener {
     @Override
     public void onNewData(LiebreMetrics.FileData fileData) {
         String[] names = fileData.getFileName().split("\\.", 2);
-        //System.out.println("received " + fileData);
         MetricsTab tab = null;
         for (MetricsTab t : metricsTabs) {
             if (names[1].startsWith(t.getName())) {

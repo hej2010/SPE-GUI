@@ -145,13 +145,15 @@ public class LiebreMetrics {
     private static List<MetricsData> extractData(String data) {
         List<MetricsData> values = new LinkedList<>();
         for (String line : data.split("\n")) {
-            String[] d = line.split(",");
-            if (d.length == 2) {
-                values.add(new MetricsDataSingle(Long.parseLong(d[0]), Double.parseDouble(d[1])));
-            } else if (d.length == 12) {
-                values.add(new MetricsDataLiebre(Long.parseLong(d[0]), getValues(d)));
-            } else if (d.length == 20) {
-                values.add(new MetricsDataLiebre(Long.parseLong(d[0]), getValues(fixValues(d))));
+            if (!line.startsWith("t")) {
+                String[] d = line.split(",");
+                if (d.length == 2) {
+                    values.add(new MetricsDataSingle(Long.parseLong(d[0]), Double.parseDouble(d[1])));
+                } else if (d.length == 12) {
+                    values.add(new MetricsDataLiebre(Long.parseLong(d[0]), getValues(d)));
+                } else if (d.length == 20) {
+                    values.add(new MetricsDataLiebre(Long.parseLong(d[0]), getValues(fixValues(d))));
+                }
             }
         }
         return values;

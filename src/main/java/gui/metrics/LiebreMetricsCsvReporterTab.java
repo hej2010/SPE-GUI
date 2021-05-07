@@ -60,4 +60,11 @@ public class LiebreMetricsCsvReporterTab extends MetricsTab {
     public String getName() {
         return name;
     }
+
+    @Override
+    public void stop() {
+        for (MetricsTabData s : mapToData.values()) {
+            s.stop();
+        }
+    }
 }
