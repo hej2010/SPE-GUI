@@ -156,7 +156,7 @@
                            </font>
                         </Label>
                         <Button fx:id="btnMetricsLiebre" disable="true" mnemonicParsing="false" text="View metrics (Liebre)" />
-                        <Button fx:id="btnMetricsGraphite" disable="true" mnemonicParsing="false" text="View metrics (Graphite)" />
+                        <Button fx:id="btnMetricsGraphite" mnemonicParsing="false" text="View metrics (Graphite)" />
                      </children>
                   </VBox>
           </children>

@@ -159,12 +159,10 @@ public class GUIController {
     private void updateDetailsView(boolean isVisualisedQuery) {
         if (isVisualisedQuery) {
             btnMetricsLiebre.setDisable(false);
-            btnMetricsGraphite.setDisable(false);
             vBDetails.setVisible(false);
             vBDetailsVis.setVisible(true);
         } else {
             btnMetricsLiebre.setDisable(parsedSPE instanceof ParsedLiebreSPE);
-            btnMetricsGraphite.setDisable(true);
             vBDetails.setVisible(true);
             vBDetailsVis.setVisible(false);
         }

@@ -13,7 +13,9 @@ import javafx.util.Pair;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 public class FlinkVisualiser extends Visualiser {
 
@@ -164,30 +166,43 @@ public class FlinkVisualiser extends Visualiser {
     @NotNull
     @Override
     VoidVisitorAdapter<Void> methodParserFindDefinitions(List<Pair<Node<GraphOperator>, VisInfo>> methodData, String fileName, ClassOrInterfaceDeclaration c, MethodDeclaration method) {
-        final List<String> connected2 = new LinkedList<>(), found = new LinkedList<>();
-        final int[] counter = {0};
+        final List<String> found = new LinkedList<>();
+        final int[] counter = {0}, counter2 = {0};
         return new VoidVisitorAdapter<>() {
             /**
              * Finds all connected methods
              */
             @Override
             public void visit(MethodCallExpr n, Void arg) {
-                connected2.add(n.getNameAsString());
+                //connected2.add(n.getNameAsString());
+                counter2[0]++;
                 super.visit(n, arg);
-                if (connected2.isEmpty()) {
+                if (counter2[0] == 0) {
+                    return;
+                }
+                counter2[0] = 0;
+
+                com.github.javaparser.ast.Node parent = n;
+                while (parent instanceof MethodCallExpr) {
+                    parent = parent.getParentNode().get();
+                }
+                if (parent instanceof VariableDeclarator && !found.contains(parent.toString())) {
+                    System.out.println("found " + parent.getClass() + ", " + parent);
+                    found.add(parent.toString());
+                } else {
                     return;
                 }
 
-                com.github.javaparser.ast.Node parent = n;
-                while (true) {
+                System.out.println("----");
+                /*while (true) {
                     Optional<com.github.javaparser.ast.Node> o = parent.getParentNode();
                     if (o.isPresent()) {
                         com.github.javaparser.ast.Node p = o.get();
                         if (!p.toString().startsWith("{")) {
                             parent = o.get();
                         } else {
-                            if (!found.contains(parent.toString())) {
-                                found.add(parent.toString());
+                            if (!found.contains(p.toString())) {
+                                found.add(p.toString());
                                 break;
                             } else {
                                 return;
@@ -196,9 +211,9 @@ public class FlinkVisualiser extends Visualiser {
                     } else {
                         return;
                     }
-                }
+                }*/
 
-                final VisInfo.VariableInfo vis = findLocalVariableInfo(n);
+                final VisInfo.VariableInfo vis = findLocalVariableInfo(parent);
                 if (vis == null) {
                     return;
                 }
@@ -209,7 +224,6 @@ public class FlinkVisualiser extends Visualiser {
                 if (methods.isEmpty()) {
                     return;
                 }
-
 
                 List<Node<GraphOperator>> succs = new LinkedList<>();
                 for (int i = methods.size() - 1; i >= 0; i--) {
@@ -228,7 +242,7 @@ public class FlinkVisualiser extends Visualiser {
                     succs.add(node);
                     methodData.add(new Pair<>(node, visInfo2));
                 }
-                connected2.clear();
+                //connected2.clear();
             }
         };
     }

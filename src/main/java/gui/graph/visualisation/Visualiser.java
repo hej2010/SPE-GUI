@@ -3,6 +3,7 @@ package gui.graph.visualisation;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import gui.graph.dag.Node;
 import gui.graph.data.GraphOperator;
@@ -87,31 +88,40 @@ abstract class Visualiser {
 
     @Nullable
     VisInfo.VariableInfo findLocalVariableInfo(com.github.javaparser.ast.Node n) {
+        if (n instanceof VariableDeclarator) {
+            return extractData((VariableDeclarator) n, n.toString());
+        }
         if (n.getParentNode().isPresent()) {
             com.github.javaparser.ast.Node parent = n.getParentNode().get();
             String s = parent.toString();
             if (s.startsWith("{")) { // no variable
                 String[] sp = n.toString().split("\\.", 2);
                 return new VisInfo.VariableInfo(null, sp[0], null, sp[1], Operator.class, null);
-            } else if (s.contains("=")) { // we found a variable
-                String[] strings = s.split("=", 2);
-                if (strings[0].split(" ").length > 2) { // not correct equals sign
-                    return findLocalVariableInfo(parent);
-                } else {
-                    final String variableName = strings[0].trim();
-                    final String varData = strings[1].trim();
-                    final String[] varDataDot = varData.split("\\.", 2);
-                    final String calledWithVar = varDataDot[0].trim();
-                    final String varClass = getTypeFor(variableName);
-                    final Pair<Class<? extends GraphOperator>, String> operator = findOperator(varDataDot[1]);
-                    //System.out.println("parent2 = " + parent);
-                    return new VisInfo.VariableInfo(variableName, calledWithVar, varClass, strings[1].trim(), operator.getKey(), operator.getValue());
-                }
+            } else if (parent instanceof VariableDeclarator) { // we found a variable
+                VariableDeclarator de = (VariableDeclarator) parent;
+                //System.out.println("variableDec, parent is " + de.getParentNode().get().getClass() + ", " + de.getParentNode().get().getParentNode().get().getClass());
+                return extractData(de, s);
             } else { // no variable yet, search from parent
                 return findLocalVariableInfo(parent);
             }
         }
         return null;
+    }
+
+    private VisInfo.VariableInfo extractData(VariableDeclarator de, String s) {
+        String[] strings = s.split("=", 2);
+        /*if (strings[0].split(" ").length > 2) { // not correct equals sign
+            return findLocalVariableInfo(parent);
+        } else {*/
+        final String variableName = de.getNameAsString();
+        final String varData = strings[1].trim();
+        final String[] varDataDot = varData.split("\\.", 2);
+        final String calledWithVar = varDataDot[0].trim();
+        final String varClass = de.getTypeAsString(); //getTypeFor(variableName);
+        final Pair<Class<? extends GraphOperator>, String> operator = findOperator(varDataDot[1]);
+        //System.out.println("parent2 = " + parent);
+        return new VisInfo.VariableInfo(variableName, calledWithVar, varClass, strings[1].trim(), operator.getKey(), operator.getValue());
+        //}
     }
 
     Pair<Class<? extends GraphOperator>, String> getClassStringPair(String afterDot) {

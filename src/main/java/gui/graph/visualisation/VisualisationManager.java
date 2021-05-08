@@ -18,7 +18,7 @@ import java.util.List;
 public class VisualisationManager {
 
     public static List<Pair<Node<GraphOperator>, VisInfo>> visualiseFromFile(File file, ParsedSPE parsedSPE) {
-        List<Pair<Node<GraphOperator>, VisInfo>> list = new LinkedList<>();
+        List<Pair<Node<GraphOperator>, VisInfo>> visResult = new LinkedList<>();
 
         Visualiser visualiser = null;
         if (parsedSPE instanceof ParsedLiebreSPE) {
@@ -37,18 +37,18 @@ public class VisualisationManager {
             cu = javaParser.parse(file).getResult().get();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
-            return list;
+            return visResult;
         }
 
         List<ClassOrInterfaceDeclaration> classes = visualiser.findClasses(cu);
 
         for (ClassOrInterfaceDeclaration c : classes) {
-            list.addAll(visualiser.getClassData(file.getName(), c));
+            visResult.addAll(visualiser.getClassData(file.getName(), c));
         }
 
-        list = visualiser.fixList(list);
+        visResult = visualiser.fixList(visResult);
 
-        return list;
+        return visResult;
     }
 
 }
