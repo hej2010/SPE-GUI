@@ -184,13 +184,11 @@ public class FlinkVisualiser extends Visualiser {
                 counter2[0] = 0;
 
                 com.github.javaparser.ast.Node parent = n;
-                boolean methodCall = false;
                 while (parent instanceof MethodCallExpr) {
-                    methodCall = true;
                     parent = parent.getParentNode().get();
                 }
                 //System.out.println("found " + parent.getClass() + ", " + parent);
-                if (methodCall && (parent instanceof VariableDeclarator || parent instanceof ExpressionStmt) && !found.contains(parent.toString())) {
+                if ((parent instanceof VariableDeclarator || parent instanceof ExpressionStmt) && !found.contains(parent.toString())) {
                     found.add(parent.toString());
                 } else {
                     return;

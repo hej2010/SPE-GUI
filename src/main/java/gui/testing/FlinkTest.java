@@ -45,7 +45,7 @@ public class FlinkTest {
             }
         });
 
-        intStream
+        SingleOutputStreamOperator<Double> stream = intStream
                 .map((MapFunction<Integer, Double>) value -> value * Math.PI)
                 .map((MapFunction<Double, Double>) value -> value * Math.PI)
                 .filter((FilterFunction<Double>) value -> value > 2)
@@ -56,12 +56,12 @@ public class FlinkTest {
                     }
                 })*/;
 
-                /*stream.addSink(new SinkFunction<Double>() {
+                stream.addSink(new SinkFunction<Double>() {
                     @Override
                     public void invoke(Double value, Context context) throws Exception {
                         SinkFunction.super.invoke(value, context);
                     }
-                });*/
+                });
 
         sourceStream.addSink(new SinkFunction<>() {
             @Override
