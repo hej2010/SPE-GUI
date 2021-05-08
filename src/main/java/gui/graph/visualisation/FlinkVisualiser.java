@@ -4,6 +4,7 @@ import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.MethodCallExpr;
+import com.github.javaparser.ast.stmt.ExpressionStmt;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import gui.graph.dag.Node;
 import gui.graph.data.GraphOperator;
@@ -183,11 +184,13 @@ public class FlinkVisualiser extends Visualiser {
                 counter2[0] = 0;
 
                 com.github.javaparser.ast.Node parent = n;
+                boolean methodCall = false;
                 while (parent instanceof MethodCallExpr) {
+                    methodCall = true;
                     parent = parent.getParentNode().get();
                 }
-                if (parent instanceof VariableDeclarator && !found.contains(parent.toString())) {
-                    System.out.println("found " + parent.getClass() + ", " + parent);
+                //System.out.println("found " + parent.getClass() + ", " + parent);
+                if (methodCall && (parent instanceof VariableDeclarator || parent instanceof ExpressionStmt) && !found.contains(parent.toString())) {
                     found.add(parent.toString());
                 } else {
                     return;
