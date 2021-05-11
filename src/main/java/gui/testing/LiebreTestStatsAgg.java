@@ -37,7 +37,7 @@ public class LiebreTestStatsAgg {
         });
         Operator<Double, InputTuple> mOp = query.addMapOperator("myMap", aDouble -> new InputTuple(System.currentTimeMillis(), 34, aDouble.intValue()));
 
-        Operator<InputTuple, OutputTuple> aggregate = query.addAggregateOperator("agg", new AverageWindow(), 60, 20);
+        Operator<InputTuple, OutputTuple> aggregate = query.addAggregateOperator("agg", new AverageWindow(), 8, 4);
 
         Sink<OutputTuple> sink = query.addBaseSink("sadasdas3", myTuple -> {
             //System.out.println("tuple is " + myTuple);

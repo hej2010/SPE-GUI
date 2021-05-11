@@ -42,12 +42,16 @@ import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
+import java.lang.management.MemoryMXBean;
+import java.lang.management.MemoryUsage;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.util.*;
 
 public class GUIController {
+    private final OperatingSystemMXBean osBean = ManagementFactory.getPlatformMXBean(OperatingSystemMXBean.class);
+    private final MemoryMXBean memoryBean = ManagementFactory.getPlatformMXBean(MemoryMXBean.class);
     private GUI gui;
     private final GraphOperator[] selectedOps = new GraphOperator[2];
     private Edge<GraphStream, GraphOperator> selectedEdge;
@@ -120,13 +124,15 @@ public class GUIController {
     }
 
     private void startMetricsTimer() {
-        Timeline fiveSecondsWonder = new Timeline(new KeyFrame(Duration.seconds(2), event -> {
-            double usage = getCPUUsagePercentage();
+        Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(1), event -> {
+            double usage = osBean.getProcessCpuLoad() * 100;
+            MemoryUsage memUsage = memoryBean.getHeapMemoryUsage();
             DecimalFormat df = new DecimalFormat("#.00");
             lblLeftStatus.setText("CPU: " + df.format(usage) + "%");
+            lblRightStatus.setText("RAM: " + memUsage.getUsed() / 1048576 + " MB");
         }));
-        fiveSecondsWonder.setCycleCount(Timeline.INDEFINITE);
-        fiveSecondsWonder.play();
+        timeline.setCycleCount(Timeline.INDEFINITE);
+        timeline.play();
     }
 
     private void initAutoCompletion() throws URISyntaxException, IOException {
@@ -634,6 +640,11 @@ public class GUIController {
             }
         });
         btnMetricsLiebre.setOnAction(event -> {
+            DirectoryChooser directoryChooser = new DirectoryChooser();
+            String path = Paths.get(".").toAbsolutePath().normalize().toString() + "/src/main/java/gui";
+            directoryChooser.setInitialDirectory(new File(path));
+            directoryChooser.setTitle("Select the csv output directory");
+            File file = directoryChooser.showDialog(gui.getPrimaryStage());
             try {
                 FXMLLoader fxmlLoader = new FXMLLoader(GUI.class.getResource(GUI.FXML_METRICS_LIEBRE));
                 Pane main = fxmlLoader.load();
@@ -649,7 +660,7 @@ public class GUIController {
                 controller.setStage(stage);
 
                 assert selectedTab.getVisResult() != null;
-                controller.init(parsedSPE, selectedTab.getVisResult());
+                controller.init(parsedSPE, selectedTab.getVisResult(), file);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -681,15 +692,6 @@ public class GUIController {
         selectedTab.getGraph().insertVertex(operator);
         update();
         Platform.runLater(() -> setVertexSelectedStyle(false, operator));
-    }
-
-    private Double getCPUUsagePercentage() {
-        OperatingSystemMXBean osBean = ManagementFactory.getPlatformMXBean(OperatingSystemMXBean.class);
-        // What % CPU load this current JVM is taking, from 0.0-1.0
-        //System.out.println(osBean.getProcessCpuLoad());
-
-
-        return osBean.getProcessCpuLoad() * 100;
     }
 
     private void showDialog(Alert.AlertType alertType, String title, String header, String content) {

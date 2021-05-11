@@ -6,10 +6,7 @@ import gui.graph.data.GraphOperator;
 import gui.graph.data.GraphStream;
 import gui.graph.data.Stream;
 import gui.graph.visualisation.VisInfo;
-import gui.metrics.liebre.IOnNewMetricDataListener;
-import gui.metrics.liebre.LiebreMetrics;
-import gui.metrics.liebre.LiebreMetricsFileTab;
-import gui.metrics.liebre.MetricsTab;
+import gui.metrics.liebre.*;
 import gui.spe.ParsedSPE;
 import gui.utils.Files;
 import javafx.fxml.FXML;
@@ -35,13 +32,13 @@ public class LiebreMetricsController implements IOnNewMetricDataListener, IWindo
     private LiebreMetrics liebreMetrics;
     private List<MetricsTab> metricsTabs;
 
-    public void init(@Nonnull ParsedSPE parsedSPE, @Nonnull List<Pair<Node<GraphOperator>, VisInfo>> visResult) {
+    public void init(@Nonnull ParsedSPE parsedSPE, @Nonnull List<Pair<Node<GraphOperator>, VisInfo>> visResult, File directory) {
         this.parsedSPE = parsedSPE;
         this.visResult = visResult;
 
         final List<GraphObject> graphObjects = getAllGraphObjects();
 
-        this.liebreMetrics = new LiebreMetrics(Path.of("").toAbsolutePath().toFile(), graphObjects, this);
+        this.liebreMetrics = new LiebreMetrics(directory, graphObjects, this);
 
         final List<File> filesToRead = liebreMetrics.getFilesToRead();
         try {
@@ -72,7 +69,6 @@ public class LiebreMetricsController implements IOnNewMetricDataListener, IWindo
                 } else {
                     execsSimple.add(name[0]);
                 }
-                execs.add(name[0]);
             } else if (name[1].endsWith("IN.csv")) {
                 ins.add(name[0]);
             } else if (name[1].endsWith("OUT.csv")) {
@@ -84,7 +80,7 @@ public class LiebreMetricsController implements IOnNewMetricDataListener, IWindo
             metricsTabs.add(new LiebreMetricsFileTab("RATE", rates));
         }
         if (!execs.isEmpty()) {
-            //metricsTabs.add(new LiebreMetricsCsvReporterTab("EXEC", execs));
+            metricsTabs.add(new LiebreMetricsCsvReporterTab("EXEC", execs));
         }
         if (!execsSimple.isEmpty()) {
             metricsTabs.add(new LiebreMetricsFileTab("EXEC", execsSimple));

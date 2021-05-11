@@ -29,7 +29,8 @@
     "addRouterOperator": "op:Router",
     "addAggregateOperator": "op:Aggregate",
     "addTextFileSource": "source:TextFileSource",
-    "addBaseSink": "sink:BaseSink"
+    "addBaseSink": "sink:BaseSink",
+    "addTextFileSink": "sink:TextFileSink"
   },
   "imports": {
     "base": [
