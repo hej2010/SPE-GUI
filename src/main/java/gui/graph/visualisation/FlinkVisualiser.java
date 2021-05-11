@@ -4,7 +4,6 @@ import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.MethodCallExpr;
-import com.github.javaparser.ast.stmt.ExpressionStmt;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import gui.graph.dag.Node;
 import gui.graph.data.GraphOperator;
@@ -14,9 +13,11 @@ import javafx.util.Pair;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
 public class FlinkVisualiser extends Visualiser {
 
@@ -167,62 +168,44 @@ public class FlinkVisualiser extends Visualiser {
     @NotNull
     @Override
     VoidVisitorAdapter<Void> methodParserFindDefinitions(List<Pair<Node<GraphOperator>, VisInfo>> methodData, String fileName, ClassOrInterfaceDeclaration c, MethodDeclaration method) {
-        final List<String> found = new LinkedList<>();
-        final int[] counter = {0}, counter2 = {0};
+        final List<String> connected2 = new LinkedList<>(), found = new LinkedList<>();
+        final int[] counter = {0};
         return new VoidVisitorAdapter<>() {
             /**
              * Finds all connected methods
              */
             @Override
             public void visit(MethodCallExpr n, Void arg) {
-                //connected2.add(n.getNameAsString());
-                counter2[0]++;
+                connected2.add(n.getNameAsString());
                 super.visit(n, arg);
-                if (counter2[0] == 0) {
-                    return;
-                }
-                counter2[0] = 0;
-
-                com.github.javaparser.ast.Node parent = n;
-                while (parent instanceof MethodCallExpr) {
-                    parent = parent.getParentNode().get();
-                }
-                //System.out.println("found " + parent.getClass() + ", " + parent);
-                if ((parent instanceof VariableDeclarator || parent instanceof ExpressionStmt) && !found.contains(parent.toString())) {
-                    found.add(parent.toString());
-                } else {
+                if (connected2.isEmpty()) {
                     return;
                 }
 
                 System.out.println("----");
-                /*while (true) {
-                    Optional<com.github.javaparser.ast.Node> o = parent.getParentNode();
-                    if (o.isPresent()) {
-                        com.github.javaparser.ast.Node p = o.get();
-                        if (!p.toString().startsWith("{")) {
-                            parent = o.get();
-                        } else {
-                            if (!found.contains(p.toString())) {
-                                found.add(p.toString());
-                                break;
-                            } else {
-                                return;
-                            }
-                        }
-                    } else {
-                        return;
-                    }
-                }*/
 
+                com.github.javaparser.ast.Node parent = getCorrectNode(n);
+                if (parent == null) {
+                    return;
+                }
+                String s = parent.toString();
+                if (!found.contains(s)) {
+                    found.add(s);
+                } else {
+                    return;
+                }
+
+                System.out.println("find for " + parent.getClass());
                 final VisInfo.VariableInfo vis = findLocalVariableInfo(parent);
                 if (vis == null) {
                     return;
                 }
+
                 if (queryVariables.contains(vis.getCalledWithVariableName()) && vis.getVariableName() != null) {
                     queryVariables.add(vis.getVariableName());
                 }
                 List<Pair<String, String>> methods = getMethods(parent.toString());
-                if (methods.isEmpty()) {
+                if (methods.isEmpty() || !parsedSPE.getCodeToOpMap().containsKey(methods.get(0).getKey())) {
                     return;
                 }
 
@@ -243,8 +226,50 @@ public class FlinkVisualiser extends Visualiser {
                     succs.add(node);
                     methodData.add(new Pair<>(node, visInfo2));
                 }
-                //connected2.clear();
+                connected2.clear();
+                System.out.println("---");
+            }
+
+            @Nullable
+            private com.github.javaparser.ast.Node getCorrectNode(@Nonnull MethodCallExpr n) {
+                com.github.javaparser.ast.Node first = n;
+                com.github.javaparser.ast.Node second = n;
+                com.github.javaparser.ast.Node third = n;
+                com.github.javaparser.ast.Node fourth = n;
+                com.github.javaparser.ast.Node fifth = n;
+                com.github.javaparser.ast.Node sixth = n;
+                while (!(first instanceof ClassOrInterfaceDeclaration)) {
+                    sixth = fifth;
+                    fifth = fourth;
+                    fourth = third;
+                    third = second;
+                    second = first;
+                    Optional<com.github.javaparser.ast.Node> optionalNode = first.getParentNode();
+                    if (optionalNode.isPresent()) {
+                        first = optionalNode.get();
+                    } else {
+                        return null;
+                    }
+                }
+                com.github.javaparser.ast.Node result;
+                if (sixth instanceof VariableDeclarator) {
+                    result = sixth;
+                } else {
+                    result = fifth;
+                }
+                return result;
             }
         };
+    }
+
+    @Nullable
+    VisInfo.VariableInfo findLocalVariableInfo(com.github.javaparser.ast.Node n) {
+        if (n instanceof VariableDeclarator) { // we found a variable
+            return extractData((VariableDeclarator) n, n.toString());
+        } else if (n instanceof MethodCallExpr) { // no variable
+            String[] sp = n.toString().split("\\.", 2);
+            return new VisInfo.VariableInfo(null, sp[0], null, sp[1], Operator.class, null);
+        }
+        return null;
     }
 }

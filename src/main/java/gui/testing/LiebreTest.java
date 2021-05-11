@@ -32,7 +32,7 @@ public class LiebreTest {
         final PickledGraphite graphite = new PickledGraphite(new InetSocketAddress("localhost", 2004));
         final GraphiteReporter graphiteReporter =
                 GraphiteReporter.forRegistry(Metrics.metricRegistry())
-                        .prefixedWith(String.format("liebre.%s.", "test"/*System.currentTimeMillis()*/))
+                        .prefixedWith(String.format("liebre.%s.", "testing"/*System.currentTimeMillis()*/))
                         .build(graphite);
         graphiteReporter.start(1, TimeUnit.SECONDS);
 
@@ -55,10 +55,10 @@ public class LiebreTest {
         //RouterOperator<MyTuple> r = query.addRouterOperator("gdfgfg");
 
 
-        Sink<MyTuple> sink = query.addBaseSink("O1", myTuple -> {
+        Sink<MyTuple> sink = query.addBaseSink("sink1", myTuple -> {
 
         });
-        Source<String> source1 = query.addBaseSource("fd", new SourceFunction<String>() {
+        Source<String> source1 = query.addBaseSource("source1", new SourceFunction<String>() {
             @Override
             public String get() {
                 try {
@@ -69,7 +69,7 @@ public class LiebreTest {
                 return "dfsf";
             }
         });
-        Operator<String, MyTuple> mapp = query.addMapOperator("dfg", s -> null);
+        Operator<String, MyTuple> mapp = query.addMapOperator("map1", s -> null);
 
         //query.connect(mOp, fOp);
         query.connect(source1, mapp)/*.connect(mapp, r)*/.connect(mapp, sink);

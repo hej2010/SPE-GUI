@@ -88,9 +88,7 @@ abstract class Visualiser {
 
     @Nullable
     VisInfo.VariableInfo findLocalVariableInfo(com.github.javaparser.ast.Node n) {
-        if (n instanceof VariableDeclarator) {
-            return extractData((VariableDeclarator) n, n.toString());
-        }
+        System.out.println("find for " + n.getClass());
         if (n.getParentNode().isPresent()) {
             com.github.javaparser.ast.Node parent = n.getParentNode().get();
             String s = parent.toString();
@@ -108,7 +106,7 @@ abstract class Visualiser {
         return null;
     }
 
-    private VisInfo.VariableInfo extractData(VariableDeclarator de, String s) {
+    VisInfo.VariableInfo extractData(VariableDeclarator de, String s) {
         String[] strings = s.split("=", 2);
         /*if (strings[0].split(" ").length > 2) { // not correct equals sign
             return findLocalVariableInfo(parent);
