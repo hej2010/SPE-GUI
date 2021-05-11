@@ -212,8 +212,11 @@ public class FlinkVisualiser extends Visualiser {
                 List<Node<GraphOperator>> succs = new LinkedList<>();
                 for (int i = methods.size() - 1; i >= 0; i--) {
                     Pair<String, String> p = methods.get(i);
-                    Operator op = new Operator(p.getKey() + "-" + counter[0]++);
-                    VisInfo.VariableInfo variableInfo = new VisInfo.VariableInfo(vis.getVariableName(), vis.getCalledWithVariableName(), vis.getVariableClass(), p.getValue(), vis.getOperatorType(), parsedSPE.getCodeToOpMap().get(p.getKey()).getValue());
+                    Pair<Class<? extends GraphOperator>, String> classStringPair = parsedSPE.getCodeToOpMap().get(p.getKey());
+                    final String name = p.getKey() + "-" + counter[0]++;
+                    GraphOperator op = getCorrectOpClass(name, classStringPair.getKey());
+
+                    VisInfo.VariableInfo variableInfo = new VisInfo.VariableInfo(vis.getVariableName(), vis.getCalledWithVariableName(), vis.getVariableClass(), p.getValue(), vis.getOperatorType(), classStringPair.getValue());
                     VisInfo.VisInfo2 visInfo2 = new VisInfo.VisInfo2(fileName, c.getName().asString(), method.getNameAsString(), variableInfo, i == 0, i == methods.size() - 1, vis.getVariableName());
                     op.setVisInfo(visInfo2);
                     Node<GraphOperator> node;
@@ -251,13 +254,11 @@ public class FlinkVisualiser extends Visualiser {
                         return null;
                     }
                 }
-                com.github.javaparser.ast.Node result;
                 if (sixth instanceof VariableDeclarator) {
-                    result = sixth;
+                    return sixth;
                 } else {
-                    result = fifth;
+                    return fifth;
                 }
-                return result;
             }
         };
     }

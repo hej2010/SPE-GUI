@@ -91,7 +91,8 @@ public class LiebreVisualiser extends Visualiser {
                 final VisInfo.VariableInfo variableInfo = findLocalVariableInfo(n);
                 final String variableName = variableInfo == null ? null : variableInfo.getVariableName();
                 if (variableName != null && allConnectedOperators.contains(variableName)) {
-                    GraphOperator op = new Operator(variableName);
+
+                    GraphOperator op = getCorrectOpClass(variableName, variableInfo.getOperatorType());
                     if (variableInfo.getVariableData() != null) {
                         op.setIdentifier2(variableInfo.getVariableData().split("\"", 3)[1]);
                     }

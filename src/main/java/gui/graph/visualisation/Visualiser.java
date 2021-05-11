@@ -8,6 +8,8 @@ import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import gui.graph.dag.Node;
 import gui.graph.data.GraphOperator;
 import gui.graph.data.Operator;
+import gui.graph.data.SinkOperator;
+import gui.graph.data.SourceOperator;
 import gui.spe.ParsedSPE;
 import javafx.util.Pair;
 
@@ -94,7 +96,7 @@ abstract class Visualiser {
             String s = parent.toString();
             if (s.startsWith("{")) { // no variable
                 String[] sp = n.toString().split("\\.", 2);
-                return new VisInfo.VariableInfo(null, sp[0], null, sp[1], Operator.class, null);
+                return new VisInfo.VariableInfo(null, sp[0], null, sp[1], findOperator(sp[1].split("\\(", 2)[0]).getKey(), null);
             } else if (parent instanceof VariableDeclarator) { // we found a variable
                 VariableDeclarator de = (VariableDeclarator) parent;
                 //System.out.println("variableDec, parent is " + de.getParentNode().get().getClass() + ", " + de.getParentNode().get().getParentNode().get().getClass());
@@ -120,6 +122,16 @@ abstract class Visualiser {
         //System.out.println("parent2 = " + parent);
         return new VisInfo.VariableInfo(variableName, calledWithVar, varClass, strings[1].trim(), operator.getKey(), operator.getValue());
         //}
+    }
+
+    GraphOperator getCorrectOpClass(String name, Class<? extends GraphOperator> classType) {
+        if (classType == SourceOperator.class) {
+            return new SourceOperator(name);
+        } else if (classType == SinkOperator.class) {
+            return new SinkOperator(name);
+        } else {
+            return new Operator(name);
+        }
     }
 
     Pair<Class<? extends GraphOperator>, String> getClassStringPair(String afterDot) {
