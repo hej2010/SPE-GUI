@@ -37,13 +37,11 @@ public class GraphiteRenderQuery {
     }
 
     static List<GraphiteRenderQuery> fromJson(JSONArray arr) {
-
         List<GraphiteRenderQuery> list = new ArrayList<>();
         if (arr != null) {
             if (arr.isEmpty()) {
                 return list;
             }
-
         } else {
             System.out.println("GraphiteRenderQuery - fromJson: empty");
             return list;

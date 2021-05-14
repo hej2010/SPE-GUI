@@ -80,9 +80,10 @@ public class GraphiteMetricsController implements IWindowListener {
         Pair<Pair<String, String>, Pair<Integer, Integer>> dateRange = getSelectedDateRange();
         Pair<String, String> stringTime = dateRange.getKey();
         Pair<Integer, Integer> doubleTime = dateRange.getValue();
+        final String query = tFQuery.getText();
         Map<String, String> map = new HashMap<>();
         map.put("format", "json");
-        map.put("target", tFQuery.getText()); // liebre.name.I1.EXEC.count
+        map.put("target", query); // liebre.name.I1.EXEC.count
         map.put("from", stringTime.getValue());
         map.put("until", stringTime.getKey());
         List<GraphiteRenderQuery> q = GraphiteRenderQuery.run(map);
@@ -91,7 +92,7 @@ public class GraphiteMetricsController implements IWindowListener {
             lError.setText("Error");
         } else {
             lError.setText("");
-            handleData(q, doubleTime);
+            handleData(q, doubleTime, query);
         }
     }
 
@@ -132,7 +133,7 @@ public class GraphiteMetricsController implements IWindowListener {
         return (int) (now - value * time);
     }
 
-    private void handleData(List<GraphiteRenderQuery> queryList, Pair<Integer, Integer> dateRange) {
+    private void handleData(List<GraphiteRenderQuery> queryList, Pair<Integer, Integer> dateRange, String query) {
         LineChart<Number, Number> lineChart = new LineChart<>(createXAxis(cBAutoFit.isSelected(), dateRange), createYAxis());
         lineChart.getStyleClass().add("chart1");
         lineChart.setAnimated(true);
@@ -151,7 +152,7 @@ public class GraphiteMetricsController implements IWindowListener {
             lineChart.getData().add(new XYChart.Series<>(seriesName, RenderDatapoint.toChartData(q.getDataPoints())));
         }
 
-        showGraph(lineChart, queryList.isEmpty() ? "?" : queryList.get(0).getTarget());
+        showGraph(lineChart, query);
     }
 
     private void showGraph(LineChart<Number, Number> lineChart, String query) {
