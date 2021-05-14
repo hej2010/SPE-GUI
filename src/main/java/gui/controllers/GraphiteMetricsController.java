@@ -20,7 +20,10 @@ import javafx.scene.control.*;
 import javafx.stage.Stage;
 import javafx.util.Pair;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeSet;
 
 public class GraphiteMetricsController implements IWindowListener {
     @FXML
@@ -82,7 +85,7 @@ public class GraphiteMetricsController implements IWindowListener {
         map.put("target", tFQuery.getText()); // liebre.name.I1.EXEC.count
         map.put("from", stringTime.getValue());
         map.put("until", stringTime.getKey());
-        GraphiteRenderQuery q = GraphiteRenderQuery.run(map);
+        List<GraphiteRenderQuery> q = GraphiteRenderQuery.run(map);
         System.out.println(q);
         if (q == null) {
             lError.setText("Error");
@@ -129,7 +132,7 @@ public class GraphiteMetricsController implements IWindowListener {
         return (int) (now - value * time);
     }
 
-    private void handleData(GraphiteRenderQuery q, Pair<Integer, Integer> dateRange) {
+    private void handleData(List<GraphiteRenderQuery> queryList, Pair<Integer, Integer> dateRange) {
         LineChart<Number, Number> lineChart = new LineChart<>(createXAxis(cBAutoFit.isSelected(), dateRange), createYAxis());
         lineChart.getStyleClass().add("chart1");
         lineChart.setAnimated(true);
@@ -137,14 +140,23 @@ public class GraphiteMetricsController implements IWindowListener {
         lineChart.getYAxis().setLabel("Value");
         lineChart.getYAxis().setSide(Side.RIGHT);
         lineChart.getXAxis().setLabel("Time");
-        lineChart.getData().add(new XYChart.Series<>("Data 1", RenderDatapoint.toChartData(q.getDataPoints())));
+        int count = 1;
+        for (GraphiteRenderQuery q : queryList) {
+            String target = q.getTarget();
+            String seriesName = "Data " + count++;
+            if (target != null) {
+                String[] s = q.getTarget().split("\\.");
+                seriesName = s[s.length - 1];
+            }
+            lineChart.getData().add(new XYChart.Series<>(seriesName, RenderDatapoint.toChartData(q.getDataPoints())));
+        }
 
-        showGraph(lineChart, q);
+        showGraph(lineChart, queryList.isEmpty() ? "?" : queryList.get(0).getTarget());
     }
 
-    private void showGraph(LineChart<Number, Number> lineChart, GraphiteRenderQuery q) {
+    private void showGraph(LineChart<Number, Number> lineChart, String query) {
         XYChartPane<Number, Number> chartPane = new XYChartPane<>(lineChart);
-        chartPane.setTitle("Data for query: " + q.getTarget());
+        chartPane.setTitle("Data for query: " + query);
         chartPane.setCommonYAxis(false);
         chartPane.getPlugins().addAll(new CrosshairIndicator<>(), new DataPointTooltip<>());
         chartPane.getStylesheets().add("gui/mixed-chart-sample.css");

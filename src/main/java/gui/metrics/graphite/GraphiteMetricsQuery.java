@@ -3,7 +3,6 @@ package gui.metrics.graphite;
 import gui.network.NetworkRequest;
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
@@ -17,10 +16,10 @@ public class GraphiteMetricsQuery {
     }
 
     public static List<String> run(@Nonnull String host, int port) {
-        JSONObject result;
+        JSONArray result;
         try {
-            String response = new NetworkRequest("http://" + host + ":" + port + "/metrics/expand?query=*.*.*.*.*", null).run();
-            result = new JSONObject(response);
+            String response = new NetworkRequest("http://" + host + ":" + port + "/metrics/index.json", null).run();
+            result = new JSONArray(response);
         } catch (IOException | JSONException e) {
             e.printStackTrace();
             return null;
@@ -28,13 +27,10 @@ public class GraphiteMetricsQuery {
         return fromJson(result);
     }
 
-    static List<String> fromJson(JSONObject obj) {
+    static List<String> fromJson(JSONArray arr) {
         List<String> results = new LinkedList<>();
-        if (obj.has("results")) {
-            JSONArray arr = obj.getJSONArray("results");
-            for (int i = 0; i < arr.length(); i++) {
-                results.add(arr.getString(i));
-            }
+        for (int i = 0; i < arr.length(); i++) {
+            results.add(arr.getString(i));
         }
         return results;
     }

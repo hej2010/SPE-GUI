@@ -12,8 +12,8 @@ public class GraphiteTest {
         map.put("target", "liebre.name.I1.EXEC.count");
         map.put("from", "-148h");
         map.put("until", "");
-        GraphiteRenderQuery q = GraphiteRenderQuery.run(map);
-        System.out.println(q);
+        //GraphiteRenderQuery q = GraphiteRenderQuery.run(map);
+        //System.out.println(q);
     }
 
 }

@@ -71,7 +71,7 @@ public class LiebreMetrics {
         final List<File> filesToRead = getFilesToRead();
         for (File f : filesToRead) {
             TailerListener tailerListener = new MyTailListener(listener, f.getName());
-            Tailer tailer = new Tailer(f, tailerListener, 500, fromEndOfFile);
+            Tailer tailer = new Tailer(f, tailerListener, 1000, fromEndOfFile);
             tailers.add(tailer);
             System.out.println("for file " + f);
             new Thread(tailer).start();
