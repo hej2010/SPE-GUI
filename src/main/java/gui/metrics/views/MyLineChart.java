@@ -1,5 +1,6 @@
 package gui.metrics.views;
 
+import cern.extjfx.chart.NumericAxis;
 import javafx.collections.ObservableList;
 import javafx.scene.chart.Axis;
 import javafx.scene.chart.LineChart;
@@ -26,6 +27,9 @@ public class MyLineChart<X, Y> extends LineChart<X, Y> {
         final Axis<Y> ya = getYAxis();
         List<X> xData = null;
         List<Y> yData = null;
+        final NumericAxis yx = (NumericAxis) getXAxis();
+        final double lowerX = yx.getLowerBound();
+        final double upperX = yx.getUpperBound();
         if (xa.isAutoRanging()) xData = new ArrayList<X>();
         if (ya.isAutoRanging()) yData = new ArrayList<Y>();
         if (xData != null || yData != null) {
@@ -33,7 +37,16 @@ public class MyLineChart<X, Y> extends LineChart<X, Y> {
                 if (series.getNode().isVisible()) { // consider only visible series
                     for (Data<X, Y> data : series.getData()) {
                         if (xData != null) xData.add(data.getXValue());
-                        if (yData != null) yData.add(data.getYValue());
+                        if (yData != null) {
+                            if (data.getYValue() instanceof Number) {
+                                double x = ((Number) data.getXValue()).doubleValue();
+                                if (x >= lowerX && x <= upperX) {
+                                    yData.add(data.getYValue());
+                                }
+                            } else {
+                                yData.add(data.getYValue());
+                            }
+                        }
                     }
                 }
             }

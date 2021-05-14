@@ -50,7 +50,7 @@ public class MetricsTabData {
             newData.put(seriesName, new LinkedList<>());
             chartPane.getChart().getData().add(series);
         }
-        System.out.println("newdata initialized to " + newData.keySet());
+        //System.out.println("newdata initialized to " + newData.keySet());
 
         exec = Executors.newSingleThreadScheduledExecutor();
         exec.scheduleAtFixedRate(this::addNewData, 2, 1, TimeUnit.SECONDS);
@@ -198,7 +198,7 @@ public class MetricsTabData {
                     } else if (v instanceof MetricsDataLiebre) {
                         for (String s : ((MetricsDataLiebre) v).getFields()) {
                             if (newData.get(s) == null) {
-                                System.out.println("newData s is null for " + s);
+                                //System.out.println("newData s is null for " + s);
                                 continue;
                             }
                             newData.get(s).add(new XYChart.Data<>(v.timestamp, ((MetricsDataLiebre) v).getValueFor(s)));

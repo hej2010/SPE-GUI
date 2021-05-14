@@ -30,9 +30,8 @@ public class LiebreTest {
         LiebreContext.setUserMetrics(Metrics.dropWizard());
         LiebreContext.setStreamMetrics(Metrics.dropWizard());
         final PickledGraphite graphite = new PickledGraphite(new InetSocketAddress("localhost", 2004));
-        final GraphiteReporter graphiteReporter =
-                GraphiteReporter.forRegistry(Metrics.metricRegistry())
-                        .prefixedWith(String.format("liebre.%s.", "testing"/*System.currentTimeMillis()*/))
+        final GraphiteReporter graphiteReporter = GraphiteReporter.forRegistry(Metrics.metricRegistry())
+                        .prefixedWith(String.format("liebre.%s.", "testing"))
                         .build(graphite);
         graphiteReporter.start(1, TimeUnit.SECONDS);
 
@@ -69,15 +68,15 @@ public class LiebreTest {
                 return "dfsf";
             }
         });
-        Operator<String, MyTuple> mapp = query.addMapOperator("map1", s -> null);
+        Operator<String, MyTuple> mapp = query.addMapOperator("map1", s -> new MyTuple(System.currentTimeMillis(), 0, 34));
 
         //query.connect(mOp, fOp);
         query.connect(source1, mapp)/*.connect(mapp, r)*/.connect(mapp, sink);
         //query.connect(ID, r);
 
         query.activate();
-        Util.sleep(60000);
-        query.deActivate();
+        //Util.sleep(60000);
+        //query.deActivate();
     }
 
     private static class MyTuple {
