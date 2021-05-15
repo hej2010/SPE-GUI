@@ -12,7 +12,10 @@ import gui.graph.data.*;
 import gui.graph.export.ExportManager;
 import gui.graph.visualisation.VisInfo;
 import gui.graph.visualisation.VisualisationManager;
-import gui.spe.*;
+import gui.spe.ParsedFlinkSPE;
+import gui.spe.ParsedLiebreSPE;
+import gui.spe.ParsedOperator;
+import gui.spe.ParsedSPE;
 import gui.utils.Files;
 import gui.utils.IOnDone;
 import gui.views.AutoCompleteTextField;
@@ -60,6 +63,7 @@ public class GUIController {
     private File selectedDirectory;
     private final List<TabData> tabs = new LinkedList<>();
     private TabData selectedTab;
+    private File lastSelectedDirectory, lastSelectedMetricsDirectory;
 
     @FXML
     public AnchorPane aPMaster/*, aPGraph*/, aPDetails;
@@ -124,12 +128,14 @@ public class GUIController {
     }
 
     private void startMetricsTimer() {
-        Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(1), event -> {
+        Timeline timeline = new Timeline(new KeyFrame(Duration.millis(500), event -> {
             double usage = osBean.getProcessCpuLoad() * 100;
             MemoryUsage memUsage = memoryBean.getHeapMemoryUsage();
             DecimalFormat df = new DecimalFormat("#.00");
+            long memUsed = memUsage.getUsed() / 1048576;
             lblLeftStatus.setText("CPU: " + df.format(usage) + "%");
-            lblRightStatus.setText("RAM: " + memUsage.getUsed() / 1048576 + " MB");
+            lblRightStatus.setText("RAM: " + memUsed + " MB");
+            System.out.println(usage + ", " + memUsed);
         }));
         timeline.setCycleCount(Timeline.INDEFINITE);
         timeline.play();
@@ -137,8 +143,8 @@ public class GUIController {
 
     private void initAutoCompletion() throws URISyntaxException, IOException {
         String fileName = (parsedSPE instanceof ParsedLiebreSPE ? "liebre" : "flink") + "-classes.txt";
-        String file = Files.readFile(Paths.get(Paths.get(SPEParser.class.getClassLoader().getResource("gui").toURI()).toString(), fileName).toString());
-        String javaFiles = Files.readFile(Paths.get(Paths.get(SPEParser.class.getClassLoader().getResource("gui").toURI()).toString(), "java-classes.txt").toString());
+        String file = Files.readResource(fileName);
+        String javaFiles = Files.readResource("java-classes.txt");
         String both = file + "," + javaFiles;
 
         SortedSet<String> set = new TreeSet<>(Arrays.asList(both.split(",")));
@@ -482,24 +488,32 @@ public class GUIController {
         mIExport.setOnAction(event -> {
             JSONObject o = ExportManager.projectToJson(DirectedGraph.fromGraphView(selectedTab.getGraph()), parsedSPE);
             DirectoryChooser directoryChooser = new DirectoryChooser();
-            String path = Paths.get(".").toAbsolutePath().normalize().toString() + "/src/main/java/gui";
+            String path = Paths.get(".").toAbsolutePath().normalize().toString();// + "/src/main/java/gui";
+            if (lastSelectedDirectory != null) {
+                path = lastSelectedDirectory.toString();
+            }
             directoryChooser.setInitialDirectory(new File(path));
 
             File dir = directoryChooser.showDialog(gui.getPrimaryStage());
             if (dir != null) {
+                lastSelectedDirectory = dir;
                 File file = new File(dir, "export-" + parsedSPE.getName() + "-" + System.currentTimeMillis() + ".json");
                 Files.writeFile(file, o.toString());
             }
         });
         mIImport.setOnAction(event -> {
             FileChooser fileChooser = new FileChooser();
-            String path = Paths.get(".").toAbsolutePath().normalize().toString() + "/src/main/java/gui";
+            String path = Paths.get(".").toAbsolutePath().normalize().toString();// + "/src/main/java/gui";
+            if (lastSelectedDirectory != null) {
+                path = lastSelectedDirectory.toString();
+            }
             fileChooser.setInitialDirectory(new File(path));
             FileChooser.ExtensionFilter extensionFilter = new FileChooser.ExtensionFilter("JSON", "*.json");
             fileChooser.getExtensionFilters().add(extensionFilter);
 
             File file = fileChooser.showOpenDialog(gui.getPrimaryStage());
             if (file != null) {
+                lastSelectedDirectory = file.getParentFile();
                 List<Node<GraphOperator>> opsList = ExportManager.projectFromFile(file, parsedSPE);
                 Set<String> addedIdentifiers = new HashSet<>();
                 List<GraphOperator> addedNodes = new LinkedList<>();
@@ -514,13 +528,17 @@ public class GUIController {
         });
         mIVisFromFile.setOnAction(event -> {
             FileChooser fileChooser = new FileChooser();
-            String path = Paths.get(".").toAbsolutePath().normalize().toString() + "/src/main/java/gui";
+            String path = Paths.get(".").toAbsolutePath().normalize().toString();//.toAbsolutePath().normalize().toString() + "/src/main/java/gui";
+            if (lastSelectedDirectory != null) {
+                path = lastSelectedDirectory.toString();
+            }
             fileChooser.setInitialDirectory(new File(path));
             FileChooser.ExtensionFilter extensionFilter = new FileChooser.ExtensionFilter("Java", "*.java");
             fileChooser.getExtensionFilters().add(extensionFilter);
 
             File file = fileChooser.showOpenDialog(gui.getPrimaryStage());
             if (file != null) {
+                lastSelectedDirectory = file.getParentFile();
                 List<Pair<Node<GraphOperator>, VisInfo>> visResult = VisualisationManager.visualiseFromFile(file, parsedSPE);
                 Set<String> addedIdentifiers = new HashSet<>();
                 List<GraphOperator> addedNodes = new LinkedList<>();
@@ -641,10 +659,17 @@ public class GUIController {
         });
         btnMetricsLiebre.setOnAction(event -> {
             DirectoryChooser directoryChooser = new DirectoryChooser();
-            String path = Paths.get(".").toAbsolutePath().normalize().toString() + "/src/main/java/gui";
+            String path = Paths.get(".").toAbsolutePath().normalize().toString();// + "/src/main/java/gui";
+            if (lastSelectedMetricsDirectory != null) {
+                path = lastSelectedMetricsDirectory.toString();
+            }
             directoryChooser.setInitialDirectory(new File(path));
             directoryChooser.setTitle("Select the csv output directory");
             File file = directoryChooser.showDialog(gui.getPrimaryStage());
+            if (file == null) {
+                return;
+            }
+            lastSelectedMetricsDirectory = file;
             try {
                 FXMLLoader fxmlLoader = new FXMLLoader(GUI.class.getResource(GUI.FXML_METRICS_LIEBRE));
                 Pane main = fxmlLoader.load();

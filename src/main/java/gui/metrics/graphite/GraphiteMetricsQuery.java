@@ -5,16 +5,19 @@ import org.json.JSONArray;
 import org.json.JSONException;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
 public class GraphiteMetricsQuery {
 
+    @Nullable
     public static List<String> run() {
         return run("localhost", 80);
     }
 
+    @Nullable
     public static List<String> run(@Nonnull String host, int port) {
         JSONArray result;
         try {

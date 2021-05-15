@@ -25,7 +25,7 @@ public abstract class MetricsTab {
         chartPane.setTitle("Data for: " + name);
         chartPane.setCommonYAxis(false);
         chartPane.getPlugins().addAll(new CrosshairIndicator<>(), new DataPointTooltip<>());
-        chartPane.getStylesheets().add("gui/mixed-chart-sample.css");
+        chartPane.getStylesheets().add("mixed-chart-sample.css");
         return chartPane;
     }
 

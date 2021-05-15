@@ -17,15 +17,12 @@ import java.io.IOException;
  * JavaFX App
  */
 public class GUI extends Application {
-    public static final String FXML_MAIN = "start_screen.fxml";
-    public static final String FXML_GUI = "gui-vis.fxml";
-    public static final String FXML_METRICS_GRAPHITE = "metrics.fxml";
-    public static final String FXML_METRICS_LIEBRE = "metrics2.fxml";
-    public static final String FXML_METRICS_CONTENT = "metrics2-content.fxml";
-    public static final String FXML_METRICS_CONTENT2 = "metrics2-content2.fxml";
-    //public static final String FXML_VIS = "gui-vis.fxml";
-
-    // Docs: https://fxdocs.github.io/docs/html5/
+    public static final String FXML_MAIN = "/start_screen.fxml";
+    public static final String FXML_GUI = "/gui-vis.fxml";
+    public static final String FXML_METRICS_GRAPHITE = "/metrics.fxml";
+    public static final String FXML_METRICS_LIEBRE = "/metrics2.fxml";
+    public static final String FXML_METRICS_CONTENT = "/metrics2-content.fxml";
+    public static final String FXML_METRICS_CONTENT2 = "/metrics2-content2.fxml";
 
     private Stage primaryStage;
 

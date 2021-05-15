@@ -13,8 +13,6 @@ import org.json.JSONObject;
 import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -44,11 +42,7 @@ public class SPEParser {
     private static final String SINK = "sink";
 
     public static ParsedSPE parseSPE(@Nonnull SPE spe) throws IOException, URISyntaxException {
-        URL url = SPEParser.class.getClassLoader().getResource("gui");
-        if (url == null) {
-            throw new RuntimeException("Resources not found");
-        }
-        String file = Files.readFile(Paths.get(Paths.get(url.toURI()).toString(), spe.fileName).toString());
+        String file = Files.readResource(spe.fileName);
 
         JSONObject fileObj = new JSONObject(file);
         //System.out.println(fileObj.toString(2));

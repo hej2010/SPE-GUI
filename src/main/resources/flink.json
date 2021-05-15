@@ -1,0 +1,282 @@
+{
+  "name": "Apache Flink",
+  "operators": {
+    "sources": [
+      "SourceFunction",
+      "TextFileSource"
+    ],
+    "sinks": [
+      "SinkFunction"
+    ],
+    "regular": [
+      "Map",
+      "FlatMap",
+      "Filter",
+      "KeyBy",
+      "Reduce",
+      "sum",
+      "min",
+      "max",
+      "minBy",
+      "maxBy",
+      "Window",
+      "WindowAll",
+      "Window Apply",
+      "Window Reduce",
+      "Union",
+      "Window Join",
+      "Interval Join",
+      "Window CoGroup",
+      "Connect",
+      "CoMap",
+      "CoFlatMap",
+      "Apply"
+    ]
+  },
+  "links": {
+    "addSource": "source:SourceFunction",
+    "readTextFile": "source:TextFileSource",
+    "map": "op:Map",
+    "flatMap": "op:FlatMap",
+    "filter": "op:Filter",
+    "keyBy": "op:KeyBy",
+    "window": "op:Window",
+    "windowAll": "op:WindowAll",
+    "join": "op:Window Join",
+    "apply": "op:Apply",
+    "addSink": "sink:SinkFunction"
+  },
+  "imports": {
+    "base": [
+      "org.apache.flink.streaming.api.environment.StreamExecutionEnvironment",
+      "org.apache.flink.streaming.api.datastream.DataStream"
+    ],
+    "SourceFunction": [
+      "org.apache.flink.streaming.api.functions.source.SourceFunction"
+    ],
+    "SinkFunction": [
+      "org.apache.flink.streaming.api.functions.sink.SinkFunction",
+      "org.apache.flink.streaming.api.datastream.DataStreamSink"
+    ],
+    "Map": [
+      "org.apache.flink.api.common.functions.MapFunction"
+    ],
+    "FlatMap": [
+      "org.apache.flink.api.common.functions.FlatMapFunction"
+    ],
+    "Filter": [
+      "org.apache.flink.api.common.functions.FilterFunction"
+    ],
+    "Reduce": [
+      "org.apache.flink.api.common.functions.ReduceFunction"
+    ],
+    "Window": [
+      "org.apache.flink.streaming.api.windowing.assigners.SlidingProcessingTimeWindows",
+      "org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows",
+      "org.apache.flink.streaming.api.windowing.time.Time",
+      "org.apache.flink.streaming.api.windowing.windows.TimeWindow"
+    ]
+  },
+  "definition": {
+    "base": [
+      "final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();"
+    ],
+    "SourceFunction": {
+      "before": "DataStream<@IN1> @ID = env.addSource(new SourceFunction<@IN1>() {",
+      "middle": "@Override\npublic void run(SourceContext<@IN1> ctx) throws Exception {\n//\n}\n\n@Override\npublic void cancel() {\n//\n}",
+      "after": "});",
+      "placeholders": {
+        "input": [
+          "@IN1"
+        ],
+        "output": [
+        ],
+        "identifier": "@ID"
+      }
+    },
+    "TextFileSource": {
+      "before": "DataStream<@OUT1> @ID = env.readTextFile(",
+      "middle": "\"file:///path/to/file\"",
+      "after": ");",
+      "placeholders": {
+        "input": [
+        ],
+        "output": [
+          "@OUT1"
+        ],
+        "identifier": "@ID"
+      }
+    },
+    "SinkFunction": {
+      "before": "DataStreamSink<@IN1> @ID = @PID.addSink(new SinkFunction<>() {\n@Override\npublic void invoke(@IN1 value, Context context) throws Exception {",
+      "middle": "//",
+      "after": "}\n});",
+      "placeholders": {
+        "input": [
+          "@IN1"
+        ],
+        "output": [
+        ],
+        "identifier": "@ID",
+        "prev_identifier": "@PID"
+      }
+    },
+    "Map": {
+      "before": "DataStream<@OUT1> @ID = @PID.map((MapFunction<@IN1, @OUT1>) value -> {",
+      "middle": "return null;",
+      "after": "});",
+      "placeholders": {
+        "input": [
+          "@IN1"
+        ],
+        "output": [
+          "@OUT1"
+        ],
+        "identifier": "@ID",
+        "prev_identifier": "@PID"
+      }
+    },
+    "FlatMap": {
+      "before": "DataStream<@OUT1> @ID = @PID.flatMap((FlatMapFunction<@IN1, @OUT1>) (value, out) -> {",
+      "middle": "//out.collect(value);",
+      "after": "});",
+      "placeholders": {
+        "input": [
+          "@IN1"
+        ],
+        "output": [
+          "@OUT1"
+        ],
+        "identifier": "@ID",
+        "prev_identifier": "@PID"
+      }
+    },
+    "Filter": {
+      "before": "DataStream<@IN1> @ID = @PID.filter((FilterFunction<@IN1>) value -> {",
+      "middle": "return false;",
+      "after": "});",
+      "placeholders": {
+        "input": [
+          "@IN1"
+        ],
+        "output": [
+        ],
+        "identifier": "@ID",
+        "prev_identifier": "@PID"
+      }
+    },
+    "KeyBy": {
+      "before": "KeyedStream<@IN1, @IN2> @ID = @PID.keyBy((KeySelector<@IN1, @IN2>) value -> {",
+      "middle": "return null; // value.getSomeKey()",
+      "after": ");",
+      "placeholders": {
+        "input": [
+          "@IN1",
+          "@IN2"
+        ],
+        "output": [
+        ],
+        "identifier": "@ID",
+        "prev_identifier": "@PID"
+      }
+    },
+    "Reduce": {
+      "before": "DataStream<@IN1> @ID = @PID.reduce((ReduceFunction<@IN1>) (value1, value2) -> {",
+      "middle": "return null; // return value1 + value2",
+      "after": "});",
+      "placeholders": {
+        "input": [
+          "@IN1"
+        ],
+        "output": [
+        ],
+        "identifier": "@ID",
+        "prev_identifier": "@PID"
+      }
+    },
+    "sum": {
+      "before": "DataStream<@IN1> @ID = @PID.",
+      "middle": "sum(\"key\")",
+      "after": ";",
+      "placeholders": {
+        "input": [
+          "@IN1"
+        ],
+        "output": [
+        ],
+        "identifier": "@ID",
+        "prev_identifier": "@PID"
+      }
+    },
+    "min": {
+      "before": "DataStream<@IN1> @ID = @PID.",
+      "middle": "min(\"key\")",
+      "after": ";",
+      "placeholders": {
+        "input": [
+          "@IN1"
+        ],
+        "output": [
+        ],
+        "identifier": "@ID",
+        "prev_identifier": "@PID"
+      }
+    },
+    "max": {
+      "before": "DataStream<@IN1> @ID = @PID.",
+      "middle": "max(\"key\")",
+      "after": ";",
+      "placeholders": {
+        "input": [
+          "@IN1"
+        ],
+        "output": [
+        ],
+        "identifier": "@ID",
+        "prev_identifier": "@PID"
+      }
+    },
+    "maxBy": {
+      "before": "DataStream<@IN1> @ID = @PID.",
+      "middle": "maxBy(\"key\")",
+      "after": ";",
+      "placeholders": {
+        "input": [
+          "@IN1"
+        ],
+        "output": [
+        ],
+        "identifier": "@ID",
+        "prev_identifier": "@PID"
+      }
+    },
+    "minBy": {
+      "before": "DataStream<@IN1> @ID = @PID.",
+      "middle": "minBy(\"key\")",
+      "after": ";",
+      "placeholders": {
+        "input": [
+          "@IN1"
+        ],
+        "output": [
+        ],
+        "identifier": "@ID",
+        "prev_identifier": "@PID"
+      }
+    },
+    "Window": {
+      "before": "WindowedStream<@IN1, @IN1, TimeWindow> @ID = @PID.window(",
+      "middle": "//SlidingProcessingTimeWindows.of(Time.minutes(5), Time.minutes(5))",
+      "after": ");",
+      "placeholders": {
+        "input": [
+          "@IN1"
+        ],
+        "output": [
+        ],
+        "identifier": "@ID",
+        "prev_identifier": "@PID"
+      }
+    }
+  }
+}

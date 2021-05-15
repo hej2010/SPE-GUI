@@ -68,11 +68,13 @@ public class GraphiteMetricsController implements IWindowListener {
         new Thread(() -> {
             List<String> list = GraphiteMetricsQuery.run();
             System.out.println("got " + list);
-            Platform.runLater(() -> {
-                tFQuery.setEntries(new TreeSet<>(list));
-                tFQuery.setMaxEntries(20);
-                GUIController.setOnAction(tFQuery);
-            });
+            if (list != null) {
+                Platform.runLater(() -> {
+                    tFQuery.setEntries(new TreeSet<>(list));
+                    tFQuery.setMaxEntries(20);
+                    GUIController.setOnAction(tFQuery);
+                });
+            }
         }).start();
     }
 
@@ -160,7 +162,7 @@ public class GraphiteMetricsController implements IWindowListener {
         chartPane.setTitle("Data for query: " + query);
         chartPane.setCommonYAxis(false);
         chartPane.getPlugins().addAll(new CrosshairIndicator<>(), new DataPointTooltip<>());
-        chartPane.getStylesheets().add("gui/mixed-chart-sample.css");
+        chartPane.getStylesheets().add("mixed-chart-sample.css");
 
         int size = tabPane.getTabs().size();
         Tab tab = new Tab("Tab " + size);

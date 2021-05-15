@@ -1,5 +1,7 @@
 package gui.utils;
 
+import gui.spe.SPEParser;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.*;
@@ -11,6 +13,23 @@ public class Files {
     public static String readFile(@Nonnull String path) throws IOException {
         byte[] encoded = java.nio.file.Files.readAllBytes(Path.of(path));
         return new String(encoded, StandardCharsets.UTF_8);
+    }
+
+    public static String readResource(@Nonnull String resourceName) {
+        InputStream inputStream = SPEParser.class.getClassLoader().getResourceAsStream(resourceName);
+        StringBuilder sb = new StringBuilder();
+        if (inputStream == null) {
+            throw new IllegalArgumentException("InputStream is null!");
+        }
+        try {
+            for (int ch; (ch = inputStream.read()) != -1; ) {
+                sb.append((char) ch);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return sb.toString();
     }
 
     public static String readFirstLineOfFile(@Nonnull File file) {

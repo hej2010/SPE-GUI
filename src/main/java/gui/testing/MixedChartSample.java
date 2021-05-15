@@ -53,7 +53,7 @@ public class MixedChartSample extends Application {
         chartPane.setCommonYAxis(false);
         chartPane.getOverlayCharts().addAll(lineChart, scatterChart);
         chartPane.getPlugins().addAll(new CrosshairIndicator<>(), new DataPointTooltip<>());
-        chartPane.getStylesheets().add("gui/mixed-chart-sample.css");
+        chartPane.getStylesheets().add("mixed-chart-sample.css");
 
         BorderPane borderPane = new BorderPane(chartPane);
         Scene scene = new Scene(borderPane, 800, 600);
