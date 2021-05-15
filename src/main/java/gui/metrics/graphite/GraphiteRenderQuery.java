@@ -43,7 +43,7 @@ public class GraphiteRenderQuery {
                 return list;
             }
         } else {
-            System.out.println("GraphiteRenderQuery - fromJson: empty");
+            //System.out.println("GraphiteRenderQuery - fromJson: empty");
             return list;
         }
         for (int i = 0; i < arr.length(); i++) {

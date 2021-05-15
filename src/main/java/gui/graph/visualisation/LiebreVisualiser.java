@@ -34,7 +34,7 @@ public class LiebreVisualiser extends Visualiser {
             for (String from : connected.keySet()) {
                 if (from.equals(op.getItem().getIdentifier().get())) { // this node has output streams
                     if (op.getItem().getCurrentOperator() != null) { // TODO find operator (sink/src/regular and set)
-                        System.out.println("op is " + op.getItem().getCurrentOperator().getType());
+                        //System.out.println("op is " + op.getItem().getCurrentOperator().getType());
                     }
                     newList.add(new Pair<>(new Node<>(op.getItem(), getSuccessorsFrom(from)), p.getValue()));
                     isParent = true;
@@ -135,7 +135,7 @@ public class LiebreVisualiser extends Visualiser {
                 // 1. find all connect()ed operators (their names)
                 // 2. search for all their names and get their type/definition
                 if (isConnectMethodCall) {
-                    System.out.println("connected: " + n.getArguments());
+                    //System.out.println("connected: " + n.getArguments());
                     String from = n.getArguments().get(0).toString();
                     String to = n.getArguments().get(1).toString();
                     addToConnectedMap(from, to);

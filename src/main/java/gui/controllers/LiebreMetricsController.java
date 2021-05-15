@@ -63,7 +63,7 @@ public class LiebreMetricsController implements IOnNewMetricDataListener, IWindo
                 rates.add(name[0]);
             } else if (name[1].endsWith("EXEC.csv")) {
                 String line = Files.readFirstLineOfFile(f);
-                System.out.println("line is " + line + " for file " + f.getName());
+                //System.out.println("line is " + line + " for file " + f.getName());
                 if (line.startsWith("t")) {
                     execs.add(name[0]);
                 } else {
@@ -100,7 +100,7 @@ public class LiebreMetricsController implements IOnNewMetricDataListener, IWindo
 
     private List<GraphObject> getAllGraphObjects() {
         List<GraphObject> ops = new LinkedList<>();
-        System.out.println("vis: " + visResult.size());
+        ////System.out.println("vis: " + visResult.size());
         for (Pair<Node<GraphOperator>, VisInfo> p : visResult) {
             ops.add(p.getKey().getItem());
         }

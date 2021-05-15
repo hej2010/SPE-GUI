@@ -50,7 +50,7 @@ abstract class Visualiser {
         cu.accept(new VoidVisitorAdapter<Void>() {
             @Override
             public void visit(ClassOrInterfaceDeclaration n, Void arg) {
-                System.out.println(n.getName()); // Name of class
+                //System.out.println(n.getName()); // Name of class
                 classes.add(n);
                 super.visit(n, arg);
             }
@@ -79,7 +79,7 @@ abstract class Visualiser {
             s.add(to);
             connected.put(from, s);
         }
-        System.out.println("from = " + from + ", to = " + to);
+        //System.out.println("from = " + from + ", to = " + to);
         if (!allConnectedOperators.contains(from)) {
             allConnectedOperators.add(from);
         }
@@ -90,7 +90,7 @@ abstract class Visualiser {
 
     @Nullable
     VisInfo.VariableInfo findLocalVariableInfo(com.github.javaparser.ast.Node n) {
-        System.out.println("find for " + n.getClass());
+        //System.out.println("find for " + n.getClass());
         if (n.getParentNode().isPresent()) {
             com.github.javaparser.ast.Node parent = n.getParentNode().get();
             String s = parent.toString();

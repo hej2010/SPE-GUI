@@ -29,6 +29,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -128,7 +129,7 @@ public class GUIController {
     }
 
     private void startMetricsTimer() {
-        Timeline timeline = new Timeline(new KeyFrame(Duration.millis(500), event -> {
+        Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(1), event -> {
             double usage = osBean.getProcessCpuLoad() * 100;
             MemoryUsage memUsage = memoryBean.getHeapMemoryUsage();
             DecimalFormat df = new DecimalFormat("#.00");
@@ -539,6 +540,7 @@ public class GUIController {
             File file = fileChooser.showOpenDialog(gui.getPrimaryStage());
             if (file != null) {
                 lastSelectedDirectory = file.getParentFile();
+                long start = System.currentTimeMillis();
                 List<Pair<Node<GraphOperator>, VisInfo>> visResult = VisualisationManager.visualiseFromFile(file, parsedSPE);
                 Set<String> addedIdentifiers = new HashSet<>();
                 List<GraphOperator> addedNodes = new LinkedList<>();
@@ -550,6 +552,7 @@ public class GUIController {
                     updateDetailsView(true);
                     selectedTab.getGraphView().update();
                 });
+                System.out.println("took " + (System.currentTimeMillis() - start)  + " ms");
             }
         });
         btnModify.setOnAction(event -> {
@@ -601,7 +604,7 @@ public class GUIController {
         });
         btnSelectFile.setOnAction(event -> {
             DirectoryChooser directoryChooser = new DirectoryChooser();
-            String path = Paths.get(".").toAbsolutePath().normalize().toString() + "/src/main/java/gui";
+            String path = Paths.get(".").toAbsolutePath().normalize().toString();// + "/src/main/java/gui";
             directoryChooser.setInitialDirectory(new File(path));
 
             selectedDirectory = directoryChooser.showDialog(gui.getPrimaryStage());
@@ -674,6 +677,13 @@ public class GUIController {
                 FXMLLoader fxmlLoader = new FXMLLoader(GUI.class.getResource(GUI.FXML_METRICS_LIEBRE));
                 Pane main = fxmlLoader.load();
                 Scene scene = new Scene(main, 900, 600);
+                if (GUI.DEBUG) {
+                    scene.setOnKeyPressed(event1 -> {
+                        if (event1.getCode() == KeyCode.SHIFT) {
+                            System.err.println("--------- SHIFT PRESSED --------");
+                        }
+                    });
+                }
 
                 LiebreMetricsController controller = fxmlLoader.getController();
 
@@ -695,7 +705,13 @@ public class GUIController {
                 FXMLLoader fxmlLoader = new FXMLLoader(GUI.class.getResource(GUI.FXML_METRICS_GRAPHITE));
                 Pane main = fxmlLoader.load();
                 Scene scene = new Scene(main, 900, 600);
-
+                if (GUI.DEBUG) {
+                    scene.setOnKeyPressed(event1 -> {
+                        if (event1.getCode() == KeyCode.SHIFT) {
+                            System.err.println("--------- SHIFT PRESSED --------");
+                        }
+                    });
+                }
                 GraphiteMetricsController controller = fxmlLoader.getController();
 
                 Stage stage = new Stage();

@@ -4,9 +4,12 @@ import gui.controllers.GUIController;
 import gui.controllers.MainController;
 import gui.spe.ParsedSPE;
 import javafx.application.Application;
+import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
@@ -23,6 +26,7 @@ public class GUI extends Application {
     public static final String FXML_METRICS_LIEBRE = "/metrics2.fxml";
     public static final String FXML_METRICS_CONTENT = "/metrics2-content.fxml";
     public static final String FXML_METRICS_CONTENT2 = "/metrics2-content2.fxml";
+    public static final boolean DEBUG = true;
 
     private Stage primaryStage;
 
@@ -40,6 +44,13 @@ public class GUI extends Application {
         Pane main = fxmlLoader.load();
         Scene scene = new Scene(main, 900, 600);
         MainController controller = fxmlLoader.getController();
+        if (DEBUG) {
+            scene.setOnKeyPressed(event -> {
+                if (event.getCode() == KeyCode.SHIFT) {
+                    System.err.println("--------- SHIFT PRESSED --------");
+                }
+            });
+        }
 
         primaryStage.setScene(scene);
         primaryStage.show();

@@ -73,13 +73,13 @@ public class LiebreMetrics {
             TailerListener tailerListener = new MyTailListener(listener, f.getName());
             Tailer tailer = new Tailer(f, tailerListener, 1000, fromEndOfFile);
             tailers.add(tailer);
-            System.out.println("for file " + f);
+            //System.out.println("for file " + f);
             new Thread(tailer).start();
         }
     }
 
     public void stop() {
-        System.out.println("Stopped");
+        //System.out.println("Stopped");
         for (Tailer t : tailers) {
             t.stop();
         }
@@ -213,7 +213,7 @@ public class LiebreMetrics {
 
         @Override
         public void handle(Exception ex) {
-            System.out.println("got error " + ex);
+            //System.out.println("got error " + ex);
             if (ex != null) {
                 ex.printStackTrace();
             }

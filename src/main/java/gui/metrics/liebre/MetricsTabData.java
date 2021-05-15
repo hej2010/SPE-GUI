@@ -191,7 +191,7 @@ public class MetricsTabData {
                 for (MetricsData v : fileData.getValues()) {
                     if (v instanceof MetricsDataSingle) {
                         if (newData.get(fileName) == null) {
-                            System.out.println("newData is null for " + fileName);
+                            //System.out.println("newData is null for " + fileName);
                             continue;
                         }
                         newData.get(fileName).add(new XYChart.Data<>(v.timestamp, ((MetricsDataSingle) v).value));

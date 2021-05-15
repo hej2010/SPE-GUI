@@ -67,7 +67,7 @@ public class GraphiteMetricsController implements IWindowListener {
     private void fetchMetrics() {
         new Thread(() -> {
             List<String> list = GraphiteMetricsQuery.run();
-            System.out.println("got " + list);
+            //System.out.println("got " + list);
             if (list != null) {
                 Platform.runLater(() -> {
                     tFQuery.setEntries(new TreeSet<>(list));
@@ -89,7 +89,7 @@ public class GraphiteMetricsController implements IWindowListener {
         map.put("from", stringTime.getValue());
         map.put("until", stringTime.getKey());
         List<GraphiteRenderQuery> q = GraphiteRenderQuery.run(map);
-        System.out.println(q);
+        //System.out.println(q);
         if (q == null) {
             lError.setText("Error");
         } else {

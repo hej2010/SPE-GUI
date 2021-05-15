@@ -48,7 +48,7 @@ public class FlinkVisualiser extends Visualiser {
                 String data = p.getValue().variableInfo.getVariableData();
                 if (data != null) {
                     String joinedWith = data.split("\\(", 2)[1].split("\\)", 2)[0];
-                    System.out.println(p.getKey().getItem().getIdentifier().get() + " is joined with " + joinedWith);
+                    ////System.out.println(p.getKey().getItem().getIdentifier().get() + " is joined with " + joinedWith);
                     for (Pair<Node<GraphOperator>, VisInfo> p2 : newList) {
                         if (joinedWith.equals(p2.getValue().variableInfo.getVariableName())) {
                             for (Pair<Node<GraphOperator>, VisInfo> p3 : newList) {
@@ -182,7 +182,7 @@ public class FlinkVisualiser extends Visualiser {
                     return;
                 }
 
-                System.out.println("----");
+                ////System.out.println("----");
 
                 com.github.javaparser.ast.Node parent = getCorrectNode(n);
                 if (parent == null) {
@@ -195,7 +195,7 @@ public class FlinkVisualiser extends Visualiser {
                     return;
                 }
 
-                System.out.println("find for " + parent.getClass());
+                //System.out.println("find for " + parent.getClass());
                 final VisInfo.VariableInfo vis = findLocalVariableInfo(parent);
                 if (vis == null) {
                     return;
@@ -230,7 +230,7 @@ public class FlinkVisualiser extends Visualiser {
                     methodData.add(new Pair<>(node, visInfo2));
                 }
                 connected2.clear();
-                System.out.println("---");
+                ////System.out.println("---");
             }
 
             @Nullable
