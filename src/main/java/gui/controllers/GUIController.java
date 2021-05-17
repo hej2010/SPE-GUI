@@ -1,6 +1,7 @@
 package gui.controllers;
 
 import com.brunomnsilva.smartgraph.graph.Edge;
+import com.brunomnsilva.smartgraph.graph.Graph;
 import com.brunomnsilva.smartgraph.graph.Vertex;
 import com.brunomnsilva.smartgraph.graphview.SmartStylableNode;
 import com.sun.management.OperatingSystemMXBean;
@@ -19,8 +20,6 @@ import gui.spe.ParsedSPE;
 import gui.utils.Files;
 import gui.utils.IOnDone;
 import gui.views.AutoCompleteTextField;
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.event.Event;
@@ -37,7 +36,6 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.util.Duration;
 import javafx.util.Pair;
 import org.json.JSONObject;
 
@@ -65,6 +63,7 @@ public class GUIController {
     private final List<TabData> tabs = new LinkedList<>();
     private TabData selectedTab;
     private File lastSelectedDirectory, lastSelectedMetricsDirectory;
+    private Timer timer;
 
     @FXML
     public AnchorPane aPMaster/*, aPGraph*/, aPDetails;
@@ -129,7 +128,31 @@ public class GUIController {
     }
 
     private void startMetricsTimer() {
-        Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(1), event -> {
+        if (timer != null) {
+            timer.cancel();
+        }
+        timer = new Timer();
+        timer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                if (!gui.getPrimaryStage().isShowing()) {
+                    timer.cancel();
+                    return;
+                }
+                double usage = osBean.getProcessCpuLoad() * 100;
+                MemoryUsage memUsage = memoryBean.getHeapMemoryUsage();
+                DecimalFormat df = new DecimalFormat("#.00");
+                long memUsed = memUsage.getUsed() / 1048576;
+                if (GUI.DEBUG) {
+                    System.out.println(usage + ", " + memUsed);
+                }
+                Platform.runLater(() -> {
+                    lblLeftStatus.setText("CPU: " + df.format(usage) + "%");
+                    lblRightStatus.setText("RAM: " + memUsed + " MB");
+                });
+            }
+        }, 1000, 1000);
+        /*Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(1), event -> {
             double usage = osBean.getProcessCpuLoad() * 100;
             MemoryUsage memUsage = memoryBean.getHeapMemoryUsage();
             DecimalFormat df = new DecimalFormat("#.00");
@@ -139,7 +162,7 @@ public class GUIController {
             System.out.println(usage + ", " + memUsed);
         }));
         timeline.setCycleCount(Timeline.INDEFINITE);
-        timeline.play();
+        timeline.play();*/
     }
 
     private void initAutoCompletion() throws URISyntaxException, IOException {
@@ -447,8 +470,13 @@ public class GUIController {
                 if (from instanceof SinkOperator || to instanceof SourceOperator) { // wrong stream direction
                     return;
                 }
-                // TODO cancel if creates a cycle
-                selectedTab.getGraph().insertEdge(from, to, new Stream(from, to)); // add an edge between them
+
+                Edge<GraphStream, GraphOperator> newEdge = selectedTab.getGraph().insertEdge(from, to, new Stream(from, to));// add an edge between them
+                if (!canSortTopologically(selectedTab.getGraph())) { // cancel if creates a cycle
+                    selectedTab.getGraph().removeEdge(newEdge);
+                    return;
+                }
+
                 from.setSelectedIndex(-1);
                 to.setSelectedIndex(-1);
                 setVertexSelectedStyle(false, from);
@@ -552,7 +580,7 @@ public class GUIController {
                     updateDetailsView(true);
                     selectedTab.getGraphView().update();
                 });
-                System.out.println("took " + (System.currentTimeMillis() - start)  + " ms");
+                System.out.println("took " + (System.currentTimeMillis() - start) + " ms");
             }
         });
         btnModify.setOnAction(event -> {
@@ -619,6 +647,7 @@ public class GUIController {
                 String fileName = parsedSPE.getFileName() + System.currentTimeMillis();
                 String fileNameWithSuffix = fileName + ".java";
                 File file = new File(selectedDirectory, fileNameWithSuffix);
+                //long start = System.currentTimeMillis();
                 String code = parsedSPE.generateCodeFrom(directedGraph, parsedSPE, fileName);
                 String errorMessage = Files.writeFile(file, code);
                 lblSavedToTitle.setVisible(true);
@@ -631,6 +660,7 @@ public class GUIController {
                     lblSavedToTitle.setText("Error:");
                     lblSavedTo.setText(errorMessage);
                 }
+                //System.out.println("took " + (System.currentTimeMillis() - start) + " ms");
             }
         });
         btnAddTab.setOnAction(event -> addNewTab("Tab " + (tabs.size() + 1), null));
@@ -727,6 +757,58 @@ public class GUIController {
                 e.printStackTrace();
             }
         });
+    }
+
+    /**
+     * Kahn's algorithm for topological sorting. If it is not possible to sort the graph topologically the graph contains cycles.
+     *
+     * @param graph the graph
+     * @return returns true if no cycles exist in the graph
+     */
+    private boolean canSortTopologically(Graph<GraphOperator, GraphStream> graph) {
+        ArrayList<Vertex<GraphOperator>> vertices = (ArrayList<Vertex<GraphOperator>>) graph.vertices();
+        List<Edge<GraphStream, GraphOperator>> edges = new LinkedList<>(graph.edges()); // G
+        List<Vertex<GraphOperator>> withoutIncomingE = new LinkedList<>(); // S
+        for (Vertex<GraphOperator> v : vertices) {
+            Collection<Edge<GraphStream, GraphOperator>> incidentEdges = graph.incidentEdges(v);
+            boolean hasIncomingEdge = false;
+            for (Edge<GraphStream, GraphOperator> e : incidentEdges) {
+                if (e.vertices()[1].element().equals(v.element())) {
+                    hasIncomingEdge = true;
+                    break;
+                }
+            }
+            if (!hasIncomingEdge) {
+                withoutIncomingE.add(v);
+            }
+        }
+
+        if (withoutIncomingE.isEmpty()) {
+            return true;
+        }
+
+        while (!withoutIncomingE.isEmpty()) {
+            Vertex<GraphOperator> v = withoutIncomingE.remove(0);
+            List<Edge<GraphStream, GraphOperator>> incomingEdges = getIncidentEdges(v, edges, false);
+            for (Edge<GraphStream, GraphOperator> e : incomingEdges) { // for each node m with an edge e from n to m
+                edges.remove(e); // remove edge e from G
+                incomingEdges = getIncidentEdges(e.vertices()[1], edges, true);
+                if (incomingEdges.isEmpty()) { // if m has no other incoming edges then
+                    withoutIncomingE.add(e.vertices()[1]);
+                }
+            }
+        }
+        return edges.isEmpty();
+    }
+
+    private List<Edge<GraphStream, GraphOperator>> getIncidentEdges(Vertex<GraphOperator> v, Collection<Edge<GraphStream, GraphOperator>> allEdges, boolean incoming) {
+        List<Edge<GraphStream, GraphOperator>> incomingEdges = new LinkedList<>();
+        for (Edge<GraphStream, GraphOperator> e : allEdges) {
+            if (e.vertices()[incoming ? 1 : 0].element().equals(v.element())) {
+                incomingEdges.add(e);
+            }
+        }
+        return incomingEdges;
     }
 
     private void insertVertexAndSetStyle(GraphOperator operator) {

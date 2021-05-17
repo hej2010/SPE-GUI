@@ -85,7 +85,7 @@ public abstract class ParsedSPE {
         try {
             return new Formatter().formatSourceAndFixImports(sb.toString());
         } catch (FormatterException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
             return sb.toString();
         }
     }

@@ -26,7 +26,7 @@ public class GUI extends Application {
     public static final String FXML_METRICS_LIEBRE = "/metrics2.fxml";
     public static final String FXML_METRICS_CONTENT = "/metrics2-content.fxml";
     public static final String FXML_METRICS_CONTENT2 = "/metrics2-content2.fxml";
-    public static final boolean DEBUG = true;
+    public static final boolean DEBUG = false;
 
     private Stage primaryStage;
 
