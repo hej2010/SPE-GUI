@@ -766,19 +766,11 @@ public class GUIController {
      * @return returns true if no cycles exist in the graph
      */
     private boolean canSortTopologically(Graph<GraphOperator, GraphStream> graph) {
-        ArrayList<Vertex<GraphOperator>> vertices = (ArrayList<Vertex<GraphOperator>>) graph.vertices();
         List<Edge<GraphStream, GraphOperator>> edges = new LinkedList<>(graph.edges()); // G
         List<Vertex<GraphOperator>> withoutIncomingE = new LinkedList<>(); // S
-        for (Vertex<GraphOperator> v : vertices) {
-            Collection<Edge<GraphStream, GraphOperator>> incidentEdges = graph.incidentEdges(v);
-            boolean hasIncomingEdge = false;
-            for (Edge<GraphStream, GraphOperator> e : incidentEdges) {
-                if (e.vertices()[1].element().equals(v.element())) {
-                    hasIncomingEdge = true;
-                    break;
-                }
-            }
-            if (!hasIncomingEdge) {
+
+        for (Vertex<GraphOperator> v : graph.vertices()) { // add all vertices without an incoming edge to the list
+            if (getIncidentEdges(v, edges, true).isEmpty()) {
                 withoutIncomingE.add(v);
             }
         }
@@ -789,10 +781,9 @@ public class GUIController {
 
         while (!withoutIncomingE.isEmpty()) {
             Vertex<GraphOperator> v = withoutIncomingE.remove(0);
-            List<Edge<GraphStream, GraphOperator>> incomingEdges = getIncidentEdges(v, edges, false);
-            for (Edge<GraphStream, GraphOperator> e : incomingEdges) { // for each node m with an edge e from n to m
+            for (Edge<GraphStream, GraphOperator> e : getIncidentEdges(v, edges, false)) { // for each node m with an edge e from n to m
                 edges.remove(e); // remove edge e from G
-                incomingEdges = getIncidentEdges(e.vertices()[1], edges, true);
+                List<Edge<GraphStream, GraphOperator>> incomingEdges = getIncidentEdges(e.vertices()[1], edges, true);
                 if (incomingEdges.isEmpty()) { // if m has no other incoming edges then
                     withoutIncomingE.add(e.vertices()[1]);
                 }
