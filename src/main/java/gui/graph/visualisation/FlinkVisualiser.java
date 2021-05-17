@@ -44,17 +44,35 @@ public class FlinkVisualiser extends Visualiser {
 
     private void findJoined(List<Pair<Node<GraphOperator>, VisInfo>> newList) {
         for (Pair<Node<GraphOperator>, VisInfo> p : newList) {
-            if (p.getKey().getItem().getIdentifier().get().startsWith("join-")) {
+            String s = p.getKey().getItem().getIdentifier().get();
+            if (s.startsWith("join-") || s.startsWith("union-")) {
+                System.out.println("starts with " + s);
                 String data = p.getValue().variableInfo.getVariableData();
+                System.out.println("and data is " + data);
                 if (data != null) {
-                    String joinedWith = data.split("\\(", 2)[1].split("\\)", 2)[0];
-                    ////System.out.println(p.getKey().getItem().getIdentifier().get() + " is joined with " + joinedWith);
-                    for (Pair<Node<GraphOperator>, VisInfo> p2 : newList) {
-                        if (joinedWith.equals(p2.getValue().variableInfo.getVariableName())) {
-                            for (Pair<Node<GraphOperator>, VisInfo> p3 : newList) {
-                                fixJoined(p2.getKey().getItem().getIdentifier().get(), p.getKey(), p3.getKey());
+                    if (s.startsWith("join-")) {
+                        String joinedWith = data.split("\\(", 2)[1].split("\\)", 2)[0];
+                        System.out.println("joined with " + joinedWith);
+                        for (Pair<Node<GraphOperator>, VisInfo> p2 : newList) {
+                            if (joinedWith.equals(p2.getValue().variableInfo.getVariableName())) {
+                                for (Pair<Node<GraphOperator>, VisInfo> p3 : newList) {
+                                    System.out.println("joined, fix");
+                                    fixJoined(p2.getKey().getItem().getIdentifier().get(), p.getKey(), p3.getKey());
+                                }
+                                break;
                             }
-                            break;
+                        }
+                    } else {
+                        String[] joinedWith = data.split("\\(", 2)[1].split("\\)", 2)[0].split(",");
+                        for (String join : joinedWith) {
+                            for (Pair<Node<GraphOperator>, VisInfo> p2 : newList) {
+                                if (join.trim().equals(p2.getValue().variableInfo.getVariableName())) {
+                                    for (Pair<Node<GraphOperator>, VisInfo> p3 : newList) {
+                                        fixJoined(p2.getKey().getItem().getIdentifier().get(), p.getKey(), p3.getKey());
+                                    }
+                                    break;
+                                }
+                            }
                         }
                     }
                 }

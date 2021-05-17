@@ -3,24 +3,14 @@ package gui.testing;
 import com.codahale.metrics.graphite.GraphiteReporter;
 import com.codahale.metrics.graphite.PickledGraphite;
 import common.metrics.Metrics;
-import common.util.Util;
 import component.operator.Operator;
-import component.operator.in1.BaseOperator1In;
-import component.operator.in1.filter.FilterFunction;
-import component.operator.in1.map.FlatMapFunction;
-import component.operator.in1.map.MapFunction;
-import component.operator.in2.BaseOperator2In;
-import component.operator.router.RouterOperator;
 import component.sink.Sink;
-import component.sink.SinkFunction;
 import component.source.Source;
 import component.source.SourceFunction;
 import query.LiebreContext;
 import query.Query;
 
 import java.net.InetSocketAddress;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class LiebreTest {
@@ -31,8 +21,8 @@ public class LiebreTest {
         LiebreContext.setStreamMetrics(Metrics.dropWizard());
         final PickledGraphite graphite = new PickledGraphite(new InetSocketAddress("localhost", 2004));
         final GraphiteReporter graphiteReporter = GraphiteReporter.forRegistry(Metrics.metricRegistry())
-                        .prefixedWith(String.format("liebre.%s.", "testing"))
-                        .build(graphite);
+                .prefixedWith(String.format("liebre.%s.", "testing"))
+                .build(graphite);
         graphiteReporter.start(1, TimeUnit.SECONDS);
 
         Query query = new Query();

@@ -37,6 +37,8 @@
     "addSource": "source:SourceFunction",
     "readTextFile": "source:TextFileSource",
     "map": "op:Map",
+    "max": "op:Max",
+    "min": "op:Min",
     "flatMap": "op:FlatMap",
     "filter": "op:Filter",
     "keyBy": "op:KeyBy",
@@ -44,6 +46,7 @@
     "windowAll": "op:WindowAll",
     "join": "op:Window Join",
     "apply": "op:Apply",
+    "union": "op:Union",
     "addSink": "sink:SinkFunction"
   },
   "imports": {

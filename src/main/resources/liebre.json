@@ -23,6 +23,7 @@
   "links": {
     "addBaseSource": "source:BaseSource",
     "addMapOperator": "op:Map",
+    "addFlatMapOperator": "op:FlatMap",
     "addFilterOperator": "op:Filter",
     "addOperator": "op:BaseOperator1In",
     "addOperator2n": "op:BaseOperator2In",
