@@ -236,28 +236,25 @@ public class FlinkVisualiser extends Visualiser {
             @Nullable
             private com.github.javaparser.ast.Node getCorrectNode(@Nonnull MethodCallExpr n) {
                 com.github.javaparser.ast.Node first = n;
-                com.github.javaparser.ast.Node second = n;
-                com.github.javaparser.ast.Node third = n;
-                com.github.javaparser.ast.Node fourth = n;
-                com.github.javaparser.ast.Node fifth = n;
-                com.github.javaparser.ast.Node sixth = n;
+                com.github.javaparser.ast.Node lastMethodCall = n;
+                com.github.javaparser.ast.Node lastVariableDecl = n;
                 while (!(first instanceof ClassOrInterfaceDeclaration)) {
-                    sixth = fifth;
-                    fifth = fourth;
-                    fourth = third;
-                    third = second;
-                    second = first;
                     Optional<com.github.javaparser.ast.Node> optionalNode = first.getParentNode();
+                    if (first instanceof VariableDeclarator) {
+                        lastVariableDecl = first;
+                    } else if (first instanceof MethodCallExpr) {
+                        lastMethodCall = first;
+                    }
                     if (optionalNode.isPresent()) {
                         first = optionalNode.get();
                     } else {
                         return null;
                     }
                 }
-                if (sixth instanceof VariableDeclarator) {
-                    return sixth;
+                if (lastVariableDecl instanceof VariableDeclarator) {
+                    return lastVariableDecl;
                 } else {
-                    return fifth;
+                    return lastMethodCall;
                 }
             }
         };

@@ -783,8 +783,7 @@ public class GUIController {
             Vertex<GraphOperator> v = withoutIncomingE.remove(0);
             for (Edge<GraphStream, GraphOperator> e : getIncidentEdges(v, edges, false)) { // for each node m with an edge e from n to m
                 edges.remove(e); // remove edge e from G
-                List<Edge<GraphStream, GraphOperator>> incomingEdges = getIncidentEdges(e.vertices()[1], edges, true);
-                if (incomingEdges.isEmpty()) { // if m has no other incoming edges then
+                if (getIncidentEdges(e.vertices()[1], edges, true).isEmpty()) { // if m has no other incoming edges then
                     withoutIncomingE.add(e.vertices()[1]);
                 }
             }

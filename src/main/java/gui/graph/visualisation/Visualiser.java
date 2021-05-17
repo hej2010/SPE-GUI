@@ -110,18 +110,17 @@ abstract class Visualiser {
 
     VisInfo.VariableInfo extractData(VariableDeclarator de, String s) {
         String[] strings = s.split("=", 2);
-        /*if (strings[0].split(" ").length > 2) { // not correct equals sign
-            return findLocalVariableInfo(parent);
-        } else {*/
         final String variableName = de.getNameAsString();
-        final String varData = strings[1].trim();
-        final String[] varDataDot = varData.split("\\.", 2);
-        final String calledWithVar = varDataDot[0].trim();
-        final String varClass = de.getTypeAsString(); //getTypeFor(variableName);
-        final Pair<Class<? extends GraphOperator>, String> operator = findOperator(varDataDot[1]);
-        //System.out.println("parent2 = " + parent);
-        return new VisInfo.VariableInfo(variableName, calledWithVar, varClass, strings[1].trim(), operator.getKey(), operator.getValue());
-        //}
+        if (strings.length == 2 && strings[1].contains(".")) {
+            final String varData = strings[1].trim();
+            final String[] varDataDot = varData.split("\\.", 2);
+            final String calledWithVar = varDataDot[0].trim();
+            final String varClass = de.getTypeAsString(); //getTypeFor(variableName);
+            final Pair<Class<? extends GraphOperator>, String> operator = findOperator(varDataDot[1]);
+            return new VisInfo.VariableInfo(variableName, calledWithVar, varClass, strings[1].trim(), operator.getKey(), operator.getValue());
+        } else {
+            return null;
+        }
     }
 
     GraphOperator getCorrectOpClass(String name, Class<? extends GraphOperator> classType) {
