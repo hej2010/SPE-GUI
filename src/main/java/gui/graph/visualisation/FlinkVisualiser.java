@@ -284,6 +284,9 @@ public class FlinkVisualiser extends Visualiser {
             return extractData((VariableDeclarator) n, n.toString());
         } else if (n instanceof MethodCallExpr) { // no variable
             String[] sp = n.toString().split("\\.", 2);
+            if (sp.length < 2) {
+                return null;
+            }
             return new VisInfo.VariableInfo(null, sp[0], null, sp[1], Operator.class, null);
         }
         return null;

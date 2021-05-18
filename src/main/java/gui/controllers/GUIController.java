@@ -934,7 +934,7 @@ public class GUIController {
 
     @Nullable
     private String showModifyPopupWindow(ParsedOperator.Definition def, GraphOperator operator) { // From https://stackoverflow.com/a/37417736/7232269
-        FXMLLoader loader = new FXMLLoader(GUI.class.getResource("popup.fxml"));
+        FXMLLoader loader = new FXMLLoader(GUI.class.getResource("/popup.fxml"));
 
         // initializing the controller
         Parent layout;

@@ -75,7 +75,9 @@
     ],
     "Window": [
       "org.apache.flink.streaming.api.windowing.assigners.SlidingProcessingTimeWindows",
+      "org.apache.flink.streaming.api.windowing.assigners.SlidingEventTimeWindows",
       "org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows",
+      "org.apache.flink.streaming.api.windowing.assigners.TumblingProcessingTimeWindows",
       "org.apache.flink.streaming.api.windowing.time.Time",
       "org.apache.flink.streaming.api.windowing.windows.TimeWindow"
     ]
@@ -171,7 +173,7 @@
     "KeyBy": {
       "before": "KeyedStream<@IN1, @IN2> @ID = @PID.keyBy((KeySelector<@IN1, @IN2>) value -> {",
       "middle": "return null; // value.getSomeKey()",
-      "after": ");",
+      "after": "});",
       "placeholders": {
         "input": [
           "@IN1",

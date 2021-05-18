@@ -78,6 +78,7 @@ public class LiebreVisualiser extends Visualiser {
                 // 1. find all connect()ed operators (their names)
                 // 2. search for all their names and get their type/definition
 
+                super.visit(n, arg);
                 if (n.getScope().isEmpty() || !queryVariables.contains(n.getScope().get().toString())) {
                     return; // method not of interest, not used in any connect() method call
                 }
@@ -107,7 +108,7 @@ public class LiebreVisualiser extends Visualiser {
              */
             @Override
             public void visit(VariableDeclarator n, Void arg) {
-                //super.visit(n, arg);
+                super.visit(n, arg);
                 //System.out.println("decl: " + n.getType() + "-" + n.getNameAsString());
                 if (n.getType().asString().equals("Query")) {
                     //System.out.println("found query with name: " + n.getNameAsString());
@@ -123,8 +124,9 @@ public class LiebreVisualiser extends Visualiser {
              */
             @Override
             public void visit(MethodCallExpr n, Void arg) {
+                super.visit(n, arg);
                 final boolean isConnectMethodCall = n.getArguments().size() == 2 && n.getNameAsString().equals("connect");
-                //System.out.println(n.getScope() + " - " + n.getName() + ", " + isConnectMethodCall);
+                //System.out.println(n.getName() + ", " + isConnectMethodCall + ", " + n.getClass() + ", " + n);
                 // 0. hitta X i "Query X = new Query();"
                 // 1. find all connect()ed operators (their names)
                 // 2. search for all their names and get their type/definition
