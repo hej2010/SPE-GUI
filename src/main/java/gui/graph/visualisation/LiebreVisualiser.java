@@ -7,13 +7,13 @@ import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import gui.graph.dag.Node;
 import gui.graph.data.GraphOperator;
-import gui.graph.data.Operator;
 import gui.spe.ParsedSPE;
 import javafx.util.Pair;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
 
 public class LiebreVisualiser extends Visualiser {
 
@@ -86,7 +86,6 @@ public class LiebreVisualiser extends Visualiser {
                 final VisInfo.VariableInfo variableInfo = findLocalVariableInfo(n);
                 final String variableName = variableInfo == null ? null : variableInfo.getVariableName();
                 if (variableName != null && allConnectedOperators.contains(variableName)) {
-
                     GraphOperator op = getCorrectOpClass(variableName, variableInfo.getOperatorType());
                     if (variableInfo.getVariableData() != null) {
                         op.setIdentifier2(variableInfo.getVariableData().split("\"", 3)[1]);

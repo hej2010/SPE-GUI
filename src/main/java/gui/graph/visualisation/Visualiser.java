@@ -65,6 +65,9 @@ abstract class Visualiser {
         for (MethodDeclaration method : c.getMethods()) {
             // Make the visitor go through everything inside the method.
             method.accept(methodParserFindVariables(methodData, fileName, c, method), null);
+        }
+        for (MethodDeclaration method : c.getMethods()) {
+            // Make the visitor go through everything inside the method.
             method.accept(methodParserFindDefinitions(methodData, fileName, c, method), null);
         }
 
