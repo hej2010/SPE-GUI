@@ -28,6 +28,7 @@
     "addOperator": "op:BaseOperator1In",
     "addOperator2n": "op:BaseOperator2In",
     "addRouterOperator": "op:Router",
+    "addJoinOperator": "op:Join",
     "addAggregateOperator": "op:Aggregate",
     "addTextFileSource": "source:TextFileSource",
     "addBaseSink": "sink:BaseSink",
@@ -52,6 +53,9 @@
     ],
     "Filter": [
       "component.operator.in1.filter.FilterFunction"
+    ],
+    "Join": [
+      "component.operator.in2.join.JoinFunction"
     ],
     "Router": [
       "component.operator.router.RouterOperator"
@@ -138,6 +142,19 @@
       "before": "Operator<@IN1, @IN1> @ID = q.addFilterOperator(\"@ID\", tuple -> {",
       "middle": "return false;",
       "after": "});",
+      "placeholders": {
+        "input": [
+          "@IN1"
+        ],
+        "output": [
+        ],
+        "identifier": "@ID"
+      }
+    },
+    "Join": {
+      "before": "Operator2In<@IN1, @IN1, @IN1> @ID = query.addJoinOperator(\"@ID\", (richTuple, richTuple2) -> {",
+      "middle": "return null;\n},\n60 // window size",
+      "after": ");",
       "placeholders": {
         "input": [
           "@IN1"

@@ -3,7 +3,9 @@ package gui.testing;
 import com.codahale.metrics.graphite.GraphiteReporter;
 import com.codahale.metrics.graphite.PickledGraphite;
 import common.metrics.Metrics;
+import common.tuple.RichTuple;
 import component.operator.Operator;
+import component.operator.in2.Operator2In;
 import component.sink.Sink;
 import component.source.Source;
 import component.source.SourceFunction;
@@ -44,6 +46,10 @@ public class LiebreTest {
         //RouterOperator<MyTuple> r = query.addRouterOperator("gdfgfg");
 
 
+        Operator2In<RichTuple, RichTuple, RichTuple> join1 = query.addJoinOperator("join1", (richTuple, richTuple2) -> {
+            //
+            return null;
+        }, 10);
         Sink<MyTuple> sink = query.addBaseSink("sink1", myTuple -> {
 
         });
