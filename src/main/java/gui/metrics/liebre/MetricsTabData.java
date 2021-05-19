@@ -195,13 +195,13 @@ public class MetricsTabData {
                             continue;
                         }
                         newData.get(fileName).add(new XYChart.Data<>(v.timestamp, ((MetricsDataSingle) v).value));
-                    } else if (v instanceof MetricsDataLiebre) {
-                        for (String s : ((MetricsDataLiebre) v).getFields()) {
+                    } else if (v instanceof MetricsDataMultiple) {
+                        for (String s : ((MetricsDataMultiple) v).getFields()) {
                             if (newData.get(s) == null) {
                                 //System.out.println("newData s is null for " + s);
                                 continue;
                             }
-                            newData.get(s).add(new XYChart.Data<>(v.timestamp, ((MetricsDataLiebre) v).getValueFor(s)));
+                            newData.get(s).add(new XYChart.Data<>(v.timestamp, ((MetricsDataMultiple) v).getValueFor(s)));
                         }
                     }
                 }

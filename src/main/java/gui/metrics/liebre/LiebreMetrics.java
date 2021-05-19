@@ -71,7 +71,7 @@ public class LiebreMetrics {
         final List<File> filesToRead = getFilesToRead();
         for (File f : filesToRead) {
             TailerListener tailerListener = new MyTailListener(listener, f.getName());
-            Tailer tailer = new Tailer(f, tailerListener, 1000, fromEndOfFile);
+            Tailer tailer = new Tailer(f, tailerListener, 500, fromEndOfFile);
             tailers.add(tailer);
             //System.out.println("for file " + f);
             new Thread(tailer).start();
@@ -150,9 +150,9 @@ public class LiebreMetrics {
                 if (d.length == 2) {
                     values.add(new MetricsDataSingle(Long.parseLong(d[0]), Double.parseDouble(d[1])));
                 } else if (d.length == 12) {
-                    values.add(new MetricsDataLiebre(Long.parseLong(d[0]), getValues(d)));
+                    values.add(new MetricsDataMultiple(Long.parseLong(d[0]), getValues(d)));
                 } else if (d.length == 20) {
-                    values.add(new MetricsDataLiebre(Long.parseLong(d[0]), getValues(fixValues(d))));
+                    values.add(new MetricsDataMultiple(Long.parseLong(d[0]), getValues(fixValues(d))));
                 }
             }
         }
@@ -197,16 +197,19 @@ public class LiebreMetrics {
     }
 
     private static class MyTailListener extends TailerListenerAdapter {
+        int count;
         private final IOnNewMetricDataListener listener;
         private final String name;
 
         private MyTailListener(IOnNewMetricDataListener listener, String name) {
             this.listener = listener;
             this.name = name;
+            this.count = 0;
         }
 
         @Override
         public void handle(String line) {
+            System.out.println("received " + ++count);
             //System.out.println("received " + line);
             listener.onNewData(new FileData(extractData(line), name));
         }

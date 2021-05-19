@@ -3,10 +3,10 @@ package gui.metrics.liebre;
 import java.util.Map;
 import java.util.Set;
 
-public class MetricsDataLiebre extends MetricsData {
+public class MetricsDataMultiple extends MetricsData {
     private final Map<String, Double> integerMap;
 
-    public MetricsDataLiebre(long timestamp, Map<String, Double> integerMap) {
+    public MetricsDataMultiple(long timestamp, Map<String, Double> integerMap) {
         super(timestamp);
         this.integerMap = integerMap;
     }
