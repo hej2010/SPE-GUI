@@ -194,14 +194,14 @@ public class MetricsTabData {
                             //System.out.println("newData is null for " + fileName);
                             continue;
                         }
-                        //newData.get(fileName).add(new XYChart.Data<>(v.timestamp, ((MetricsDataSingle) v).value));
+                        newData.get(fileName).add(new XYChart.Data<>(v.timestamp, ((MetricsDataSingle) v).value));
                     } else if (v instanceof MetricsDataLiebre) {
                         for (String s : ((MetricsDataLiebre) v).getFields()) {
                             if (newData.get(s) == null) {
                                 //System.out.println("newData s is null for " + s);
                                 continue;
                             }
-                            //newData.get(s).add(new XYChart.Data<>(v.timestamp, ((MetricsDataLiebre) v).getValueFor(s)));
+                            newData.get(s).add(new XYChart.Data<>(v.timestamp, ((MetricsDataLiebre) v).getValueFor(s)));
                         }
                     }
                 }
