@@ -27,7 +27,9 @@ public class GraphiteRenderQuery {
     public static List<GraphiteRenderQuery> run(@Nonnull String host, int port, Map<String, String> map) {
         JSONArray arr;
         try {
+            //long start = System.nanoTime();
             String response = new NetworkRequest("http://" + host + ":" + port + "/render", map).run();
+            //System.out.print("t," + (System.nanoTime() - start));
             arr = new JSONArray(response);
         } catch (IOException | JSONException e) {
             e.printStackTrace();

@@ -79,6 +79,7 @@ public class GraphiteMetricsController implements IWindowListener {
     }
 
     private void getMetrics() {
+        long start = System.nanoTime();
         Pair<Pair<String, String>, Pair<Integer, Integer>> dateRange = getSelectedDateRange();
         Pair<String, String> stringTime = dateRange.getKey();
         Pair<Integer, Integer> doubleTime = dateRange.getValue();
@@ -96,6 +97,14 @@ public class GraphiteMetricsController implements IWindowListener {
             lError.setText("");
             handleData(q, doubleTime, query);
         }
+        /*System.out.println("," + (System.nanoTime() - start));
+        if (q != null) {
+            int count = 0;
+            for (GraphiteRenderQuery qq : q) {
+                count += qq.getDataPoints().size();
+            }
+            System.out.println("," + count);
+        }*/
     }
 
     private Pair<Pair<String, String>, Pair<Integer, Integer>> getSelectedDateRange() {
@@ -151,7 +160,7 @@ public class GraphiteMetricsController implements IWindowListener {
                 String[] s = q.getTarget().split("\\.");
                 seriesName = s[s.length - 1];
             }
-            lineChart.getData().add(new XYChart.Series<>(seriesName, RenderDatapoint.toChartData(q.getDataPoints())));
+            //lineChart.getData().add(new XYChart.Series<>(seriesName, RenderDatapoint.toChartData(q.getDataPoints())));
         }
 
         showGraph(lineChart, query);

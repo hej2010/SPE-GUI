@@ -10,7 +10,10 @@ import org.apache.commons.io.input.TailerListenerAdapter;
 
 import javax.annotation.Nonnull;
 import java.io.File;
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.*;
 
 public class LiebreMetrics {
@@ -197,20 +200,16 @@ public class LiebreMetrics {
     }
 
     private static class MyTailListener extends TailerListenerAdapter {
-        int count;
         private final IOnNewMetricDataListener listener;
         private final String name;
 
         private MyTailListener(IOnNewMetricDataListener listener, String name) {
             this.listener = listener;
             this.name = name;
-            this.count = 0;
         }
 
         @Override
         public void handle(String line) {
-            System.out.println("received " + ++count);
-            //System.out.println("received " + line);
             listener.onNewData(new FileData(extractData(line), name));
         }
 

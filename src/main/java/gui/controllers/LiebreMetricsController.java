@@ -47,7 +47,7 @@ public class LiebreMetricsController implements IOnNewMetricDataListener, IWindo
             e.printStackTrace();
         }
 
-        liebreMetrics.runAndListenAsync(false);
+        liebreMetrics.runAndListenAsync(true);
     }
 
     private void setUpTabs(List<File> filesToRead) throws IOException {
