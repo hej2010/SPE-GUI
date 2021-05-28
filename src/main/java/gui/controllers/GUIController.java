@@ -703,6 +703,17 @@ public class GUIController {
                 return;
             }
             lastSelectedMetricsDirectory = file;
+            ButtonType fromStart = new ButtonType("From start", ButtonBar.ButtonData.OK_DONE);
+            ButtonType fromEnd = new ButtonType("From end", ButtonBar.ButtonData.CANCEL_CLOSE);
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION,
+                    "Read metrics from the start or from the end of the file?",
+                    fromStart,
+                    fromEnd);
+
+            alert.setTitle("Read stats from");
+            Optional<ButtonType> result = alert.showAndWait();
+
+            final boolean isFromStart = result.orElse(fromEnd) == fromStart;
             try {
                 FXMLLoader fxmlLoader = new FXMLLoader(GUI.class.getResource(GUI.FXML_METRICS_LIEBRE));
                 Pane main = fxmlLoader.load();
@@ -725,7 +736,7 @@ public class GUIController {
                 controller.setStage(stage);
 
                 assert selectedTab.getVisResult() != null;
-                controller.init(parsedSPE, selectedTab.getVisResult(), file);
+                controller.init(selectedTab.getVisResult(), file, isFromStart);
             } catch (IOException e) {
                 e.printStackTrace();
             }
