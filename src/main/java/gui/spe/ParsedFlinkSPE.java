@@ -21,17 +21,17 @@ public class ParsedFlinkSPE extends ParsedSPE {
 
     @Nonnull
     @Override
-    public String generateCodeFrom(@Nonnull DirectedGraph directedGraph, @Nonnull ParsedSPE parsedSPE, @Nonnull String fileName) {
+    public String generateCodeFrom(@Nonnull DirectedGraph directedGraph, @Nonnull String fileName) {
         StringBuilder sb = new StringBuilder();
         Set<String> addedNodes = new HashSet<>();
 
-        addStringRow(sb, parsedSPE.getBaseImports(), true);
+        addStringRow(sb, getBaseImports(), true);
 
         List<Node<GraphOperator>> graph = directedGraph.getGraph();
-        addNodeImports(sb, graph, parsedSPE);
+        addNodeImports(sb, graph);
 
         sb.append("\npublic class ").append(fileName).append(" {\npublic static void main(String[] args) throws Exception {\n");
-        addStringRow(sb, parsedSPE.getBaseDefinition(), false);
+        addStringRow(sb, getBaseDefinition(), false);
         addNodeCode(sb, graph, addedNodes);
         sb.append("\nenv.execute();\n}\n}");
 

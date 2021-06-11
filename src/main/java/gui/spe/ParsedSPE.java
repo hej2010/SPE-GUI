@@ -77,7 +77,7 @@ public abstract class ParsedSPE {
     }
 
     @Nonnull
-    public abstract String generateCodeFrom(@Nonnull DirectedGraph directedGraph, @Nonnull ParsedSPE parsedSPE, @Nonnull String fileName);
+    public abstract String generateCodeFrom(@Nonnull DirectedGraph directedGraph, @Nonnull String fileName);
 
     @Nonnull
     protected String getFormattedCode(@Nonnull StringBuilder sb) {
@@ -93,14 +93,14 @@ public abstract class ParsedSPE {
     /**
      * Recursively adds all node imports
      */
-    protected void addNodeImports(@Nonnull StringBuilder sb, @Nonnull List<Node<GraphOperator>> graph, @Nonnull ParsedSPE parsedSPE) {
+    protected void addNodeImports(@Nonnull StringBuilder sb, @Nonnull List<Node<GraphOperator>> graph) {
         for (Node<GraphOperator> op : graph) {
             ParsedOperator pop = op.getItem().getCurrentOperator();
             if (pop != null) {
-                List<String> imports = parsedSPE.getImportsForOperator(pop.getOperatorName());
+                List<String> imports = getImportsForOperator(pop.getOperatorName());
                 addStringRow(sb, imports, true);
             }
-            addNodeImports(sb, op.getSuccessors(), parsedSPE);
+            addNodeImports(sb, op.getSuccessors());
         }
     }
 

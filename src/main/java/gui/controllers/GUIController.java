@@ -648,7 +648,7 @@ public class GUIController {
                 String fileNameWithSuffix = fileName + ".java";
                 File file = new File(selectedDirectory, fileNameWithSuffix);
                 //long start = System.currentTimeMillis();
-                String code = parsedSPE.generateCodeFrom(directedGraph, parsedSPE, fileName);
+                String code = parsedSPE.generateCodeFrom(directedGraph, fileName);
                 String errorMessage = Files.writeFile(file, code);
                 lblSavedToTitle.setVisible(true);
                 if (errorMessage == null) {

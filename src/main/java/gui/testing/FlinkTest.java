@@ -57,9 +57,8 @@ public class FlinkTest {
             }
         }, "source2");
 
-        SingleOutputStreamOperator<Double> stream = intStream
+        DataStream<Double> stream = intStream
                 .map((MapFunction<Integer, Double>) value -> value * Math.PI)
-                .map((MapFunction<Double, Double>) value -> value * Math.PI)
                 .filter((FilterFunction<Double>) value -> value > 2);
 
         stream.addSink(new SinkFunction<Double>() {

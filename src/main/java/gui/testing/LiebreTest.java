@@ -26,8 +26,9 @@ public class LiebreTest {
         graphiteReporter.start(1, TimeUnit.SECONDS);
 
         Query query = new Query();
-        //Operator<Integer, Double> mOp = query.addMapOperator("map1", integer -> integer * Math.PI);
-        //Operator<Double, Double> fOp = query.addFilterOperator("filter1", integer -> integer > 2.0);
+        Operator<Integer, Double> mOp = query.addMapOperator("map1", integer -> integer * Math.PI);
+        Operator<Double, Double> fOp = query.addFilterOperator("filter1", integer -> integer > 2.0);
+        query.connect(mOp, fOp);
 
         /*Operator<MyTuple, MyTuple> multiply = query.addOperator(new BaseOperator1In<>("M") {
             @Override
